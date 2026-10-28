@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --background: #f6f8f4;
+  --sidebar: #eff2eb;
+  --surface: #ffffff;
+  --text: #253d36;
+  --muted: #60736b;
+  --primary: #426f5d;
+  --primary-hover: #315744;
+  --sage: #e7f0e6;
+  --blue: #e8f1f5;
+  --blue-text: #4d6d83;
+  --border: #dde5dd;
+  --sand: #f7f0e3;
+}
+
+body {
+  background: var(--background);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+*:focus-visible {
+  outline: 3px solid var(--blue-text);
+  outline-offset: 3px;
+}
