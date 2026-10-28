@@ -11,6 +11,7 @@ import {
   CalendarDays,
   FileText,
 } from "lucide-react";
+import { BASE } from "@/lib/base";
 
 const items = [
   { href: "/", label: "Resumen", icon: Home },
@@ -31,7 +32,7 @@ export default function Nav() {
       {/* Barra lateral: tablet y escritorio */}
       <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-[var(--border)] bg-[var(--sidebar)] p-5 md:flex">
         <Link href="/" className="flex items-center gap-3">
-          <Image src="/logo.png" alt="" width={44} height={44} />
+          <Image src={`${BASE}/logo.png`} alt="" width={44} height={44} />
           <span className="text-2xl font-bold leading-none tracking-tight">
             Pieza <span className="text-[var(--primary)]">a pieza</span>
           </span>
