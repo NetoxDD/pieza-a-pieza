@@ -1,9 +1,8 @@
 "use client";
 
-
-
-import { useChild } from "@/components/ChildGate";
 import { useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useChild } from "@/components/ChildGate";
 
 const moods = [
   { emoji: "😊", label: "Contento" },
@@ -14,21 +13,34 @@ const moods = [
   { emoji: "😠", label: "Frustrado" },
 ];
 
-const context = ["Casa", "Escuela", "Terapia", "Calle"];
+const places = ["Casa", "Escuela", "Terapia", "Calle"];
 
-export default function QuickLog() {
-  const [mood, setMood] = useState<string | null>(null);
-  const [where, setWhere] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
+export default function QuickLog({ onSaved }: { onSaved?: () => void }) {
   const { child } = useChild();
+  const [mood, setMood] = useState<string | null>(null);
+  const [place, setPlace] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!mood) return;
+    setSaving(true);
+    setError("");
+    const { error } = await supabase
+      .from("mood_logs")
+      .insert({ child_id: child.id, mood, place });
+    setSaving(false);
+
+    if (error) {
+      setError("No se pudo guardar el registro. Intenta de nuevo.");
+      return;
+    }
     setSaved(true);
-    setTimeout(() => {
-      setSaved(false);
-      setMood(null);
-      setWhere(null);
-    }, 2200);
+    setMood(null);
+    setPlace(null);
+    onSaved?.();
+    setTimeout(() => setSaved(false), 2500);
   };
 
   return (
@@ -38,7 +50,7 @@ export default function QuickLog() {
         Un registro rápido en pocos segundos.
       </p>
 
-      <div className="mt-5 grid grid-cols-3 gap-3 sm:grid-cols-6">
+      <div className="mt-5 grid grid-cols-3 gap-3 sm:grid-cols-6" role="group" aria-label="Estado de ánimo">
         {moods.map((m) => (
           <button
             key={m.label}
@@ -60,35 +72,40 @@ export default function QuickLog() {
       </div>
 
       <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Lugar">
-        {context.map((c) => (
+        {places.map((p) => (
           <button
-            key={c}
+            key={p}
             type="button"
-            onClick={() => setWhere(c)}
-            aria-pressed={where === c}
+            onClick={() => setPlace(place === p ? null : p)}
+            aria-pressed={place === p}
             className={`min-h-11 rounded-full border px-4 text-xs font-semibold transition ${
-              where === c
+              place === p
                 ? "border-[var(--blue-text)] bg-[var(--blue)] text-[var(--blue-text)]"
                 : "border-[var(--border)] hover:bg-[var(--blue)]"
             }`}
           >
-            {c}
+            {p}
           </button>
         ))}
       </div>
 
-      <div className="mt-6 flex items-center gap-4">
+      <div className="mt-6 flex flex-wrap items-center gap-4">
         <button
           type="button"
           onClick={handleSave}
-          disabled={!mood}
+          disabled={!mood || saving}
           className="min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-white transition hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Guardar registro
+          {saving ? "Guardando…" : "Guardar registro"}
         </button>
         {saved && (
           <p role="status" className="text-sm font-medium text-[var(--primary)]">
-            ✓ Registro guardado (demostración)
+            ✓ Registro guardado
+          </p>
+        )}
+        {error && (
+          <p role="alert" className="text-sm text-red-700">
+            {error}
           </p>
         )}
       </div>
