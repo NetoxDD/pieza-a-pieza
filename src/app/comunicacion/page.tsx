@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Send } from "lucide-react";
 import { useChild } from "@/components/ChildGate";
+import TeamPanel from "@/components/TeamPanel";
 
 type Message = {
   id: number;
@@ -168,28 +169,7 @@ export default function Comunicacion() {
         </section>
 
         <aside className="grid gap-6">
-          <section id="equipo" className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
-            <h2 className="text-lg font-semibold">Aquí estamos</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">Personas que acompañan el seguimiento.</p>
-            <ul className="mt-5 grid gap-4">
-              {team.map((t) => (
-                <li key={t.name} className="flex items-center gap-3">
-                  <span
-                    aria-hidden
-                    className={`grid h-10 w-10 place-items-center rounded-full text-xs font-bold ${
-                      t.blue ? "bg-[var(--blue)] text-[var(--blue-text)]" : "bg-[var(--sage)] text-[var(--primary)]"
-                    }`}
-                  >
-                    {t.initials}
-                  </span>
-                  <div>
-                    <strong className="block text-sm leading-tight">{t.name}</strong>
-                    <small className="text-xs text-[var(--muted)]">{t.role}</small>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
+            <TeamPanel />
 
           <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[#74613d]">
             Cada persona responde según su disponibilidad. Este canal no atiende urgencias.
