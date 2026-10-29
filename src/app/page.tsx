@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import QuickLog from "@/components/QuickLog";
+import { useChild } from "@/components/ChildGate";
 
 const goals = [
   { title: "Expresar lo que necesita", note: "Esta semana pidió una pausa en dos momentos nuevos.", progress: 60, tag: "Nuevas iniciativas" },
@@ -8,11 +11,12 @@ const goals = [
 ];
 
 export default function Home() {
+  const { child } = useChild();
   return (
     <div className="grid gap-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          El camino de Mateo, en equipo
+          El camino de {child.name}, en equipo
         </h1>
         <p className="mt-1 text-[var(--muted)]">
           Una mirada compartida a su día a día.

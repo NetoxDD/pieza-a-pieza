@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FileText, Upload } from "lucide-react";
+import { useChild } from "@/components/ChildGate";
 
 type Doc = {
   id: number;
@@ -24,6 +25,7 @@ const initialDocs: Doc[] = [
 export default function Documentos() {
   const [docs, setDocs] = useState(initialDocs);
   const [dragging, setDragging] = useState(false);
+  const { child } = useChild();
 
   const addFile = (file: File | undefined) => {
     if (!file) return;
@@ -69,7 +71,7 @@ export default function Documentos() {
               <FileText size={22} aria-hidden />
             </span>
             <h2 className="text-lg font-semibold [overflow-wrap:anywhere]">{d.title}</h2>
-            <p className="mt-2 text-sm">{d.description}</p>
+            <p className="mt-2 text-sm">{d.description.replaceAll("Mateo", child.name)}</p>
             <span
               className={`mt-3 inline-block rounded-md px-2.5 py-1 text-[11px] font-semibold ${
                 d.blue ? "bg-[var(--blue)] text-[var(--blue-text)]" : "bg-[var(--sage)] text-[var(--primary)]"

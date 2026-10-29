@@ -90,7 +90,7 @@ export default function ChildGate({ children }: { children: React.ReactNode }) {
               onChange={(e) => setName(e.target.value)}
               maxLength={60}
               required
-              placeholder="Ej. Mateo"
+              placeholder="Ej. Pene"
               className="min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-normal"
             />
           </label>

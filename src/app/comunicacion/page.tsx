@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Send } from "lucide-react";
+import { useChild } from "@/components/ChildGate";
 
 type Message = {
   id: number;
@@ -47,6 +48,7 @@ export default function Comunicacion() {
   const [messages, setMessages] = useState(initialMessages);
   const [text, setText] = useState("");
   const boxRef = useRef<HTMLDivElement>(null);
+  const { child } = useChild();
 
   useEffect(() => {
     const box = boxRef.current;
@@ -77,7 +79,7 @@ export default function Comunicacion() {
               EQ
             </span>
             <div>
-              <h2 className="font-semibold leading-tight">Equipo de Mateo</h2>
+              <h2 className="font-semibold leading-tight">Equipo de {child.name}</h2>
               <small className="text-xs text-[var(--muted)]">5 participantes · Conversación de ejemplo</small>
             </div>
           </header>
@@ -110,7 +112,7 @@ export default function Comunicacion() {
                   <strong>{m.author}</strong>
                   <span className="text-[var(--muted)]">{m.time}</span>
                 </div>
-                <p className="mt-1 text-sm [overflow-wrap:anywhere]">{m.text}</p>
+                <p className="mt-1 text-sm [overflow-wrap:anywhere]">{m.text.replaceAll("Mateo", child.name)}</p>
               </div>
             ))}
           </div>

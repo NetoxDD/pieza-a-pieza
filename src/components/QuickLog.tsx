@@ -1,5 +1,8 @@
 "use client";
 
+
+
+import { useChild } from "@/components/ChildGate";
 import { useState } from "react";
 
 const moods = [
@@ -17,6 +20,7 @@ export default function QuickLog() {
   const [mood, setMood] = useState<string | null>(null);
   const [where, setWhere] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const { child } = useChild();
 
   const handleSave = () => {
     setSaved(true);
@@ -29,7 +33,7 @@ export default function QuickLog() {
 
   return (
     <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
-      <h2 className="text-lg font-semibold">¿Cómo está Mateo ahora?</h2>
+      <h2 className="text-lg font-semibold">¿Cómo está {child.name} ahora?</h2>
       <p className="mt-1 text-sm text-[var(--muted)]">
         Un registro rápido en pocos segundos.
       </p>

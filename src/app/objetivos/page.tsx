@@ -1,5 +1,6 @@
 "use client";
 
+import { useChild } from "@/components/ChildGate";
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -166,6 +167,7 @@ function GoalCard({ goal }: { goal: Goal }) {
 }
 
 export default function Objetivos() {
+    const { child } = useChild();
   return (
     <div className="grid gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -221,9 +223,12 @@ export default function Objetivos() {
 
       <div className="grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="grid gap-6">
-          {goals.map((g) => (
-            <GoalCard key={g.title} goal={g} />
-          ))}
+{goals.map((g) => (
+  <GoalCard
+    key={g.title}
+    goal={{ ...g, description: g.description.replaceAll("Mateo", child.name) }}
+  />
+))}
         </div>
 
         <aside className="grid gap-6">
