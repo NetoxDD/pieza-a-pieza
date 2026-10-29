@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Check } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { useChild } from "@/components/ChildGate";
 
 type Tag = "Comunicación" | "Apoyos sensoriales" | "Rutinas" | "Disfrute";
 
 type Observation = {
-  id: number;
-  author: string;
-  date: string;
-  text: string;
-  tag: Tag;
+  id: string;
+  author_id: string;
+  category: Tag;
+  body: string;
+  created_at: string;
 };
 
 const tags: Tag[] = ["Comunicación", "Apoyos sensoriales", "Rutinas", "Disfrute"];
@@ -22,12 +24,13 @@ const tagStyle: Record<Tag, string> = {
   Disfrute: "bg-[var(--sage)] text-[var(--primary)]",
 };
 
-const authors = [
-  "Clara López · Familia",
-  "Diego Santos · Tutor",
-  "Ana Ruiz · Logopeda",
-  "Lucía Martín · Terapeuta ocupacional",
-];
+const roleLabel: Record<string, string> = {
+  familia: "Familia",
+  logopeda: "Logopeda",
+  terapeuta: "Terapeuta ocupacional",
+  tutor: "Tutor",
+  pediatra: "Pediatra",
+};
 
 const routines = [
   { time: "08:00", title: "Prepararnos para salir", detail: "Secuencia visual · Elegir la chaqueta", badge: "Con apoyo visual" },
@@ -36,52 +39,87 @@ const routines = [
   { time: "20:00", title: "Preparar el descanso", detail: "Luz suave · Anticipar los pasos", badge: "Prevista" },
 ];
 
-const initialObservations: Observation[] = [
-  {
-    id: 1,
-    author: "Clara López · Familia",
-    date: "23 oct · 08:45",
-    text: "Al salir de casa, Mateo señaló el parque en su tablero. Cambiamos la ruta y disfrutó el paseo. Le ayudó poder elegir antes de salir.",
-    tag: "Comunicación",
-  },
-  {
-    id: 2,
-    author: "Lucía Martín · Terapeuta ocupacional",
-    date: "23 oct · 12:15",
-    text: "En el aula buscó el rincón tranquilo al aumentar el ruido. Con los auriculares, eligió volver a la actividad de dibujo.",
-    tag: "Apoyos sensoriales",
-  },
-];
-
 export default function Registro() {
-  const [done, setDone] = useState<number[]>([0]);
-  const [observations, setObservations] = useState(initialObservations);
+  const { child, userId } = useChild();
+
+  const [done, setDone] = useState<number[]>([]);
+  const [observations, setObservations] = useState<Observation[]>([]);
+  const [names, setNames] = useState<Record<string, string>>({});
+  const [roles, setRoles] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [filter, setFilter] = useState<Tag | "Todas">("Todas");
 
-  const [author, setAuthor] = useState(authors[0]);
   const [tag, setTag] = useState<Tag>("Comunicación");
   const [text, setText] = useState("");
+  const [saving, setSaving] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
+
+  const load = useCallback(async () => {
+    const [obs, mem, prof] = await Promise.all([
+      supabase
+        .from("observations")
+        .select("id,author_id,category,body,created_at")
+        .eq("child_id", child.id)
+        .order("created_at", { ascending: false }),
+      supabase.from("child_members").select("user_id,role").eq("child_id", child.id),
+      supabase.from("profiles").select("id,full_name"),
+    ]);
+
+    if (obs.error || mem.error || prof.error) {
+      setError("No se pudieron cargar las observaciones.");
+    } else {
+      setError("");
+      setObservations(obs.data as Observation[]);
+      setRoles(Object.fromEntries(mem.data.map((m) => [m.user_id, m.role])));
+      setNames(Object.fromEntries(prof.data.map((p) => [p.id, p.full_name])));
+    }
+    setLoading(false);
+  }, [child.id]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const toggleRoutine = (i: number) =>
     setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim()) return;
-    const date = new Date().toLocaleString("es-MX", {
-      day: "numeric",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    setObservations((o) => [{ id: Date.now(), author, date, text: text.trim(), tag }, ...o]);
+    const body = text.trim();
+    if (!body) return;
+
+    setSaving(true);
+    setError("");
+    const { error } = await supabase
+      .from("observations")
+      .insert({ child_id: child.id, category: tag, body });
+    setSaving(false);
+
+    if (error) {
+      setError("No se pudo publicar la observación. Intenta de nuevo.");
+      return;
+    }
     setText("");
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2500);
+    load();
   };
 
-  const visible = observations.filter((o) => filter === "Todas" || o.tag === filter);
+  const remove = async (id: string) => {
+    if (!window.confirm("¿Eliminar esta observación?")) return;
+    const { error } = await supabase.from("observations").delete().eq("id", id);
+    if (error) setError("No se pudo eliminar.");
+    else load();
+  };
+
+  const visible = observations.filter((o) => filter === "Todas" || o.category === filter);
+
+  const authorLabel = (id: string) => {
+    const name = names[id] || "Alguien del equipo";
+    const role = roleLabel[roles[id]];
+    return role ? `${name} · ${role}` : name;
+  };
 
   return (
     <div className="grid gap-6">
@@ -94,7 +132,6 @@ export default function Registro() {
 
       <div className="grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="grid gap-6">
-          {/* Rutinas */}
           <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
             <h2 className="text-lg font-semibold">Las rutinas del día</h2>
             <p className="mt-1 text-sm text-[var(--muted)]">
@@ -134,7 +171,6 @@ export default function Registro() {
             </ul>
           </section>
 
-          {/* Observaciones */}
           <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
             <h2 className="text-lg font-semibold">Observaciones compartidas</h2>
 
@@ -156,19 +192,46 @@ export default function Registro() {
               ))}
             </div>
 
+            {error && (
+              <p role="alert" className="mt-3 text-sm text-red-700">
+                {error}
+              </p>
+            )}
+
             <ul className="mt-2 divide-y divide-[var(--border)]">
-              {visible.length === 0 && (
+              {loading && <li className="py-6 text-sm text-[var(--muted)]">Cargando…</li>}
+              {!loading && visible.length === 0 && (
                 <li className="py-6 text-sm text-[var(--muted)]">
-                  Aún no hay observaciones en esta categoría.
+                  Aún no hay observaciones aquí. ¡Escribe la primera!
                 </li>
               )}
               {visible.map((o) => (
                 <li key={o.id} className="py-5">
-                  <strong className="text-sm">{o.author}</strong>
-                  <small className="block text-xs text-[var(--muted)]">{o.date}</small>
-                  <p className="mt-2 text-sm">{o.text}</p>
-                  <span className={`mt-3 inline-block rounded-md px-2.5 py-1 text-[11px] font-semibold ${tagStyle[o.tag]}`}>
-                    {o.tag}
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <strong className="text-sm">{authorLabel(o.author_id)}</strong>
+                      <small className="block text-xs text-[var(--muted)]">
+                        {new Date(o.created_at).toLocaleString("es-MX", {
+                          day: "numeric",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </small>
+                    </div>
+                    {o.author_id === userId && (
+                      <button
+                        type="button"
+                        onClick={() => remove(o.id)}
+                        className="min-h-11 rounded-lg px-3 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--sage)] hover:text-[var(--primary)]"
+                      >
+                        Eliminar
+                      </button>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm [overflow-wrap:anywhere]">{o.body}</p>
+                  <span className={`mt-3 inline-block rounded-md px-2.5 py-1 text-[11px] font-semibold ${tagStyle[o.category]}`}>
+                    {o.category}
                   </span>
                 </li>
               ))}
@@ -176,7 +239,6 @@ export default function Registro() {
           </section>
         </div>
 
-        {/* Formulario */}
         <div className="grid gap-6">
           <form
             onSubmit={handleSubmit}
@@ -188,19 +250,6 @@ export default function Registro() {
                 Lo que ocurrió, el contexto y lo que ayudó.
               </p>
             </div>
-
-            <label className="grid gap-1.5 text-xs font-semibold">
-              ¿Quién escribe?
-              <select
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                className="min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-normal"
-              >
-                {authors.map((a) => (
-                  <option key={a}>{a}</option>
-                ))}
-              </select>
-            </label>
 
             <label className="grid gap-1.5 text-xs font-semibold">
               Categoría
@@ -228,20 +277,20 @@ export default function Registro() {
             </label>
 
             <small className="text-xs text-[var(--muted)]">
-              Demostración: la información se pierde al recargar la página.
+              Se guarda con tu nombre y la ven las personas del equipo.
             </small>
 
             <div className="flex items-center gap-3">
               <button
                 type="submit"
-                disabled={!text.trim()}
+                disabled={!text.trim() || saving}
                 className="min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-white transition hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Publicar
+                {saving ? "Guardando…" : "Publicar"}
               </button>
               {justAdded && (
                 <p role="status" className="text-sm font-medium text-[var(--primary)]">
-                  ✓ Observación añadida
+                  ✓ Observación guardada
                 </p>
               )}
             </div>
