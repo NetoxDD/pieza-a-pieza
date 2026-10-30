@@ -6,13 +6,16 @@ import { useChild } from "@/components/ChildGate";
 
 const roleLabel: Record<string, string> = {
   familia: "Familia",
-  logopeda: "Logopeda",
-  terapeuta: "Terapeuta ocupacional",
-  tutor: "Tutor",
+  cuidador: "Otro cuidador",
   pediatra: "Pediatra",
+  terapeuta: "Terapeuta ocupacional",
+  logopeda: "Logopeda",
+  tutor: "Tutor o maestro",
 };
+const roleKeys = Object.keys(roleLabel);
 
 type Member = { user_id: string; role: string; name: string };
+type Invite = { code: string; role: string; expires_at: string };
 
 function initials(name: string) {
   return (
@@ -28,51 +31,109 @@ function initials(name: string) {
 export default function TeamPanel() {
   const { child, userId } = useChild();
   const [members, setMembers] = useState<Member[]>([]);
-  const [isFamily, setIsFamily] = useState(false);
+  const [ownerId, setOwnerId] = useState("");
+  const [invites, setInvites] = useState<Invite[]>([]);
   const [role, setRole] = useState("tutor");
   const [code, setCode] = useState("");
+  const [copied, setCopied] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   const load = useCallback(async () => {
-    const [mem, prof] = await Promise.all([
+    const [mem, prof, kid, inv] = await Promise.all([
       supabase.from("child_members").select("user_id,role").eq("child_id", child.id),
       supabase.from("profiles").select("id,full_name"),
+      supabase.from("children").select("created_by").eq("id", child.id).single(),
+      supabase
+        .from("child_invites")
+        .select("code,role,expires_at")
+        .eq("child_id", child.id)
+        .order("created_at", { ascending: false }),
     ]);
-    if (mem.error || prof.error) {
+
+    if (mem.error || prof.error || kid.error || inv.error) {
       setError("No se pudo cargar el equipo.");
       return;
     }
+
     const names = Object.fromEntries(prof.data.map((p) => [p.id, p.full_name]));
-    const list = mem.data.map((m) => ({ ...m, name: names[m.user_id] || "Sin nombre" }));
+    const owner = kid.data.created_by as string;
+    const list: Member[] = mem.data
+      .map((m) => ({ ...m, name: names[m.user_id] || "Sin nombre" }))
+      .sort((a, b) => Number(b.user_id === owner) - Number(a.user_id === owner));
+
+    setOwnerId(owner);
     setMembers(list);
-    setIsFamily(list.some((m) => m.user_id === userId && m.role === "familia"));
-  }, [child.id, userId]);
+    setInvites(inv.data as Invite[]);
+  }, [child.id]);
 
   useEffect(() => {
     load();
   }, [load]);
 
+  const isOwner = ownerId === userId;
+  const isFamily = members.some((m) => m.user_id === userId && m.role === "familia");
+  const inviteRoles = roleKeys.filter((k) => isOwner || k !== "familia");
+
   const generate = async () => {
     setBusy(true);
     setError("");
     setCode("");
-    setCopied(false);
     const { data, error } = await supabase.rpc("create_invite", { cid: child.id, r: role });
     setBusy(false);
-    if (error) setError("No se pudo crear la invitación.");
-    else setCode(data as string);
+    if (error) setError(error.message);
+    else {
+      setCode(data as string);
+      load();
+    }
   };
 
-  const copy = async () => {
+  const copy = async (c: string) => {
     try {
-      await navigator.clipboard.writeText(code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(c);
+      setCopied(c);
+      setTimeout(() => setCopied(""), 2000);
     } catch {
       setError("No se pudo copiar. Selecciona el código y cópialo a mano.");
     }
+  };
+
+  const revoke = async (c: string) => {
+    const { error } = await supabase.from("child_invites").delete().eq("code", c);
+    if (error) setError("No se pudo revocar la invitación.");
+    else {
+      if (code === c) setCode("");
+      load();
+    }
+  };
+
+  const changeRole = async (uid: string, newRole: string) => {
+    setError("");
+    const { error } = await supabase.rpc("change_member_role", {
+      cid: child.id,
+      uid,
+      new_role: newRole,
+    });
+    if (error) setError(error.message);
+    load();
+  };
+
+  const removeMember = async (m: Member) => {
+    const self = m.user_id === userId;
+    const ok = window.confirm(
+      self
+        ? "¿Salir de este equipo? Dejarás de ver el espacio."
+        : `¿Quitar a ${m.name} del equipo?`
+    );
+    if (!ok) return;
+    setError("");
+    const { error } = await supabase.rpc("remove_member", { cid: child.id, uid: m.user_id });
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    if (self) window.location.reload();
+    else load();
   };
 
   return (
@@ -81,27 +142,63 @@ export default function TeamPanel() {
       <p className="mt-1 text-sm text-[var(--muted)]">Personas que acompañan el seguimiento.</p>
 
       <ul className="mt-5 grid gap-4">
-        {members.map((m) => (
-          <li key={m.user_id} className="flex items-center gap-3">
-            <span
-              aria-hidden
-              className={`grid h-10 w-10 place-items-center rounded-full text-xs font-bold ${
-                m.role === "familia"
-                  ? "bg-[var(--sage)] text-[var(--primary)]"
-                  : "bg-[var(--blue)] text-[var(--blue-text)]"
-              }`}
-            >
-              {initials(m.name)}
-            </span>
-            <div>
-              <strong className="block text-sm leading-tight">
-                {m.name}
-                {m.user_id === userId && " (tú)"}
-              </strong>
-              <small className="text-xs text-[var(--muted)]">{roleLabel[m.role] ?? m.role}</small>
-            </div>
-          </li>
-        ))}
+        {members.map((m) => {
+          const self = m.user_id === userId;
+          const owner = m.user_id === ownerId;
+          return (
+            <li key={m.user_id} className="grid gap-2">
+              <div className="flex items-center gap-3">
+                <span
+                  aria-hidden
+                  className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold ${
+                    m.role === "familia"
+                      ? "bg-[var(--sage)] text-[var(--primary)]"
+                      : "bg-[var(--blue)] text-[var(--blue-text)]"
+                  }`}
+                >
+                  {initials(m.name)}
+                </span>
+                <div className="min-w-0">
+                  <strong className="block text-sm leading-tight [overflow-wrap:anywhere]">
+                    {m.name}
+                    {self && " (tú)"}
+                  </strong>
+                  <small className="text-xs text-[var(--muted)]">
+                    {owner ? "Familiar principal" : roleLabel[m.role] ?? m.role}
+                  </small>
+                </div>
+              </div>
+
+              {!owner && (isOwner || self) && (
+                <div className="flex flex-wrap items-center gap-2 pl-[52px]">
+                  {isOwner && (
+                    <label className="text-xs">
+                      <span className="sr-only">Rol de {m.name}</span>
+                      <select
+                        value={m.role}
+                        onChange={(e) => changeRole(m.user_id, e.target.value)}
+                        className="min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2 text-xs"
+                      >
+                        {roleKeys.map((k) => (
+                          <option key={k} value={k}>
+                            {roleLabel[k]}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeMember(m)}
+                    className="min-h-11 rounded-lg px-3 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--sage)] hover:text-[var(--primary)]"
+                  >
+                    {self ? "Salir del equipo" : "Quitar"}
+                  </button>
+                </div>
+              )}
+            </li>
+          );
+        })}
       </ul>
 
       {isFamily && (
@@ -114,9 +211,9 @@ export default function TeamPanel() {
               onChange={(e) => setRole(e.target.value)}
               className="min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-normal"
             >
-              {Object.entries(roleLabel).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
+              {inviteRoles.map((k) => (
+                <option key={k} value={k}>
+                  {roleLabel[k]}
                 </option>
               ))}
             </select>
@@ -137,13 +234,44 @@ export default function TeamPanel() {
                 Comparte este código. Sirve una sola vez y vence en 7 días.
               </p>
               <p className="mt-2 select-all text-xl font-bold tracking-widest">{code}</p>
-              <button
-                type="button"
-                onClick={copy}
-                className="mt-3 min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 text-xs font-semibold text-[var(--primary)] hover:bg-[var(--sage)]"
-              >
-                {copied ? "✓ Copiado" : "Copiar código"}
-              </button>
+            </div>
+          )}
+
+          {invites.length > 0 && (
+            <div className="mt-2">
+              <h3 className="text-sm font-semibold">Invitaciones pendientes</h3>
+              <ul className="mt-2 divide-y divide-[var(--border)]">
+                {invites.map((i) => (
+                  <li key={i.code} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                    <div>
+                      <span className="text-sm font-semibold tracking-widest">{i.code}</span>
+                      <small className="block text-xs text-[var(--muted)]">
+                        {roleLabel[i.role] ?? i.role} · vence el{" "}
+                        {new Date(i.expires_at).toLocaleDateString("es-MX", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                      </small>
+                    </div>
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        onClick={() => copy(i.code)}
+                        className="min-h-11 rounded-lg px-3 text-xs font-semibold text-[var(--primary)] hover:bg-[var(--sage)]"
+                      >
+                        {copied === i.code ? "✓ Copiado" : "Copiar"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => revoke(i.code)}
+                        className="min-h-11 rounded-lg px-3 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--sage)]"
+                      >
+                        Revocar
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </div>

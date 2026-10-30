@@ -14,6 +14,7 @@ const roleLabel: Record<string, string> = {
   terapeuta: "Terapeuta ocupacional",
   tutor: "Tutor",
   pediatra: "Pediatra",
+    cuidador: "Otro cuidador",
 };
 
 const quickReplies = [
