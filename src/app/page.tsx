@@ -6,6 +6,7 @@ import QuickLog from "@/components/QuickLog";
 import MoodSummary from "@/components/MoodSummary";
 import RecentObservations from "@/components/RecentObservations";
 import { useChild } from "@/components/ChildGate";
+import NextEvent from "@/components/NextEvent";
 
 const goals = [
   { title: "Expresar lo que necesita", note: "Esta semana pidió una pausa en dos momentos nuevos.", progress: 60, tag: "Nuevas iniciativas" },
@@ -26,15 +27,7 @@ export default function Home() {
         <p className="mt-1 text-[var(--muted)]">Una mirada compartida a su día a día.</p>
       </div>
 
-      <section className="rounded-2xl bg-[var(--sage)] p-6">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--primary)]">
-          Lo que nos ayuda a conectar
-        </p>
-        <h2 className="mt-2 text-2xl font-medium">Mucho por descubrir, a su ritmo.</h2>
-        <p className="mt-2 max-w-3xl text-[var(--muted)]">
-          Darle tiempo para responder y anticipar lo que viene ayuda a participar con confianza.
-        </p>
-      </section>
+      <NextEvent />
 
       <QuickLog onSaved={() => setRefresh((r) => r + 1)} />
 
