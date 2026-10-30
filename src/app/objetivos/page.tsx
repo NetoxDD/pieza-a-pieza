@@ -1,90 +1,38 @@
 "use client";
 
-import { useChild } from "@/components/ChildGate";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import { supabase } from "@/lib/supabase";
+import { useChild } from "@/components/ChildGate";
+import NextEvent from "@/components/NextEvent";
+import WeeklyChart from "@/components/WeeklyChart";
 
-const weekly = [
-  { semana: "Sem 1", Expresar: 1, Anticipar: 0, Calma: 2 },
-  { semana: "Sem 2", Expresar: 2, Anticipar: 1, Calma: 3 },
-  { semana: "Sem 3", Expresar: 2, Anticipar: 2, Calma: 3 },
-  { semana: "Sem 4", Expresar: 3, Anticipar: 2, Calma: 4 },
-  { semana: "Sem 5", Expresar: 4, Anticipar: 3, Calma: 4 },
-  { semana: "Sem 6", Expresar: 5, Anticipar: 3, Calma: 5 },
-];
-
+type Support = { id: string; text: string; active: boolean; created_at: string };
 type Goal = {
+  id: string;
+  created_by: string;
   area: string;
   title: string;
-  badge: string;
-  badgeStyle: string;
-  description: string;
+  description: string | null;
+  status: string;
   progress: number;
-  supports: string[];
-  observing: string;
-  team: string;
+  observing: string | null;
+  goal_supports: Support[];
 };
 
-const goals: Goal[] = [
-  {
-    area: "Comunicación",
-    title: "Expresar lo que necesita",
-    badge: "Nuevas iniciativas",
-    badgeStyle: "bg-[var(--sage)] text-[var(--primary)]",
-    description:
-      "Facilitar que Mateo pueda pedir una pausa, elegir una actividad o expresar una necesidad de la forma que le resulte más cómoda.",
-    progress: 60,
-    supports: [
-      "Tablero de comunicación disponible en casa y en el aula.",
-      "Ofrecer opciones visuales sin exigir una respuesta oral.",
-      "Dar tiempo para responder y respetar su elección.",
-    ],
-    observing: "Esta semana pidió una pausa en dos momentos nuevos.",
-    team: "Acompañan: familia, Ana Ruiz y Diego Santos.",
-  },
-  {
-    area: "Rutinas y transiciones",
-    title: "Anticipar los cambios de actividad",
-    badge: "Seguimos explorando",
-    badgeStyle: "bg-[var(--blue)] text-[var(--blue-text)]",
-    description:
-      "Hacer más previsibles las transiciones y permitir que Mateo participe en la elección del siguiente paso.",
-    progress: 45,
-    supports: [
-      "Usar una secuencia visual sencilla y conocida.",
-      "Avisar con tiempo antes de cambiar de actividad.",
-      "Adaptar el plan cuando necesite más tiempo o una pausa.",
-    ],
-    observing: "Reconoce la secuencia de la mañana y elige el primer paso.",
-    team: "Acompañan: familia y equipo educativo.",
-  },
-  {
-    area: "Bienestar y entorno",
-    title: "Encontrar momentos de calma",
-    badge: "Apoyo que funciona",
-    badgeStyle: "bg-[var(--sage)] text-[var(--primary)]",
-    description:
-      "Facilitar el acceso a espacios y recursos que le ayuden a sentirse cómodo, respetando sus preferencias.",
-    progress: 75,
-    supports: [
-      "Tener auriculares disponibles cuando los quiera utilizar.",
-      "Ofrecer un rincón tranquilo sin aislarlo como castigo.",
-      "Observar el contexto: ruido, luz y cambios inesperados.",
-    ],
-    observing: "Nos muestra cuándo prefiere ir a su rincón de lectura.",
-    team: "Acompañan: familia y Lucía Martín.",
-  },
-];
+const areas = ["Comunicación", "Rutinas y transiciones", "Bienestar y entorno", "Autonomía", "Aprendizaje"];
+const statuses = ["Nuevas iniciativas", "Seguimos explorando", "Apoyo que funciona"];
+
+const badgeStyle: Record<string, string> = {
+  "Nuevas iniciativas": "bg-[var(--sage)] text-[var(--primary)]",
+  "Seguimos explorando": "bg-[var(--blue)] text-[var(--blue-text)]",
+  "Apoyo que funciona": "bg-[var(--sand)] text-[#74613d]",
+};
+
+const inputCls =
+  "min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-normal";
+const areaCls =
+  "rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-sm font-normal";
 
 function ProgressRing({ value, label }: { value: number; label: string }) {
   return (
@@ -92,9 +40,7 @@ function ProgressRing({ value, label }: { value: number; label: string }) {
       role="img"
       aria-label={`Progreso de ${label}: ${value}%`}
       className="grid h-16 w-16 shrink-0 place-items-center rounded-full"
-      style={{
-        background: `conic-gradient(var(--primary) ${value * 3.6}deg, var(--sage) 0deg)`,
-      }}
+      style={{ background: `conic-gradient(var(--primary) ${value * 3.6}deg, var(--sage) 0deg)` }}
     >
       <div className="grid h-12 w-12 place-items-center rounded-full bg-[var(--surface)] text-xs font-bold text-[var(--primary)]">
         {value}%
@@ -103,71 +49,301 @@ function ProgressRing({ value, label }: { value: number; label: string }) {
   );
 }
 
-function GoalCard({ goal }: { goal: Goal }) {
-  const [active, setActive] = useState<boolean[]>(goal.supports.map(() => true));
-  const count = active.filter(Boolean).length;
+function GoalCard({ goal, userId, reload }: { goal: Goal; userId: string; reload: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [status, setStatus] = useState(goal.status);
+  const [progress, setProgress] = useState(goal.progress);
+  const [observing, setObserving] = useState(goal.observing ?? "");
+  const [newSupport, setNewSupport] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
 
-  const toggle = (i: number) =>
-    setActive((a) => a.map((v, idx) => (idx === i ? !v : v)));
+  const supports = goal.goal_supports.slice().sort((a, b) => a.created_at.localeCompare(b.created_at));
+  const activeCount = supports.filter((s) => s.active).length;
+
+  const startEdit = () => {
+    setStatus(goal.status);
+    setProgress(goal.progress);
+    setObserving(goal.observing ?? "");
+    setMsg("");
+    setEditing(true);
+  };
+
+  const save = async () => {
+    setBusy(true);
+    setMsg("");
+    const { error } = await supabase
+      .from("goals")
+      .update({ status, progress, observing: observing.trim() || null })
+      .eq("id", goal.id);
+    setBusy(false);
+    if (error) setMsg("No se pudo guardar.");
+    else {
+      setEditing(false);
+      reload();
+    }
+  };
+
+  const toggle = async (s: Support) => {
+    const { error } = await supabase.from("goal_supports").update({ active: !s.active }).eq("id", s.id);
+    if (error) setMsg("No se pudo actualizar el apoyo.");
+    else reload();
+  };
+
+  const addSupport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = newSupport.trim();
+    if (!text) return;
+    const { error } = await supabase.from("goal_supports").insert({ goal_id: goal.id, text });
+    if (error) setMsg("No se pudo añadir el apoyo.");
+    else {
+      setNewSupport("");
+      reload();
+    }
+  };
+
+  const removeSupport = async (id: string) => {
+    const { error } = await supabase.from("goal_supports").delete().eq("id", id);
+    if (error) setMsg("No se pudo quitar el apoyo.");
+    else reload();
+  };
+
+  const removeGoal = async () => {
+    if (!window.confirm("¿Eliminar este objetivo y sus apoyos?")) return;
+    const { error } = await supabase.from("goals").delete().eq("id", goal.id);
+    if (error) setMsg("No se pudo eliminar el objetivo.");
+    else reload();
+  };
 
   return (
     <article className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--primary)]">
-            {goal.area}
-          </p>
-          <h2 className="mt-1 text-lg font-semibold">{goal.title}</h2>
-          <span className={`mt-2 inline-block rounded-md px-2.5 py-1 text-[11px] font-semibold ${goal.badgeStyle}`}>
-            {goal.badge}
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--primary)]">{goal.area}</p>
+          <h2 className="mt-1 text-lg font-semibold [overflow-wrap:anywhere]">{goal.title}</h2>
+          <span
+            className={`mt-2 inline-block rounded-md px-2.5 py-1 text-[11px] font-semibold ${
+              badgeStyle[goal.status] ?? badgeStyle["Seguimos explorando"]
+            }`}
+          >
+            {goal.status}
           </span>
         </div>
         <ProgressRing value={goal.progress} label={goal.title} />
       </div>
 
-      <p className="mt-4 text-sm">{goal.description}</p>
+      {goal.description && <p className="mt-4 text-sm [overflow-wrap:anywhere]">{goal.description}</p>}
 
       <div className="mt-5 flex items-center justify-between">
         <h3 className="text-sm font-semibold">Apoyos acordados</h3>
-        <small className="text-xs text-[var(--muted)]">
-          {count} de {goal.supports.length} en marcha
-        </small>
+        {supports.length > 0 && (
+          <small className="text-xs text-[var(--muted)]">
+            {activeCount} de {supports.length} en marcha
+          </small>
+        )}
       </div>
 
-      <ul className="mt-2 grid gap-2">
-        {goal.supports.map((s, i) => (
-          <li key={s}>
-            <label
-              className={`flex min-h-11 cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm transition ${
-                active[i]
-                  ? "border-[var(--primary)]/30 bg-[var(--sage)]"
-                  : "border-[var(--border)] bg-[var(--surface)] text-[var(--muted)]"
-              }`}
-            >
-              <input
-                type="checkbox"
-                checked={active[i]}
-                onChange={() => toggle(i)}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--primary)]"
-              />
-              <span>{s}</span>
+      {supports.length === 0 ? (
+        <p className="mt-2 text-sm text-[var(--muted)]">Aún no hay apoyos. Añade el primero con Editar.</p>
+      ) : (
+        <ul className="mt-2 grid gap-2">
+          {supports.map((s) => (
+            <li key={s.id} className="flex items-start gap-2">
+              <label
+                className={`flex min-h-11 flex-1 cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm transition ${
+                  s.active
+                    ? "border-[var(--primary)]/30 bg-[var(--sage)]"
+                    : "border-[var(--border)] bg-[var(--surface)] text-[var(--muted)]"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={s.active}
+                  onChange={() => toggle(s)}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--primary)]"
+                />
+                <span className="[overflow-wrap:anywhere]">{s.text}</span>
+              </label>
+              {editing && (
+                <button
+                  type="button"
+                  onClick={() => removeSupport(s.id)}
+                  aria-label={`Quitar apoyo: ${s.text}`}
+                  className="min-h-11 rounded-lg px-3 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--sage)] hover:text-[var(--primary)]"
+                >
+                  Quitar
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {goal.observing && !editing && (
+        <div className="mt-5 rounded-r-lg border-l-4 border-[var(--primary)] bg-[var(--background)] p-4 text-sm">
+          <strong>Lo que estamos observando</strong>
+          <p className="mt-1 [overflow-wrap:anywhere]">{goal.observing}</p>
+        </div>
+      )}
+
+      {editing ? (
+        <div className="mt-5 grid gap-4 rounded-xl bg-[var(--background)] p-4">
+          <label className="grid gap-1.5 text-xs font-semibold">
+            Etapa
+            <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputCls}>
+              {statuses.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="grid gap-1.5 text-xs font-semibold">
+            Avance: {progress}%
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={5}
+              value={progress}
+              onChange={(e) => setProgress(Number(e.target.value))}
+              className="h-11 w-full accent-[var(--primary)]"
+            />
+          </label>
+
+          <label className="grid gap-1.5 text-xs font-semibold">
+            Lo que estamos observando
+            <textarea
+              value={observing}
+              onChange={(e) => setObserving(e.target.value)}
+              maxLength={300}
+              rows={3}
+              className={areaCls}
+            />
+          </label>
+
+          <form onSubmit={addSupport} className="flex gap-2">
+            <label className="sr-only" htmlFor={`sup-${goal.id}`}>
+              Nuevo apoyo
             </label>
-          </li>
-        ))}
-      </ul>
+            <input
+              id={`sup-${goal.id}`}
+              value={newSupport}
+              onChange={(e) => setNewSupport(e.target.value)}
+              maxLength={200}
+              placeholder="Añadir un apoyo…"
+              className={`${inputCls} flex-1`}
+            />
+            <button
+              type="submit"
+              disabled={!newSupport.trim()}
+              className="min-h-11 rounded-lg border border-[var(--border)] px-4 text-xs font-semibold text-[var(--primary)] hover:bg-[var(--sage)] disabled:opacity-50"
+            >
+              Añadir
+            </button>
+          </form>
 
-      <div className="mt-5 rounded-r-lg border-l-4 border-[var(--primary)] bg-[var(--background)] p-4 text-sm">
-        <strong>Lo que estamos observando</strong>
-        <p className="mt-1">{goal.observing}</p>
-      </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={save}
+              disabled={busy}
+              className="min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-white hover:bg-[var(--primary-hover)] disabled:opacity-50"
+            >
+              {busy ? "Guardando…" : "Guardar cambios"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditing(false)}
+              className="min-h-11 rounded-xl border border-[var(--border)] px-5 text-sm font-semibold text-[var(--muted)] hover:bg-[var(--sage)]"
+            >
+              Cancelar
+            </button>
+            {goal.created_by === userId && (
+              <button
+                type="button"
+                onClick={removeGoal}
+                className="min-h-11 rounded-xl px-5 text-sm font-semibold text-red-700 hover:bg-red-50"
+              >
+                Eliminar objetivo
+              </button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={startEdit}
+          className="mt-5 min-h-11 rounded-xl border border-[var(--border)] px-5 text-sm font-semibold text-[var(--primary)] hover:bg-[var(--sage)]"
+        >
+          Editar
+        </button>
+      )}
 
-      <p className="mt-4 text-xs text-[var(--muted)]">{goal.team}</p>
+      {msg && (
+        <p role="alert" className="mt-3 text-sm text-red-700">
+          {msg}
+        </p>
+      )}
     </article>
   );
 }
 
 export default function Objetivos() {
-    const { child } = useChild();
+  const { child, userId } = useChild();
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [showForm, setShowForm] = useState(false);
+  const [area, setArea] = useState(areas[0]);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("goals")
+      .select(
+        "id,created_by,area,title,description,status,progress,observing,goal_supports(id,text,active,created_at)"
+      )
+      .eq("child_id", child.id)
+      .order("created_at");
+
+    if (error) setError("No se pudieron cargar los objetivos.");
+    else {
+      setError("");
+      setGoals(data as Goal[]);
+    }
+    setLoading(false);
+  }, [child.id]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const createGoal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = title.trim();
+    if (!clean) return;
+    setSaving(true);
+    setError("");
+    const { error } = await supabase.from("goals").insert({
+      child_id: child.id,
+      area,
+      title: clean,
+      description: description.trim() || null,
+    });
+    setSaving(false);
+    if (error) {
+      setError("No se pudo crear el objetivo. Intenta de nuevo.");
+      return;
+    }
+    setTitle("");
+    setDescription("");
+    setShowForm(false);
+    load();
+  };
+
   return (
     <div className="grid gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -177,12 +353,22 @@ export default function Objetivos() {
             Un plan compartido, flexible y centrado en lo que le ayuda.
           </p>
         </div>
-        <Link
-          href="/registro"
-          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-white transition hover:bg-[var(--primary-hover)]"
-        >
-          Registrar un avance
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/registro"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[var(--border)] px-5 text-sm font-semibold text-[var(--primary)] hover:bg-[var(--sage)]"
+          >
+            Registrar un avance
+          </Link>
+          <button
+            type="button"
+            onClick={() => setShowForm((s) => !s)}
+            aria-expanded={showForm}
+            className="min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-white transition hover:bg-[var(--primary-hover)]"
+          >
+            + Nuevo objetivo
+          </button>
+        </div>
       </div>
 
       <section className="rounded-2xl bg-[var(--sage)] p-6">
@@ -191,73 +377,99 @@ export default function Objetivos() {
         </p>
         <h2 className="mt-2 text-2xl font-medium">Acompañar, observar y ajustar juntos.</h2>
         <p className="mt-2 max-w-3xl text-[var(--muted)]">
-          Los objetivos se acuerdan con la familia y el equipo. No son una
-          comparación con otros niños ni una lista de exigencias.
+          Los objetivos se acuerdan con la familia y el equipo. No son una comparación con otros niños ni
+          una lista de exigencias.
         </p>
       </section>
 
-      {/* Gráfica */}
-      <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
-        <h2 className="text-lg font-semibold">Momentos observados por semana</h2>
-        <p className="mt-1 text-sm text-[var(--muted)]">
-          Cuántas veces el equipo registró algo positivo ligado a cada objetivo.
-          Datos de ejemplo.
+      {showForm && (
+        <form
+          onSubmit={createGoal}
+          className="grid gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6"
+        >
+          <h2 className="text-lg font-semibold">Nuevo objetivo</h2>
+
+          <label className="grid gap-1.5 text-xs font-semibold">
+            Área
+            <select value={area} onChange={(e) => setArea(e.target.value)} className={inputCls}>
+              {areas.map((a) => (
+                <option key={a}>{a}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="grid gap-1.5 text-xs font-semibold">
+            ¿Qué queremos acompañar?
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              maxLength={120}
+              required
+              placeholder="Ej. Anticipar los cambios de actividad"
+              className={inputCls}
+            />
+          </label>
+
+          <label className="grid gap-1.5 text-xs font-semibold">
+            Descripción (opcional)
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={600}
+              rows={3}
+              className={areaCls}
+            />
+          </label>
+
+          <p className="rounded-lg bg-[var(--sand)] p-3 text-xs text-[#74613d]">
+            Proyecto escolar: usa objetivos de ejemplo, no información clínica real.
+          </p>
+
+          <button
+            type="submit"
+            disabled={!title.trim() || saving}
+            className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-white hover:bg-[var(--primary-hover)] disabled:opacity-50"
+          >
+            {saving ? "Guardando…" : "Crear objetivo"}
+          </button>
+        </form>
+      )}
+
+      {error && (
+        <p role="alert" className="text-sm text-red-700">
+          {error}
         </p>
-        <div className="mt-4 h-64 w-full sm:h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={weekly} margin={{ top: 8, right: 12, left: -16, bottom: 0 }}>
-              <CartesianGrid stroke="#dde5dd" strokeDasharray="3 3" />
-              <XAxis dataKey="semana" tick={{ fontSize: 12, fill: "#60736b" }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#60736b" }} />
-              <Tooltip
-                contentStyle={{ borderRadius: 12, border: "1px solid #dde5dd", fontSize: 12 }}
-              />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line type="monotone" dataKey="Expresar" name="Expresar lo que necesita" stroke="#426f5d" strokeWidth={3} dot={{ r: 4 }} />
-              <Line type="monotone" dataKey="Anticipar" name="Anticipar cambios" stroke="#4d6d83" strokeWidth={3} strokeDasharray="6 4" dot={{ r: 4 }} />
-              <Line type="monotone" dataKey="Calma" name="Momentos de calma" stroke="#c9a55c" strokeWidth={3} strokeDasharray="2 4" dot={{ r: 4 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
+      )}
+
+      <WeeklyChart />
 
       <div className="grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="grid gap-6">
-{goals.map((g) => (
-  <GoalCard
-    key={g.title}
-    goal={{ ...g, description: g.description.replaceAll("Mateo", child.name) }}
-  />
-))}
+          {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
+          {!loading && goals.length === 0 && (
+            <p className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-sm text-[var(--muted)]">
+              Todavía no hay objetivos. Crea el primero con el botón «+ Nuevo objetivo».
+            </p>
+          )}
+          {goals.map((g) => (
+            <GoalCard key={g.id} goal={g} userId={userId} reload={load} />
+          ))}
         </div>
 
         <aside className="grid gap-6">
-          <section className="rounded-2xl bg-[var(--blue)] p-6">
-            <h2 className="text-lg font-semibold">Próxima revisión conjunta</h2>
-            <h3 className="mt-3 font-semibold">30 de octubre de 2026</h3>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              Revisaremos qué apoyos funcionan, qué ha cambiado y qué quiere
-              priorizar la familia.
-            </p>
-            <Link
-              href="/calendario"
-              className="mt-4 inline-flex min-h-11 items-center rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 text-sm font-semibold text-[var(--primary)] hover:bg-[var(--sage)]"
-            >
-              Ver calendario
-            </Link>
-          </section>
-
+          <NextEvent />
           <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
             <h2 className="text-lg font-semibold">Recursos relacionados</h2>
             <p className="mt-2 text-sm">Secuencia visual para anticipar la salida de casa.</p>
-            <Link href="/documentos" className="mt-3 inline-block text-xs font-semibold text-[var(--primary)] hover:underline">
+            <Link
+              href="/documentos"
+              className="mt-3 inline-block text-xs font-semibold text-[var(--primary)] hover:underline"
+            >
               Consultar documentos →
             </Link>
           </section>
-
           <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[#74613d]">
-            Estos objetivos son ejemplos de contenido para la maqueta, no un
-            plan terapéutico individualizado.
+            Estos objetivos son contenido de la maqueta, no un plan terapéutico individualizado.
           </div>
         </aside>
       </div>
