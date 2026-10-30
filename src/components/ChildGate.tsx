@@ -23,6 +23,7 @@ export default function ChildGate({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<"create" | "join">("create");
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
+  const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
@@ -36,11 +37,13 @@ export default function ChildGate({ children }: { children: React.ReactNode }) {
     ]);
 
     if (kids.error) {
-      setError("No se pudo cargar tu espacio. Revisa tu conexión e intenta de nuevo.");
+      setFailed(true);
     } else {
+      setFailed(false);
       setUserName(prof.data?.full_name ?? "");
       setChild(kids.data?.[0] ?? null);
     }
+    setLoading(false);
     setLoading(false);
   }, []);
 
@@ -84,6 +87,28 @@ export default function ChildGate({ children }: { children: React.ReactNode }) {
     return (
       <div className="grid min-h-screen place-items-center text-sm text-[var(--muted)]">
         Cargando tu espacio…
+      </div>
+    );
+  if (failed)
+    return (
+      <div className="grid min-h-screen place-items-center bg-[var(--background)] p-5">
+        <div className="grid w-full max-w-sm gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-7 text-center">
+          <h1 className="text-xl font-semibold">No pudimos cargar tu espacio</h1>
+          <p className="text-sm text-[var(--muted)]">
+            Revisa tu conexión a internet e intenta de nuevo.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setLoading(true);
+              setFailed(false);
+              load();
+            }}
+            className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-white hover:bg-[var(--primary-hover)]"
+          >
+            Reintentar
+          </button>
+        </div>
       </div>
     );
 
