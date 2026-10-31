@@ -10,16 +10,52 @@ import {
   Target,
   CalendarDays,
   FileText,
+  Users,
+  Menu,
 } from "lucide-react";
 import { BASE } from "@/lib/base";
 
-const items = [
-  { href: "/", label: "Resumen", icon: Home },
-  { href: "/registro", label: "Registro", icon: ClipboardList },
-  { href: "/comunicacion", label: "Mensajes", icon: MessageCircle },
-  { href: "/objetivos", label: "Objetivos", icon: Target },
-  { href: "/calendario", label: "Calendario", icon: CalendarDays },
-  { href: "/documentos", label: "Documentos", icon: FileText },
+const GROUPS = [
+  {
+    title: "Seguimiento",
+    items: [
+      { href: "/", label: "Inicio", icon: Home },
+      { href: "/registro", label: "Día a día", icon: ClipboardList },
+      { href: "/comunicacion", label: "Mensajes", icon: MessageCircle },
+    ],
+  },
+  {
+    title: "Plan",
+    items: [
+      { href: "/objetivos", label: "Objetivos", icon: Target },
+      { href: "/calendario", label: "Calendario", icon: CalendarDays },
+    ],
+  },
+  {
+    title: "Archivo y equipo",
+    items: [
+      { href: "/documentos", label: "Documentos", icon: FileText },
+      { href: "/equipo", label: "Equipo", icon: Users },
+    ],
+  },
+];
+
+const BOTTOM = [
+  { href: "/", label: "Inicio", icon: Home, match: (p: string) => p === "/" },
+  { href: "/registro", label: "Día a día", icon: ClipboardList, match: (p: string) => p.startsWith("/registro") },
+  { href: "/comunicacion", label: "Mensajes", icon: MessageCircle, match: (p: string) => p.startsWith("/comunicacion") },
+  {
+    href: "/objetivos",
+    label: "Plan",
+    icon: Target,
+    match: (p: string) => p.startsWith("/objetivos") || p.startsWith("/calendario"),
+  },
+  {
+    href: "/mas",
+    label: "Más",
+    icon: Menu,
+    match: (p: string) => ["/mas", "/documentos", "/equipo"].some((x) => p.startsWith(x)),
+  },
 ];
 
 export default function Nav() {
@@ -30,7 +66,7 @@ export default function Nav() {
   return (
     <>
       {/* Barra lateral: tablet y escritorio */}
-      <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-[var(--border)] bg-[var(--sidebar)] p-5 md:flex">
+      <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col overflow-y-auto border-r border-[var(--border)] bg-[var(--sidebar)] p-5 md:flex">
         <Link href="/" className="flex items-center gap-3">
           <Image src={`${BASE}/logo.png`} alt="" width={44} height={44} />
           <span className="text-2xl font-bold leading-none tracking-tight">
@@ -38,52 +74,60 @@ export default function Nav() {
           </span>
         </Link>
 
-        <nav aria-label="Navegación principal" className="mt-8 grid gap-1.5">
-          {items.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              aria-current={isActive(href) ? "page" : undefined}
-              className={`flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm transition-colors ${
-                isActive(href)
-                  ? "bg-[var(--sage)] font-bold text-[var(--primary)]"
-                  : "text-[var(--muted)] hover:bg-[var(--sage)] hover:text-[var(--primary)]"
-              }`}
-            >
-              <Icon size={18} aria-hidden />
-              {label}
-            </Link>
+        <nav aria-label="Navegación principal" className="mt-8 grid gap-5">
+          {GROUPS.map((g) => (
+            <div key={g.title}>
+              <p className="mb-1.5 px-3 text-[0.65rem] font-bold uppercase tracking-widest text-[var(--muted)]">
+                {g.title}
+              </p>
+              <div className="grid gap-1">
+                {g.items.map(({ href, label, icon: Icon }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    aria-current={isActive(href) ? "page" : undefined}
+                    className={`flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm transition-colors ${
+                      isActive(href)
+                        ? "bg-[var(--sage)] font-bold text-[var(--primary)]"
+                        : "text-[var(--muted)] hover:bg-[var(--sage)] hover:text-[var(--primary)]"
+                    }`}
+                  >
+                    <Icon size={18} aria-hidden />
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
 
         <div className="mt-auto rounded-xl bg-[var(--sage)] p-4 text-xs">
           <strong>Un espacio de confianza</strong>
-          <p className="mt-1 text-[var(--muted)]">
-            Demostración con datos de ejemplo.
-          </p>
+          <p className="mt-1 text-[var(--muted)]">Proyecto escolar con datos de ejemplo.</p>
         </div>
       </aside>
 
       {/* Barra inferior: celular */}
       <nav
         aria-label="Navegación principal"
-        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-6 border-t border-[var(--border)] bg-[var(--surface)]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[var(--border)] bg-[var(--surface)]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
       >
-        {items.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            aria-current={isActive(href) ? "page" : undefined}
-            className={`flex flex-col items-center gap-0.5 py-2.5 text-[10px] ${
-              isActive(href)
-                ? "font-bold text-[var(--primary)]"
-                : "text-[var(--muted)]"
-            }`}
-          >
-            <Icon size={20} aria-hidden />
-            {label}
-          </Link>
-        ))}
+        {BOTTOM.map(({ href, label, icon: Icon, match }) => {
+          const active = match(pathname);
+          return (
+            <Link
+              key={href}
+              href={href}
+              aria-current={active ? "page" : undefined}
+              className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-[0.65rem] ${
+                active ? "font-bold text-[var(--primary)]" : "text-[var(--muted)]"
+              }`}
+            >
+              <Icon size={20} aria-hidden />
+              {label}
+            </Link>
+          );
+        })}
       </nav>
     </>
   );

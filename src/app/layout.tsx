@@ -4,6 +4,7 @@ import Nav from "@/components/Nav";
 import AuthGate from "@/components/AuthGate";
 import ChildGate from "@/components/ChildGate";
 import ChildHeader from "@/components/ChildHeader";
+import SectionTabs from "@/components/SectionTabs";
 import RegisterSW from "@/components/RegisterSW";
 
 export const metadata: Metadata = {
@@ -31,7 +32,10 @@ export default function RootLayout({
             <Nav />
             <div className="md:pl-60 pb-24 md:pb-0">
               <ChildHeader />
-              <main className="mx-auto max-w-5xl p-5 md:p-9">{children}</main>
+              <main className="mx-auto max-w-5xl p-5 md:p-9">
+                <SectionTabs />
+                {children}
+              </main>
             </div>
           </ChildGate>
         </AuthGate>

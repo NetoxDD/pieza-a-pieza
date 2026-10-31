@@ -4,18 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Send } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
-import TeamPanel from "@/components/TeamPanel";
+import Link from "next/link";
+import { roleLabel } from "@/lib/roles";
 
 type Msg = { id: string; author_id: string; body: string; created_at: string };
-
-const roleLabel: Record<string, string> = {
-  familia: "Familia",
-  logopeda: "Logopeda",
-  terapeuta: "Terapeuta ocupacional",
-  tutor: "Tutor",
-  pediatra: "Pediatra",
-    cuidador: "Otro cuidador",
-};
 
 const quickReplies = [
   "¡Gracias por compartirlo!",
@@ -232,7 +224,18 @@ export default function Comunicacion() {
         </section>
 
         <aside className="grid gap-6">
-          <TeamPanel />
+          <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
+            <h2 className="text-lg font-semibold">El equipo</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">
+             Quiénes participan, sus roles y las invitaciones.
+            </p>
+            <Link
+                href="/equipo"
+                className="mt-3 inline-block text-xs font-semibold text-[var(--primary)] hover:underline"
+                >
+                Ver y gestionar el equipo →
+            </Link>
+          </section>
           <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[#74613d]">
             Cada persona responde según su disponibilidad. Este canal no atiende urgencias.
           </div>

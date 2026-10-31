@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
+import { roleLabel } from "@/lib/roles";
 
 type Tag = "Comunicación" | "Apoyos sensoriales" | "Rutinas" | "Disfrute";
 
@@ -22,15 +23,6 @@ const tagStyle: Record<Tag, string> = {
   "Apoyos sensoriales": "bg-[var(--blue)] text-[var(--blue-text)]",
   Rutinas: "bg-[var(--sand)] text-[#74613d]",
   Disfrute: "bg-[var(--sage)] text-[var(--primary)]",
-};
-
-const roleLabel: Record<string, string> = {
-  familia: "Familia",
-  logopeda: "Logopeda",
-  terapeuta: "Terapeuta ocupacional",
-  tutor: "Tutor",
-  pediatra: "Pediatra",
-  cuidador: "Otro cuidador",  
 };
 
 const routines = [

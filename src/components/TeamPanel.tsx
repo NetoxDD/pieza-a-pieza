@@ -4,15 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
 
-const roleLabel: Record<string, string> = {
-  familia: "Familia",
-  cuidador: "Otro cuidador",
-  pediatra: "Pediatra",
-  terapeuta: "Terapeuta ocupacional",
-  logopeda: "Logopeda",
-  tutor: "Tutor o maestro",
-};
-const roleKeys = Object.keys(roleLabel);
+import { roleLabel, roleKeys } from "@/lib/roles";
 
 type Member = { user_id: string; role: string; name: string };
 type Invite = { code: string; role: string; expires_at: string };
