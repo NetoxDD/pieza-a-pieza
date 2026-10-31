@@ -14,6 +14,9 @@ type Ctx = {
   settings: Settings;
   update: (patch: Partial<Settings>) => void;
   reset: () => void;
+  onboardingDone: boolean | null;
+  finishOnboarding: () => void;
+  restartOnboarding: () => void;
 };
 
 const SettingsCtx = createContext<Ctx | null>(null);
@@ -24,7 +27,7 @@ export function useSettings() {
   return c;
 }
 
-async function persist(s: Settings) {
+async function persist(s: Settings, done: boolean) {
   const { data } = await supabase.auth.getSession();
   const uid = data.session?.user.id;
   if (!uid) return;
@@ -35,12 +38,16 @@ async function persist(s: Settings) {
     calm: s.calm,
     theme: s.theme,
     reading_font: s.font,
+    palette: s.palette,
+    onboarding_done: done,
     updated_at: new Date().toISOString(),
   });
 }
 
 export default function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<Settings>(() => readLocal() ?? systemDefaults());
+  // null = todavía no sabemos (no se muestra la guía hasta saberlo)
+  const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null);
 
   // Al entrar, los ajustes guardados en la cuenta tienen prioridad
   useEffect(() => {
@@ -49,21 +56,27 @@ export default function SettingsProvider({ children }: { children: React.ReactNo
       const { data: sess } = await supabase.auth.getSession();
       const uid = sess.session?.user.id;
       if (!uid) return;
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("user_settings")
-        .select("font_scale,contrast,calm,theme,reading_font")
+        .select("font_scale,contrast,calm,theme,reading_font,palette,onboarding_done")
         .eq("user_id", uid)
         .maybeSingle();
-      if (cancelled || !data) return;
+      if (cancelled || error) return;
+      if (!data) {
+        setOnboardingDone(false); // cuenta nueva: se muestra la guía
+        return;
+      }
       const s: Settings = {
         fontScale: data.font_scale,
         contrast: data.contrast,
         calm: data.calm,
         theme: data.theme,
         font: data.reading_font,
+        palette: data.palette,
       };
       setSettings(s);
       writeLocal(s);
+      setOnboardingDone(data.onboarding_done);
     })();
     return () => {
       cancelled = true;
@@ -86,7 +99,7 @@ export default function SettingsProvider({ children }: { children: React.ReactNo
   const save = (next: Settings) => {
     setSettings(next);
     writeLocal(next);
-    persist(next);
+    persist(next, onboardingDone === true);
   };
 
   return (
@@ -94,7 +107,16 @@ export default function SettingsProvider({ children }: { children: React.ReactNo
       value={{
         settings,
         update: (patch) => save({ ...settings, ...patch }),
-        reset: () => save({ ...systemDefaults(), calm: false }),
+        reset: () => save(systemDefaults()),
+        onboardingDone,
+        finishOnboarding: () => {
+          setOnboardingDone(true);
+          persist(settings, true);
+        },
+        restartOnboarding: () => {
+          setOnboardingDone(false);
+          persist(settings, false);
+        },
       }}
     >
       {children}

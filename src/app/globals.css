@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* ===================== Base: paleta Bosque, tema claro ===================== */
 :root {
   color-scheme: light;
   --background: #f6f8f4;
@@ -9,6 +10,8 @@
   --muted: #60736b;
   --primary: #426f5d;
   --primary-hover: #315744;
+  --primary-alto: #1f4a3a;
+  --primary-bright: #9bd8b6;
   --on-primary: #ffffff;
   --sage: #e7f0e6;
   --blue: #e8f1f5;
@@ -18,15 +21,15 @@
   --sand-text: #74613d;
   --danger: #b91c1c;
 
-  /* Piezas del calendario */
-  --piece-base: #e7f0e6;
-  --piece-base-text: #253d36;
+  /* Piezas del calendario: siguen a la paleta, salvo "hoy" y "con encuentro" */
+  --piece-base: var(--sage);
+  --piece-base-text: var(--text);
   --piece-today: #d3e4ec;
   --piece-today-text: #2f4a5c;
   --piece-event: #ecd9a0;
   --piece-event-text: #5a4a1f;
-  --piece-selected: #426f5d;
-  --piece-selected-text: #ffffff;
+  --piece-selected: var(--primary);
+  --piece-selected-text: var(--on-primary);
   --piece-dot: #8a6d1f;
 }
 
@@ -41,39 +44,59 @@ body {
   outline-offset: 3px;
 }
 
-/* ---------- Tamaño de letra (porcentaje del tamaño del navegador) ---------- */
+/* ===================== Tamaño de letra ===================== */
 html { font-size: 100%; }
 :root[data-fontscale="grande"] { font-size: 115%; }
 :root[data-fontscale="muy-grande"] { font-size: 130%; }
 
-/* ---------- Letra de alta legibilidad ---------- */
+/* ===================== Letra de alta legibilidad ===================== */
 :root[data-font="legible"] body {
   font-family: var(--font-legible), system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-/* ---------- Contraste alto (claro) ---------- */
+/* ===================== Paletas (tema claro) ===================== */
+:root[data-palette="oceano"] {
+  --background: #f4f7f9; --sidebar: #ebf1f5; --text: #22394a; --muted: #5d7282;
+  --primary: #3f6f8a; --primary-hover: #2e566d; --primary-alto: #1f425a;
+  --sage: #e3eef4; --border: #d9e3ea;
+}
+:root[data-palette="arena"] {
+  --background: #faf8f1; --sidebar: #f3efe2; --text: #3b3320; --muted: #75694a;
+  --primary: #7d6219; --primary-hover: #634e13; --primary-alto: #4d3e17;
+  --sage: #f4ecd3; --border: #e8e0c8;
+}
+:root[data-palette="lavanda"] {
+  --background: #f8f6fa; --sidebar: #f0ecf5; --text: #2e2840; --muted: #6e6585;
+  --primary: #6a5a86; --primary-hover: #54476b; --primary-alto: #3f3454;
+  --sage: #ece6f3; --border: #e2dcea;
+}
+:root[data-palette="coral"] {
+  --background: #faf6f5; --sidebar: #f4ecea; --text: #40292a; --muted: #7d6462;
+  --primary: #9a4f4f; --primary-hover: #7c3f3f; --primary-alto: #6b3434;
+  --sage: #f6e4e4; --border: #ead9d6;
+}
+
+/* ===================== Contraste alto (claro) ===================== */
 :root[data-contrast="alto"] {
   --background: #ffffff;
   --sidebar: #f4f7f2;
   --text: #0b1612;
   --muted: #2f3d37;
-  --primary: #1f4a3a;
-  --primary-hover: #143428;
+  --primary: var(--primary-alto);
+  --primary-hover: var(--primary-alto);
   --blue-text: #1f425a;
   --border: #5c6d65;
   --sand-text: #4d3e17;
   --danger: #8f1111;
-  --piece-base-text: #0b1612;
   --piece-today-text: #14303f;
   --piece-event-text: #3d3010;
-  --piece-selected: #1f4a3a;
   --piece-dot: #4d3e17;
 }
 :root[data-contrast="alto"] *:focus-visible {
   outline-width: 4px;
 }
 
-/* ---------- Tema oscuro ---------- */
+/* ===================== Tema oscuro ===================== */
 :root[data-theme="oscuro"] {
   --background: #121815;
   --sidebar: #17201b;
@@ -82,6 +105,7 @@ html { font-size: 100%; }
   --muted: #9db0a6;
   --primary: #7fbf9f;
   --primary-hover: #9bd1b4;
+  --primary-bright: #9bd8b6;
   --on-primary: #0f1f1a;
   --sage: #24352c;
   --blue: #1f2d36;
@@ -91,34 +115,51 @@ html { font-size: 100%; }
   --sand-text: #e3d29a;
   --danger: #f19999;
 
-  --piece-base: #24352c;
-  --piece-base-text: #dbe8e0;
   --piece-today: #1f3442;
   --piece-today-text: #bcd6e6;
   --piece-event: #5c4d22;
   --piece-event-text: #f3e3ae;
-  --piece-selected: #7fbf9f;
-  --piece-selected-text: #0f1f1a;
   --piece-dot: #e0c36a;
 }
 
-/* ---------- Tema oscuro + contraste alto ---------- */
+/* ===================== Paletas (tema oscuro) ===================== */
+:root[data-theme="oscuro"][data-palette="oceano"] {
+  --background: #101820; --sidebar: #151f28; --surface: #1a252f; --text: #e4edf3; --muted: #9bb0bf;
+  --primary: #86b9d6; --primary-hover: #a3cae0; --primary-bright: #b8d7ea;
+  --sage: #1f2f3a; --border: #2a3945;
+}
+:root[data-theme="oscuro"][data-palette="arena"] {
+  --background: #17140d; --sidebar: #1d1a11; --surface: #221e14; --text: #f0eadb; --muted: #b3a98a;
+  --primary: #e0c36a; --primary-hover: #ebd48a; --primary-bright: #f3e3ae;
+  --sage: #332d1b; --border: #3a3422;
+}
+:root[data-theme="oscuro"][data-palette="lavanda"] {
+  --background: #141119; --sidebar: #19151f; --surface: #1e1a26; --text: #ebe6f3; --muted: #aaa0bf;
+  --primary: #b5a5d0; --primary-hover: #c8bbe0; --primary-bright: #d9cfea;
+  --sage: #2a2438; --border: #342e44;
+}
+:root[data-theme="oscuro"][data-palette="coral"] {
+  --background: #181110; --sidebar: #1e1514; --surface: #231a19; --text: #f3e6e4; --muted: #b79a97;
+  --primary: #e0a0a0; --primary-hover: #eab4b4; --primary-bright: #f2c6c6;
+  --sage: #332121; --border: #3f2d2b;
+}
+
+/* ===================== Tema oscuro + contraste alto ===================== */
 :root[data-theme="oscuro"][data-contrast="alto"] {
   --background: #000000;
   --sidebar: #0a0f0c;
   --surface: #0a0f0c;
   --text: #ffffff;
   --muted: #cfdcd5;
-  --primary: #9bd8b6;
-  --primary-hover: #b6e6cb;
+  --primary: var(--primary-bright);
+  --primary-hover: var(--primary-bright);
   --blue-text: #b8d7ea;
   --border: #8fa69a;
   --sand-text: #f0e0a8;
   --danger: #ffb3b3;
-  --piece-selected: #9bd8b6;
 }
 
-/* ---------- Modo calma: sin animaciones ni movimiento ---------- */
+/* ===================== Modo calma ===================== */
 :root[data-calm="si"] *,
 :root[data-calm="si"] *::before,
 :root[data-calm="si"] *::after {

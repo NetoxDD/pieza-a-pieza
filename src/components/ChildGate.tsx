@@ -3,7 +3,7 @@
 import { Fragment, createContext, useCallback, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-type Child = { id: string; name: string };
+type Child = { id: string; name: string; accent: string | null };
 type Kid = Child & { role: string };
 
 type Ctx = {
@@ -12,6 +12,7 @@ type Ctx = {
   role: string;
   userId: string;
   userName: string;
+   reloadKids: () => void;
   switchChild: (id: string) => void;
   startAdding: () => void;
 };
@@ -173,7 +174,7 @@ export default function ChildGate({ children }: { children: React.ReactNode }) {
 
     const [prof, list, mem] = await Promise.all([
       supabase.from("profiles").select("full_name").eq("id", uid).maybeSingle(),
-      supabase.from("children").select("id,name").order("created_at"),
+      supabase.from("children").select("id,name,accent").order("created_at"),
       supabase.from("child_members").select("child_id,role").eq("user_id", uid),
     ]);
 
@@ -188,7 +189,7 @@ export default function ChildGate({ children }: { children: React.ReactNode }) {
     );
     const mine: Kid[] = list.data
       .filter((k) => roles[k.id])
-      .map((k) => ({ id: k.id, name: k.name, role: roles[k.id] }));
+      .map((k) => ({ id: k.id, name: k.name, accent: k.accent, role: roles[k.id] }));
 
     const stored = readActive(uid);
     const pick =
@@ -274,7 +275,8 @@ export default function ChildGate({ children }: { children: React.ReactNode }) {
   return (
     <ChildCtx.Provider
       value={{
-        child: { id: active.id, name: active.name },
+        child: { id: active.id, name: active.name, accent: active.accent },
+        reloadKids: () => load(active.id),
         kids,
         role: active.role,
         userId,

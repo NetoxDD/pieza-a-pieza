@@ -1,4 +1,5 @@
 export type FontScale = "normal" | "grande" | "muy-grande";
+export type Palette = "bosque" | "oceano" | "arena" | "lavanda" | "coral";
 
 export type Settings = {
   fontScale: FontScale;
@@ -6,7 +7,16 @@ export type Settings = {
   calm: boolean;
   theme: "claro" | "oscuro" | "auto";
   font: "normal" | "legible";
+  palette: Palette;
 };
+
+export const PALETTES: { id: Palette; label: string; swatch: string }[] = [
+  { id: "bosque", label: "Bosque", swatch: "#426f5d" },
+  { id: "oceano", label: "Océano", swatch: "#3f6f8a" },
+  { id: "arena", label: "Arena", swatch: "#7d6219" },
+  { id: "lavanda", label: "Lavanda", swatch: "#6a5a86" },
+  { id: "coral", label: "Coral", swatch: "#9a4f4f" },
+];
 
 export const KEY = "pap:settings";
 
@@ -15,7 +25,14 @@ export function systemDefaults(): Settings {
   const calm =
     typeof window !== "undefined" &&
     !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-  return { fontScale: "normal", contrast: "normal", calm, theme: "auto", font: "normal" };
+  return {
+    fontScale: "normal",
+    contrast: "normal",
+    calm,
+    theme: "auto",
+    font: "normal",
+    palette: "bosque",
+  };
 }
 
 export function readLocal(): Settings | null {
@@ -44,6 +61,7 @@ export function applySettings(s: Settings) {
   el.dataset.contrast = s.contrast;
   el.dataset.calm = s.calm ? "si" : "no";
   el.dataset.font = s.font;
+  el.dataset.palette = s.palette;
   el.dataset.theme = dark ? "oscuro" : "claro";
   el.style.colorScheme = dark ? "dark" : "light";
 }
@@ -60,6 +78,7 @@ d.dataset.fontscale=(s&&s.fontScale)||'normal';
 d.dataset.contrast=(s&&s.contrast)||'normal';
 d.dataset.calm=calm?'si':'no';
 d.dataset.font=(s&&s.font)||'normal';
+d.dataset.palette=(s&&s.palette)||'bosque';
 d.dataset.theme=dark?'oscuro':'claro';
 d.style.colorScheme=dark?'dark':'light';
 }catch(e){}})();`;

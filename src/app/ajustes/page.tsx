@@ -1,53 +1,27 @@
 "use client";
 
+import { useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useChild } from "@/components/ChildGate";
 import { useSettings } from "@/components/SettingsProvider";
+import Choice from "@/components/Choice";
+import PalettePicker from "@/components/PalettePicker";
+import { ACCENTS, childColor } from "@/lib/childColor";
 import type { Settings } from "@/lib/settings";
 
-function Choice<T extends string>({
-  legend,
-  hint,
-  value,
-  options,
-  onChange,
-}: {
-  legend: string;
-  hint?: string;
-  value: T;
-  options: { value: T; label: string }[];
-  onChange: (v: T) => void;
-}) {
-  return (
-    <fieldset className="grid gap-2">
-      <legend className="text-sm font-semibold">{legend}</legend>
-      {hint && <p className="text-xs text-[var(--muted)]">{hint}</p>}
-      <div className="mt-1 flex flex-wrap gap-2">
-        {options.map((o) => (
-          <label
-            key={o.value}
-            className={`flex min-h-11 cursor-pointer items-center rounded-full border px-4 text-sm transition has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--blue-text)] ${
-              value === o.value
-                ? "border-[var(--primary)] bg-[var(--sage)] font-bold text-[var(--primary)]"
-                : "border-[var(--border)] hover:bg-[var(--sage)]"
-            }`}
-          >
-            <input
-              type="radio"
-              name={legend}
-              value={o.value}
-              checked={value === o.value}
-              onChange={() => onChange(o.value)}
-              className="sr-only"
-            />
-            {o.label}
-          </label>
-        ))}
-      </div>
-    </fieldset>
-  );
-}
-
 export default function Ajustes() {
-  const { settings, update, reset } = useSettings();
+  const { settings, update, reset, restartOnboarding } = useSettings();
+  const { child, role, reloadKids } = useChild();
+  const [msg, setMsg] = useState("");
+
+  const color = childColor(child.id, child.accent);
+
+  const setAccent = async (accent: string | null) => {
+    setMsg("");
+    const { error } = await supabase.from("children").update({ accent }).eq("id", child.id);
+    if (error) setMsg("No se pudo cambiar el color del espacio.");
+    else reloadKids();
+  };
 
   return (
     <div className="grid max-w-2xl gap-6">
@@ -59,6 +33,10 @@ export default function Ajustes() {
       </div>
 
       <section className="grid gap-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
+        <h2 className="text-lg font-semibold">Apariencia</h2>
+
+        <PalettePicker value={settings.palette} onChange={(p) => update({ palette: p })} />
+
         <Choice<Settings["fontScale"]>
           legend="Tamaño de letra"
           hint="Se suma al tamaño que ya tengas configurado en tu dispositivo."
@@ -116,6 +94,66 @@ export default function Ajustes() {
         />
       </section>
 
+      {role === "familia" && (
+        <section className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
+          <h2 className="text-lg font-semibold">Color del espacio de {child.name}</h2>
+          <p className="text-sm text-[var(--muted)]">
+            Lo ve todo el equipo en el encabezado y en el selector de niños. Ayuda a no confundir un
+            niño con otro.
+          </p>
+          <fieldset>
+            <legend className="sr-only">Color del espacio</legend>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setAccent(null)}
+                aria-pressed={!child.accent}
+                className={`min-h-11 rounded-full border px-4 text-sm transition ${
+                  !child.accent
+                    ? "border-[var(--primary)] bg-[var(--sage)] font-bold text-[var(--primary)]"
+                    : "border-[var(--border)] hover:bg-[var(--sage)]"
+                }`}
+              >
+                Automático
+              </button>
+              {ACCENTS.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => setAccent(a.id)}
+                  aria-pressed={child.accent === a.id}
+                  className={`flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm transition ${
+                    child.accent === a.id
+                      ? "border-[var(--primary)] bg-[var(--sage)] font-bold text-[var(--primary)]"
+                      : "border-[var(--border)] hover:bg-[var(--sage)]"
+                  }`}
+                >
+                  <span
+                    aria-hidden
+                    className="h-5 w-5 rounded-full border border-[var(--border)]"
+                    style={{ background: a.bar }}
+                  />
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
+            <span
+              aria-hidden
+              className="h-3 w-16 rounded-full"
+              style={{ background: color.bar }}
+            />
+            Así se ve el borde del encabezado.
+          </div>
+          {msg && (
+            <p role="alert" className="text-sm text-[var(--danger)]">
+              {msg}
+            </p>
+          )}
+        </section>
+      )}
+
       <section className="rounded-2xl bg-[var(--sage)] p-6">
         <p className="text-[0.625rem] font-bold uppercase tracking-widest text-[var(--primary)]">
           Vista previa
@@ -129,13 +167,20 @@ export default function Ajustes() {
         </span>
       </section>
 
-      <div>
+      <div className="flex flex-wrap gap-2">
         <button
           type="button"
           onClick={reset}
           className="min-h-11 rounded-xl border border-[var(--border)] px-5 text-sm font-semibold text-[var(--muted)] hover:bg-[var(--sage)]"
         >
           Restablecer ajustes
+        </button>
+        <button
+          type="button"
+          onClick={restartOnboarding}
+          className="min-h-11 rounded-xl border border-[var(--border)] px-5 text-sm font-semibold text-[var(--primary)] hover:bg-[var(--sage)]"
+        >
+          Ver la guía de bienvenida
         </button>
       </div>
     </div>

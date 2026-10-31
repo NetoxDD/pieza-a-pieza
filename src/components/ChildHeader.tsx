@@ -16,7 +16,7 @@ export default function ChildHeader() {
    const me = get(userId);
    const myName = me?.name || userName;  const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const color = childColor(child.id);
+  const color = childColor(child.id, child.accent);
 
   useEffect(() => {
     if (!open) return;
@@ -68,7 +68,7 @@ export default function ChildHeader() {
             <p className="px-3 py-2 text-xs font-semibold text-[var(--muted)]">Cambiar de niño</p>
             <ul>
               {kids.map((k) => {
-                const c = childColor(k.id);
+                const c = childColor(k.id, k.accent);
                 const current = k.id === child.id;
                 return (
                   <li key={k.id}>
