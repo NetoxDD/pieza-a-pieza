@@ -12,6 +12,7 @@ import {
   FileText,
   Users,
   Menu,
+  HeartPulse,
     Settings,
     User,
 } from "lucide-react";
@@ -40,6 +41,7 @@ const GROUPS = [
       { href: "/equipo", label: "Equipo", icon: Users },
       { href: "/perfil", label: "Mi perfil", icon: User },
         { href: "/ajustes", label: "Ajustes", icon: Settings },
+        { href: "/ficha", label: "Ficha del niño", icon: HeartPulse },
     ],
   },
 ];
@@ -58,7 +60,7 @@ const BOTTOM = [
     href: "/mas,/perfil",
     label: "Más",
     icon: Menu,
-    match: (p: string) =>   ["/mas", "/documentos", "/equipo", "/ajustes"].some((x) => p.startsWith(x)),
+    match: (p: string) =>   ["/mas", "/documentos", "/equipo", "/ajustes","/ficha"].some((x) => p.startsWith(x)),
   },
 ];
 

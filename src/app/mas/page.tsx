@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { ChevronRight, FileText, Settings, Users,User } from "lucide-react";
+import { ChevronRight, FileText, Settings, Users,User,HeartPulse} from "lucide-react";
 
 const items = [
   { href: "/documentos", icon: FileText, title: "Documentos", text: "Archivos y recursos compartidos." },
   { href: "/equipo", icon: Users, title: "Equipo", text: "Quién acompaña, sus roles e invitaciones." },
     { href: "/perfil", icon: User, title: "Mi perfil", text: "Tu foto o avatar y tus datos de contacto." },
     { href: "/ajustes", icon: Settings, title: "Ajustes", text: "Tamaño de letra, contraste, tema y modo calma." },
+    { href: "/ficha", icon: HeartPulse, title: "Ficha del niño", text: "Datos generales, alergias, contactos y lo que le ayuda." },
 ];
 
 export default function Mas() {

@@ -7,6 +7,7 @@ import RecentObservations from "@/components/RecentObservations";
 import GoalsPreview from "@/components/GoalsPreview";
 import NextEvent from "@/components/NextEvent";
 import { useChild } from "@/components/ChildGate";
+import HelpsBanner from "@/components/HelpsBanner";
 
 export default function Home() {
   const { child } = useChild();
@@ -40,14 +41,7 @@ export default function Home() {
 
         <aside className="grid gap-6">
           <NextEvent />
-          <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
-            <h2 className="text-lg font-semibold">Para probar juntos</h2>
-            <span className="mt-2 inline-block rounded-md bg-[var(--sage)] px-2.5 py-1 text-[0.6875rem] font-semibold text-[var(--primary)]">
-              Actividad acordada · 5–10 min
-            </span>
-            <h3 className="mt-3 font-semibold">Elegimos el cuento de hoy</h3>
-            <p className="mt-1 text-sm text-[var(--muted)]">Presentar dos opciones y esperar su elección.</p>
-          </section>
+   <HelpsBanner />
         </aside>
       </div>
     </div>

@@ -11,6 +11,7 @@ import RegisterSW from "@/components/RegisterSW";
 import { INIT_SCRIPT } from "@/lib/settings";
 import ProfilesProvider from "@/components/ProfilesProvider";
 import Welcome from "@/components/Welcome";
+import ChildProfileProvider from "@/components/ChildProfileProvider";
 
 const legible = Atkinson_Hyperlegible({
   weight: ["400", "700"],
@@ -45,7 +46,8 @@ export default function RootLayout({
         <AuthGate>
           <SettingsProvider>
 <ChildGate>
-  <ProfilesProvider>
+<ProfilesProvider>
+  <ChildProfileProvider>
     <Welcome />
     <Nav />
     <div className="md:pl-60 pb-24 md:pb-0">
@@ -55,7 +57,8 @@ export default function RootLayout({
         {children}
       </main>
     </div>
-  </ProfilesProvider>
+  </ChildProfileProvider>
+</ProfilesProvider>
 </ChildGate>
           </SettingsProvider>
         </AuthGate>
