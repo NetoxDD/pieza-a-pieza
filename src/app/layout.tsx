@@ -9,6 +9,7 @@ import ChildHeader from "@/components/ChildHeader";
 import SectionTabs from "@/components/SectionTabs";
 import RegisterSW from "@/components/RegisterSW";
 import { INIT_SCRIPT } from "@/lib/settings";
+import ProfilesProvider from "@/components/ProfilesProvider";
 
 const legible = Atkinson_Hyperlegible({
   weight: ["400", "700"],
@@ -42,16 +43,18 @@ export default function RootLayout({
         <RegisterSW />
         <AuthGate>
           <SettingsProvider>
-            <ChildGate>
-              <Nav />
-              <div className="md:pl-60 pb-24 md:pb-0">
-                <ChildHeader />
-                <main className="mx-auto max-w-5xl p-5 md:p-9">
-                  <SectionTabs />
-                  {children}
-                </main>
-              </div>
-            </ChildGate>
+<ChildGate>
+  <ProfilesProvider>
+    <Nav />
+    <div className="md:pl-60 pb-24 md:pb-0">
+      <ChildHeader />
+      <main className="mx-auto max-w-5xl p-5 md:p-9">
+        <SectionTabs />
+        {children}
+      </main>
+    </div>
+  </ProfilesProvider>
+</ChildGate>
           </SettingsProvider>
         </AuthGate>
       </body>

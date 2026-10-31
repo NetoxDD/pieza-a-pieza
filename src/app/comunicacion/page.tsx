@@ -5,7 +5,10 @@ import { Send } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
 import Link from "next/link";
+import Avatar from "@/components/Avatar";
+import { useProfiles } from "@/components/ProfilesProvider";
 import { roleLabel } from "@/lib/roles";
+
 
 type Msg = { id: string; author_id: string; body: string; created_at: string };
 
@@ -20,7 +23,7 @@ const dayLabel = (iso: string) =>
 
 export default function Comunicacion() {
   const { child, userId } = useChild();
-
+  const { get } = useProfiles();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
   const [roles, setRoles] = useState<Record<string, string>>({});
@@ -153,8 +156,10 @@ export default function Comunicacion() {
                     }`}
                   >
                     <div className="flex justify-between gap-3 text-[0.6875rem]">
-                      <strong>{mine ? "Tú" : authorLabel(m.author_id)}</strong>
-                      <time className="shrink-0 text-[var(--muted)]" dateTime={m.created_at}>
+   <span className="flex min-w-0 items-center gap-2">
+     <Avatar profile={get(m.author_id)} name={names[m.author_id] || "?"} size={24} />
+     <strong className="truncate">{mine ? "Tú" : authorLabel(m.author_id)}</strong>
+   </span>                      <time className="shrink-0 text-[var(--muted)]" dateTime={m.created_at}>
                         {new Date(m.created_at).toLocaleTimeString("es-MX", {
                           hour: "2-digit",
                           minute: "2-digit",

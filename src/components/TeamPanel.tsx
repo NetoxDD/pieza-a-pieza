@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Avatar from "@/components/Avatar";
+import { useProfiles } from "@/components/ProfilesProvider";
 import { useChild } from "@/components/ChildGate";
+
 
 import { roleLabel, roleKeys } from "@/lib/roles";
 
@@ -25,6 +28,7 @@ export default function TeamPanel() {
   const [members, setMembers] = useState<Member[]>([]);
   const [ownerId, setOwnerId] = useState("");
   const [invites, setInvites] = useState<Invite[]>([]);
+  const { get } = useProfiles();
   const [role, setRole] = useState("tutor");
   const [code, setCode] = useState("");
   const [copied, setCopied] = useState("");
@@ -140,16 +144,7 @@ export default function TeamPanel() {
           return (
             <li key={m.user_id} className="grid gap-2">
               <div className="flex items-center gap-3">
-                <span
-                  aria-hidden
-                  className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold ${
-                    m.role === "familia"
-                      ? "bg-[var(--sage)] text-[var(--primary)]"
-                      : "bg-[var(--blue)] text-[var(--blue-text)]"
-                  }`}
-                >
-                  {initials(m.name)}
-                </span>
+        <Avatar profile={get(m.user_id)} name={m.name} size={40} />
                 <div className="min-w-0">
                   <strong className="block text-sm leading-tight [overflow-wrap:anywhere]">
                     {m.name}
@@ -158,6 +153,16 @@ export default function TeamPanel() {
                   <small className="text-xs text-[var(--muted)]">
                     {owner ? "Familiar principal" : roleLabel[m.role] ?? m.role}
                   </small>
+                     {(get(m.user_id)?.title || get(m.user_id)?.organization) && (
+     <small className="block text-xs text-[var(--muted)]">
+       {[get(m.user_id)?.title, get(m.user_id)?.organization].filter(Boolean).join(" · ")}
+     </small>
+   )}
+   {get(m.user_id)?.phone && (
+     <a href={`tel:${get(m.user_id)?.phone}`} className="text-xs font-semibold text-[var(--primary)] hover:underline">
+       {get(m.user_id)?.phone}
+     </a>
+   )}
                 </div>
               </div>
 

@@ -6,10 +6,15 @@ import { useChild } from "@/components/ChildGate";
 import SignOutButton from "@/components/SignOutButton";
 import { roleLabel } from "@/lib/roles";
 import { childColor, initials } from "@/lib/childColor";
+import Link from "next/link";
+import Avatar from "@/components/Avatar";
+import { useProfiles } from "@/components/ProfilesProvider";
 
 export default function ChildHeader() {
-  const { child, kids, role, userName, switchChild, startAdding } = useChild();
-  const [open, setOpen] = useState(false);
+   const { child, kids, role, userId, userName, switchChild, startAdding } = useChild();
+   const { get } = useProfiles();
+   const me = get(userId);
+   const myName = me?.name || userName;  const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const color = childColor(child.id);
 
@@ -114,8 +119,14 @@ export default function ChildHeader() {
 
       <div className="flex shrink-0 items-center gap-3">
         {userName && (
-          <span className="hidden text-xs text-[var(--muted)] sm:block">Hola, {userName}</span>
-        )}
+   <Link
+     href="/perfil"
+     aria-label="Mi perfil"
+     className="flex min-h-11 items-center gap-2 rounded-full pr-2 hover:bg-[var(--background)]"
+   >
+     <Avatar profile={me} name={myName} size={32} />
+     <span className="hidden text-xs text-[var(--muted)] sm:block">Hola, {myName}</span>
+   </Link>        )}
         <SignOutButton />
       </div>
     </header>

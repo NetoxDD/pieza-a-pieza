@@ -13,6 +13,7 @@ import {
   Users,
   Menu,
     Settings,
+    User,
 } from "lucide-react";
 import { BASE } from "@/lib/base";
 
@@ -37,6 +38,7 @@ const GROUPS = [
     items: [
       { href: "/documentos", label: "Documentos", icon: FileText },
       { href: "/equipo", label: "Equipo", icon: Users },
+      { href: "/perfil", label: "Mi perfil", icon: User },
         { href: "/ajustes", label: "Ajustes", icon: Settings },
     ],
   },
@@ -53,7 +55,7 @@ const BOTTOM = [
     match: (p: string) => p.startsWith("/objetivos") || p.startsWith("/calendario"),
   },
   {
-    href: "/mas",
+    href: "/mas,/perfil",
     label: "Más",
     icon: Menu,
     match: (p: string) =>   ["/mas", "/documentos", "/equipo", "/ajustes"].some((x) => p.startsWith(x)),
