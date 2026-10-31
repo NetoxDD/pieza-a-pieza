@@ -21,7 +21,7 @@ const tags: Tag[] = ["Comunicación", "Apoyos sensoriales", "Rutinas", "Disfrute
 const tagStyle: Record<Tag, string> = {
   Comunicación: "bg-[var(--sage)] text-[var(--primary)]",
   "Apoyos sensoriales": "bg-[var(--blue)] text-[var(--blue-text)]",
-  Rutinas: "bg-[var(--sand)] text-[#74613d]",
+  Rutinas: "bg-[var(--sand)] text-[var(--sand-text)]",
   Disfrute: "bg-[var(--sage)] text-[var(--primary)]",
 };
 
@@ -141,7 +141,7 @@ export default function Registro() {
                         {r.title}
                       </h3>
                       <p className="text-xs text-[var(--muted)]">{r.detail}</p>
-                      <span className="mt-2 inline-block rounded-md bg-[var(--blue)] px-2.5 py-1 text-[11px] font-semibold text-[var(--blue-text)]">
+                      <span className="mt-2 inline-block rounded-md bg-[var(--blue)] px-2.5 py-1 text-[0.6875rem] font-semibold text-[var(--blue-text)]">
                         {r.badge}
                       </span>
                     </div>
@@ -152,7 +152,7 @@ export default function Registro() {
                       aria-label={`Marcar "${r.title}" como realizada`}
                       className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border transition ${
                         isDone
-                          ? "border-[var(--primary)] bg-[var(--primary)] text-white"
+                          ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--on-primary)]"
                           : "border-[var(--border)] text-transparent hover:bg-[var(--sage)]"
                       }`}
                     >
@@ -186,7 +186,7 @@ export default function Registro() {
             </div>
 
             {error && (
-              <p role="alert" className="mt-3 text-sm text-red-700">
+              <p role="alert" className="mt-3 text-sm text-[var(--danger)]">
                 {error}
               </p>
             )}
@@ -223,7 +223,7 @@ export default function Registro() {
                     )}
                   </div>
                   <p className="mt-2 text-sm [overflow-wrap:anywhere]">{o.body}</p>
-                  <span className={`mt-3 inline-block rounded-md px-2.5 py-1 text-[11px] font-semibold ${tagStyle[o.category]}`}>
+                  <span className={`mt-3 inline-block rounded-md px-2.5 py-1 text-[0.6875rem] font-semibold ${tagStyle[o.category]}`}>
                     {o.category}
                   </span>
                 </li>
@@ -277,7 +277,7 @@ export default function Registro() {
               <button
                 type="submit"
                 disabled={!text.trim() || saving}
-                className="min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-white transition hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+                className="min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--on-primary)] transition hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? "Guardando…" : "Publicar"}
               </button>
@@ -289,7 +289,7 @@ export default function Registro() {
             </div>
           </form>
 
-          <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[#74613d]">
+          <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[var(--sand-text)]">
             También puedes registrar un disfrute, una elección o algo que hoy no funcionó.
           </div>
         </div>

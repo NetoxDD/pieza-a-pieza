@@ -9,11 +9,25 @@
   --muted: #60736b;
   --primary: #426f5d;
   --primary-hover: #315744;
+  --on-primary: #ffffff;
   --sage: #e7f0e6;
   --blue: #e8f1f5;
   --blue-text: #4d6d83;
   --border: #dde5dd;
   --sand: #f7f0e3;
+  --sand-text: #74613d;
+  --danger: #b91c1c;
+
+  /* Piezas del calendario */
+  --piece-base: #e7f0e6;
+  --piece-base-text: #253d36;
+  --piece-today: #d3e4ec;
+  --piece-today-text: #2f4a5c;
+  --piece-event: #ecd9a0;
+  --piece-event-text: #5a4a1f;
+  --piece-selected: #426f5d;
+  --piece-selected-text: #ffffff;
+  --piece-dot: #8a6d1f;
 }
 
 body {
@@ -25,4 +39,94 @@ body {
 *:focus-visible {
   outline: 3px solid var(--blue-text);
   outline-offset: 3px;
+}
+
+/* ---------- Tamaño de letra (porcentaje del tamaño del navegador) ---------- */
+html { font-size: 100%; }
+:root[data-fontscale="grande"] { font-size: 115%; }
+:root[data-fontscale="muy-grande"] { font-size: 130%; }
+
+/* ---------- Letra de alta legibilidad ---------- */
+:root[data-font="legible"] body {
+  font-family: var(--font-legible), system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ---------- Contraste alto (claro) ---------- */
+:root[data-contrast="alto"] {
+  --background: #ffffff;
+  --sidebar: #f4f7f2;
+  --text: #0b1612;
+  --muted: #2f3d37;
+  --primary: #1f4a3a;
+  --primary-hover: #143428;
+  --blue-text: #1f425a;
+  --border: #5c6d65;
+  --sand-text: #4d3e17;
+  --danger: #8f1111;
+  --piece-base-text: #0b1612;
+  --piece-today-text: #14303f;
+  --piece-event-text: #3d3010;
+  --piece-selected: #1f4a3a;
+  --piece-dot: #4d3e17;
+}
+:root[data-contrast="alto"] *:focus-visible {
+  outline-width: 4px;
+}
+
+/* ---------- Tema oscuro ---------- */
+:root[data-theme="oscuro"] {
+  --background: #121815;
+  --sidebar: #17201b;
+  --surface: #1b2520;
+  --text: #e6efe9;
+  --muted: #9db0a6;
+  --primary: #7fbf9f;
+  --primary-hover: #9bd1b4;
+  --on-primary: #0f1f1a;
+  --sage: #24352c;
+  --blue: #1f2d36;
+  --blue-text: #9cc0d6;
+  --border: #2c3a33;
+  --sand: #2e2a1e;
+  --sand-text: #e3d29a;
+  --danger: #f19999;
+
+  --piece-base: #24352c;
+  --piece-base-text: #dbe8e0;
+  --piece-today: #1f3442;
+  --piece-today-text: #bcd6e6;
+  --piece-event: #5c4d22;
+  --piece-event-text: #f3e3ae;
+  --piece-selected: #7fbf9f;
+  --piece-selected-text: #0f1f1a;
+  --piece-dot: #e0c36a;
+}
+
+/* ---------- Tema oscuro + contraste alto ---------- */
+:root[data-theme="oscuro"][data-contrast="alto"] {
+  --background: #000000;
+  --sidebar: #0a0f0c;
+  --surface: #0a0f0c;
+  --text: #ffffff;
+  --muted: #cfdcd5;
+  --primary: #9bd8b6;
+  --primary-hover: #b6e6cb;
+  --blue-text: #b8d7ea;
+  --border: #8fa69a;
+  --sand-text: #f0e0a8;
+  --danger: #ffb3b3;
+  --piece-selected: #9bd8b6;
+}
+
+/* ---------- Modo calma: sin animaciones ni movimiento ---------- */
+:root[data-calm="si"] *,
+:root[data-calm="si"] *::before,
+:root[data-calm="si"] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+  scale: none !important;
+}
+:root[data-calm="si"] svg {
+  filter: none !important;
 }

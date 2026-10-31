@@ -93,7 +93,7 @@ export default function WeeklyChart() {
       </p>
 
       {error && (
-        <p role="alert" className="mt-3 text-sm text-red-700">
+        <p role="alert" className="mt-3 text-sm text-[var(--danger)]">
           {error}
         </p>
       )}
@@ -107,22 +107,30 @@ export default function WeeklyChart() {
       ) : (
         <div className="mt-4 h-64 w-full sm:h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 8, right: 12, left: -16, bottom: 0 }}>
-              <CartesianGrid stroke="#dde5dd" strokeDasharray="3 3" />
-              <XAxis dataKey="semana" tick={{ fontSize: 12, fill: "#60736b" }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#60736b" }} />
-              <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #dde5dd", fontSize: 12 }} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line type="monotone" dataKey="Observaciones" stroke="#426f5d" strokeWidth={3} dot={{ r: 4 }} />
-              <Line
-                type="monotone"
-                dataKey="Registros rápidos"
-                stroke="#c9a55c"
-                strokeWidth={3}
-                strokeDasharray="6 4"
-                dot={{ r: 4 }}
-              />
-            </LineChart>
+<LineChart data={data} margin={{ top: 8, right: 12, left: -16, bottom: 0 }}>
+  <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
+  <XAxis dataKey="semana" tick={{ fontSize: 12, fill: "var(--muted)" }} />
+  <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "var(--muted)" }} />
+  <Tooltip
+    contentStyle={{
+      borderRadius: 12,
+      border: "1px solid var(--border)",
+      background: "var(--surface)",
+      color: "var(--text)",
+      fontSize: 12,
+    }}
+  />
+  <Legend wrapperStyle={{ fontSize: 12, color: "var(--text)" }} />
+  <Line type="monotone" dataKey="Observaciones" stroke="var(--primary)" strokeWidth={3} dot={{ r: 4 }} />
+  <Line
+    type="monotone"
+    dataKey="Registros rápidos"
+    stroke="#c9a55c"
+    strokeWidth={3}
+    strokeDasharray="6 4"
+    dot={{ r: 4 }}
+  />
+</LineChart>
           </ResponsiveContainer>
         </div>
       )}

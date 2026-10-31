@@ -20,16 +20,16 @@ type Signs = { top: number; right: number; bottom: number; left: number };
 
 /* ---------- Colores de las piezas (cámbialos aquí) ---------- */
 const FILL = {
-  base: "#e7f0e6",
-  today: "#d3e4ec",
-  event: "#ecd9a0",
-  selected: "#426f5d",
+  base: "var(--piece-base)",
+  today: "var(--piece-today)",
+  event: "var(--piece-event)",
+  selected: "var(--piece-selected)",
 };
 const TEXT = {
-  base: "#253d36",
-  today: "#2f4a5c",
-  event: "#5a4a1f",
-  selected: "#ffffff",
+  base: "var(--piece-base-text)",
+  today: "var(--piece-today-text)",
+  event: "var(--piece-event-text)",
+  selected: "var(--piece-selected-text)",
 };
 
 /* ---------- Forma de una pestaña de rompecabezas ----------
@@ -213,7 +213,7 @@ export default function Calendario() {
           type="button"
           onClick={() => setShowForm((s) => !s)}
           aria-expanded={showForm}
-          className="min-h-11 shrink-0 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-white transition hover:bg-[var(--primary-hover)]"
+          className="min-h-11 shrink-0 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--on-primary)] transition hover:bg-[var(--primary-hover)]"
         >
           + Nuevo encuentro
         </button>
@@ -289,7 +289,7 @@ export default function Calendario() {
                     <path
                       d={piecePath(signsFor(day, offset, total))}
                       className="transition-[fill] duration-200 motion-reduce:transition-none"
-                      style={{ fill: FILL[state], stroke: "#ffffff", strokeWidth: 3 }}
+                      style={{ fill: FILL[state], stroke: "var(--surface)", strokeWidth: 3 }}
                       vectorEffect="non-scaling-stroke"
                       strokeLinejoin="round"
                     />
@@ -308,7 +308,7 @@ export default function Calendario() {
                     <span
                       aria-hidden
                       className="absolute bottom-[16%] left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full"
-                      style={{ background: isSel ? FILL.event : "#8a6d1f" }}
+                      style={{ background: isSel ? FILL.event : "var(--piece-dot)" }}
                     />
                   )}
                 </button>
@@ -331,7 +331,7 @@ export default function Calendario() {
 
         <aside className="grid gap-6">
           <section className="rounded-2xl bg-[var(--blue)] p-6" aria-live="polite">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--primary)]">
+            <p className="text-[0.625rem] font-bold uppercase tracking-widest text-[var(--primary)]">
               {selectedLabel}
             </p>
 
@@ -397,7 +397,7 @@ export default function Calendario() {
                 <button
                   type="submit"
                   disabled={!title.trim() || saving}
-                  className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-white disabled:opacity-50"
+                  className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-[var(--on-primary)] disabled:opacity-50"
                 >
                   {saving ? "Guardando…" : "Añadir al calendario"}
                 </button>
@@ -405,13 +405,13 @@ export default function Calendario() {
             )}
 
             {error && (
-              <p role="alert" className="mt-3 text-sm text-red-700">
+              <p role="alert" className="mt-3 text-sm text-[var(--danger)]">
                 {error}
               </p>
             )}
           </section>
 
-          <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[#74613d]">
+          <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[var(--sand-text)]">
             Antes del encuentro, puedes compartir en el registro lo que te gustaría comentar.
           </div>
         </aside>

@@ -152,7 +152,7 @@ export default function Comunicacion() {
                         : "self-start rounded-bl-sm bg-[var(--background)]"
                     }`}
                   >
-                    <div className="flex justify-between gap-3 text-[11px]">
+                    <div className="flex justify-between gap-3 text-[0.6875rem]">
                       <strong>{mine ? "Tú" : authorLabel(m.author_id)}</strong>
                       <time className="shrink-0 text-[var(--muted)]" dateTime={m.created_at}>
                         {new Date(m.created_at).toLocaleTimeString("es-MX", {
@@ -210,14 +210,14 @@ export default function Comunicacion() {
               type="submit"
               disabled={!text.trim() || sending}
               aria-label="Enviar mensaje"
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[var(--primary)] text-white transition hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[var(--primary)] text-[var(--on-primary)] transition hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Send size={18} aria-hidden />
             </button>
           </form>
 
           {error && (
-            <p role="alert" className="mt-2 text-sm text-red-700">
+            <p role="alert" className="mt-2 text-sm text-[var(--danger)]">
               {error}
             </p>
           )}
@@ -236,7 +236,7 @@ export default function Comunicacion() {
                 Ver y gestionar el equipo →
             </Link>
           </section>
-          <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[#74613d]">
+          <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[var(--sand-text)]">
             Cada persona responde según su disponibilidad. Este canal no atiende urgencias.
           </div>
         </aside>

@@ -162,7 +162,7 @@ export default function TeamPanel() {
               </div>
 
               {!owner && (isOwner || self) && (
-                <div className="flex flex-wrap items-center gap-2 pl-[52px]">
+                <div className="flex flex-wrap items-center gap-2 pl-[3.25rem]">
                   {isOwner && (
                     <label className="text-xs">
                       <span className="sr-only">Rol de {m.name}</span>
@@ -215,7 +215,7 @@ export default function TeamPanel() {
             type="button"
             onClick={generate}
             disabled={busy}
-            className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-white transition hover:bg-[var(--primary-hover)] disabled:opacity-50"
+            className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-[var(--on-primary)] transition hover:bg-[var(--primary-hover)] disabled:opacity-50"
           >
             {busy ? "Generando…" : "Generar código"}
           </button>
@@ -270,7 +270,7 @@ export default function TeamPanel() {
       )}
 
       {error && (
-        <p role="alert" className="mt-3 text-sm text-red-700">
+        <p role="alert" className="mt-3 text-sm text-[var(--danger)]">
           {error}
         </p>
       )}

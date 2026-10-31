@@ -20,7 +20,7 @@ export default function Home() {
       </div>
 
       <section className="rounded-2xl bg-[var(--sage)] p-6">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--primary)]">
+        <p className="text-[0.625rem] font-bold uppercase tracking-widest text-[var(--primary)]">
           Lo que nos ayuda a conectar
         </p>
         <h2 className="mt-2 text-2xl font-medium">Mucho por descubrir, a su ritmo.</h2>
@@ -42,7 +42,7 @@ export default function Home() {
           <NextEvent />
           <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
             <h2 className="text-lg font-semibold">Para probar juntos</h2>
-            <span className="mt-2 inline-block rounded-md bg-[var(--sage)] px-2.5 py-1 text-[11px] font-semibold text-[var(--primary)]">
+            <span className="mt-2 inline-block rounded-md bg-[var(--sage)] px-2.5 py-1 text-[0.6875rem] font-semibold text-[var(--primary)]">
               Actividad acordada · 5–10 min
             </span>
             <h3 className="mt-3 font-semibold">Elegimos el cuento de hoy</h3>

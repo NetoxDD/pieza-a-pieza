@@ -26,7 +26,7 @@ const statuses = ["Nuevas iniciativas", "Seguimos explorando", "Apoyo que funcio
 const badgeStyle: Record<string, string> = {
   "Nuevas iniciativas": "bg-[var(--sage)] text-[var(--primary)]",
   "Seguimos explorando": "bg-[var(--blue)] text-[var(--blue-text)]",
-  "Apoyo que funciona": "bg-[var(--sand)] text-[#74613d]",
+  "Apoyo que funciona": "bg-[var(--sand)] text-[var(--sand-text)]",
 };
 
 const inputCls =
@@ -119,10 +119,10 @@ function GoalCard({ goal, userId, reload }: { goal: Goal; userId: string; reload
     <article className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--primary)]">{goal.area}</p>
+          <p className="text-[0.625rem] font-bold uppercase tracking-widest text-[var(--primary)]">{goal.area}</p>
           <h2 className="mt-1 text-lg font-semibold [overflow-wrap:anywhere]">{goal.title}</h2>
           <span
-            className={`mt-2 inline-block rounded-md px-2.5 py-1 text-[11px] font-semibold ${
+            className={`mt-2 inline-block rounded-md px-2.5 py-1 text-[0.6875rem] font-semibold ${
               badgeStyle[goal.status] ?? badgeStyle["Seguimos explorando"]
             }`}
           >
@@ -247,7 +247,7 @@ function GoalCard({ goal, userId, reload }: { goal: Goal; userId: string; reload
               type="button"
               onClick={save}
               disabled={busy}
-              className="min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-white hover:bg-[var(--primary-hover)] disabled:opacity-50"
+              className="min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--on-primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50"
             >
               {busy ? "Guardando…" : "Guardar cambios"}
             </button>
@@ -262,7 +262,7 @@ function GoalCard({ goal, userId, reload }: { goal: Goal; userId: string; reload
               <button
                 type="button"
                 onClick={removeGoal}
-                className="min-h-11 rounded-xl px-5 text-sm font-semibold text-red-700 hover:bg-red-50"
+                className="min-h-11 rounded-xl px-5 text-sm font-semibold text-[var(--danger)] hover:bg-[var(--sand)]"
               >
                 Eliminar objetivo
               </button>
@@ -280,7 +280,7 @@ function GoalCard({ goal, userId, reload }: { goal: Goal; userId: string; reload
       )}
 
       {msg && (
-        <p role="alert" className="mt-3 text-sm text-red-700">
+        <p role="alert" className="mt-3 text-sm text-[var(--danger)]">
           {msg}
         </p>
       )}
@@ -364,7 +364,7 @@ export default function Objetivos() {
             type="button"
             onClick={() => setShowForm((s) => !s)}
             aria-expanded={showForm}
-            className="min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-white transition hover:bg-[var(--primary-hover)]"
+            className="min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--on-primary)] transition hover:bg-[var(--primary-hover)]"
           >
             + Nuevo objetivo
           </button>
@@ -372,7 +372,7 @@ export default function Objetivos() {
       </div>
 
       <section className="rounded-2xl bg-[var(--sage)] p-6">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--primary)]">
+        <p className="text-[0.625rem] font-bold uppercase tracking-widest text-[var(--primary)]">
           Su propio recorrido
         </p>
         <h2 className="mt-2 text-2xl font-medium">Acompañar, observar y ajustar juntos.</h2>
@@ -421,14 +421,14 @@ export default function Objetivos() {
             />
           </label>
 
-          <p className="rounded-lg bg-[var(--sand)] p-3 text-xs text-[#74613d]">
+          <p className="rounded-lg bg-[var(--sand)] p-3 text-xs text-[var(--sand-text)]">
             Proyecto escolar: usa objetivos de ejemplo, no información clínica real.
           </p>
 
           <button
             type="submit"
             disabled={!title.trim() || saving}
-            className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-white hover:bg-[var(--primary-hover)] disabled:opacity-50"
+            className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-[var(--on-primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50"
           >
             {saving ? "Guardando…" : "Crear objetivo"}
           </button>
@@ -436,7 +436,7 @@ export default function Objetivos() {
       )}
 
       {error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-[var(--danger)]">
           {error}
         </p>
       )}
@@ -468,7 +468,7 @@ export default function Objetivos() {
               Consultar documentos →
             </Link>
           </section>
-          <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[#74613d]">
+          <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[var(--sand-text)]">
             Estos objetivos son contenido de la maqueta, no un plan terapéutico individualizado.
           </div>
         </aside>

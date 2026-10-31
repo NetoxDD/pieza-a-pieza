@@ -94,7 +94,7 @@ export default function QuickLog({ onSaved }: { onSaved?: () => void }) {
           type="button"
           onClick={handleSave}
           disabled={!mood || saving}
-          className="min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-white transition hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--on-primary)] transition hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? "Guardando…" : "Guardar registro"}
         </button>
@@ -104,7 +104,7 @@ export default function QuickLog({ onSaved }: { onSaved?: () => void }) {
           </p>
         )}
         {error && (
-          <p role="alert" className="text-sm text-red-700">
+          <p role="alert" className="text-sm text-[var(--danger)]">
             {error}
           </p>
         )}

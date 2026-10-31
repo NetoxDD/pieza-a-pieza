@@ -1,11 +1,21 @@
 import type { Metadata, Viewport } from "next";
+import { Atkinson_Hyperlegible } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import AuthGate from "@/components/AuthGate";
+import SettingsProvider from "@/components/SettingsProvider";
 import ChildGate from "@/components/ChildGate";
 import ChildHeader from "@/components/ChildHeader";
 import SectionTabs from "@/components/SectionTabs";
 import RegisterSW from "@/components/RegisterSW";
+import { INIT_SCRIPT } from "@/lib/settings";
+
+const legible = Atkinson_Hyperlegible({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-legible",
+});
 
 export const metadata: Metadata = {
   title: "Pieza a pieza",
@@ -24,20 +34,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body className="bg-[var(--background)] text-[var(--text)] antialiased">
+    <html lang="es" suppressHydrationWarning className={legible.variable}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: INIT_SCRIPT }} />
+      </head>
+      <body className="antialiased">
         <RegisterSW />
         <AuthGate>
-          <ChildGate>
-            <Nav />
-            <div className="md:pl-60 pb-24 md:pb-0">
-              <ChildHeader />
-              <main className="mx-auto max-w-5xl p-5 md:p-9">
-                <SectionTabs />
-                {children}
-              </main>
-            </div>
-          </ChildGate>
+          <SettingsProvider>
+            <ChildGate>
+              <Nav />
+              <div className="md:pl-60 pb-24 md:pb-0">
+                <ChildHeader />
+                <main className="mx-auto max-w-5xl p-5 md:p-9">
+                  <SectionTabs />
+                  {children}
+                </main>
+              </div>
+            </ChildGate>
+          </SettingsProvider>
         </AuthGate>
       </body>
     </html>

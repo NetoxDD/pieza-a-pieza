@@ -107,11 +107,11 @@ function Onboarding({
               ¿Cómo se llama el niño o la niña?
               <input value={name} onChange={(e) => setName(e.target.value)} maxLength={60} required placeholder="Ej. Mateo" className={input} />
             </label>
-            <p className="rounded-lg bg-[var(--sand)] p-3 text-xs text-[#74613d]">
+            <p className="rounded-lg bg-[var(--sand)] p-3 text-xs text-[var(--sand-text)]">
               Proyecto escolar: usa un nombre de ejemplo o un apodo, no datos reales.
             </p>
-            {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
-            <button type="submit" disabled={busy || !name.trim()} className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-white transition hover:bg-[var(--primary-hover)] disabled:opacity-50">
+            {error && <p role="alert" className="text-sm text-[var(--danger)]">{error}</p>}
+            <button type="submit" disabled={busy || !name.trim()} className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-[var(--on-primary)] transition hover:bg-[var(--primary-hover)] disabled:opacity-50">
               {busy ? "Creando…" : "Crear espacio"}
             </button>
           </form>
@@ -139,8 +139,8 @@ function Onboarding({
             <p className="text-xs text-[var(--muted)]">
               La familia lo genera en la sección Equipo, y entrarás con el rol que ellos elijan.
             </p>
-            {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
-            <button type="submit" disabled={busy || !code.trim()} className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-white transition hover:bg-[var(--primary-hover)] disabled:opacity-50">
+            {error && <p role="alert" className="text-sm text-[var(--danger)]">{error}</p>}
+            <button type="submit" disabled={busy || !code.trim()} className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-[var(--on-primary)] transition hover:bg-[var(--primary-hover)] disabled:opacity-50">
               {busy ? "Entrando…" : "Unirme al equipo"}
             </button>
           </form>
@@ -251,7 +251,7 @@ export default function ChildGate({ children }: { children: React.ReactNode }) {
               setFailed(false);
               load();
             }}
-            className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-white hover:bg-[var(--primary-hover)]"
+            className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-[var(--on-primary)] hover:bg-[var(--primary-hover)]"
           >
             Reintentar
           </button>

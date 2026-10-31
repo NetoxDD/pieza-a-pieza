@@ -73,7 +73,7 @@ export default function MoodSummary({ refreshKey }: { refreshKey: number }) {
       </p>
 
       {error && (
-        <p role="alert" className="mt-3 text-sm text-red-700">
+        <p role="alert" className="mt-3 text-sm text-[var(--danger)]">
           {error}
         </p>
       )}

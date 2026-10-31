@@ -87,13 +87,13 @@ function AuthForm() {
           />
         </label>
 
-        {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+        {error && <p role="alert" className="text-sm text-[var(--danger)]">{error}</p>}
         {info && <p role="status" className="text-sm text-[var(--primary)]">{info}</p>}
 
         <button
           type="submit"
           disabled={busy}
-          className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-white transition hover:bg-[var(--primary-hover)] disabled:opacity-50"
+          className="min-h-11 rounded-xl bg-[var(--primary)] text-sm font-semibold text-[var(--on-primary)] transition hover:bg-[var(--primary-hover)] disabled:opacity-50"
         >
           {busy ? "Un momento…" : mode === "login" ? "Entrar" : "Crear cuenta"}
         </button>
@@ -110,7 +110,7 @@ function AuthForm() {
           {mode === "login" ? "¿Primera vez? Crear cuenta" : "Ya tengo cuenta"}
         </button>
 
-        <p className="rounded-lg bg-[var(--sand)] p-3 text-xs text-[#74613d]">
+        <p className="rounded-lg bg-[var(--sand)] p-3 text-xs text-[var(--sand-text)]">
           Proyecto escolar. Usa solo datos de ejemplo, no información real de menores.
         </p>
       </form>

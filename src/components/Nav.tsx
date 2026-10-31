@@ -12,6 +12,7 @@ import {
   FileText,
   Users,
   Menu,
+    Settings,
 } from "lucide-react";
 import { BASE } from "@/lib/base";
 
@@ -36,6 +37,7 @@ const GROUPS = [
     items: [
       { href: "/documentos", label: "Documentos", icon: FileText },
       { href: "/equipo", label: "Equipo", icon: Users },
+        { href: "/ajustes", label: "Ajustes", icon: Settings },
     ],
   },
 ];
@@ -54,7 +56,7 @@ const BOTTOM = [
     href: "/mas",
     label: "Más",
     icon: Menu,
-    match: (p: string) => ["/mas", "/documentos", "/equipo"].some((x) => p.startsWith(x)),
+    match: (p: string) =>   ["/mas", "/documentos", "/equipo", "/ajustes"].some((x) => p.startsWith(x)),
   },
 ];
 

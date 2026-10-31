@@ -65,7 +65,7 @@ export default function NextEvent() {
         <p className="mt-3 text-sm text-[var(--muted)]">Cargando…</p>
       ) : ev ? (
         <>
-          <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-[var(--primary)]">
+          <p className="mt-3 text-[0.625rem] font-bold uppercase tracking-widest text-[var(--primary)]">
             {when}
           </p>
           <h3 className="mt-1 font-semibold [overflow-wrap:anywhere]">{ev.title}</h3>

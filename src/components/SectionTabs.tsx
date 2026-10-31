@@ -8,7 +8,7 @@ const PLAN = [
   { href: "/objetivos", label: "Objetivos" },
   { href: "/calendario", label: "Calendario" },
 ];
-const MORE = ["/documentos", "/equipo"];
+const MORE = ["/documentos", "/equipo", "/ajustes"];
 
 export default function SectionTabs() {
   const pathname = usePathname();

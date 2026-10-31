@@ -68,7 +68,7 @@ export default function RecentObservations() {
                 })}
               </small>
               <p className="mt-1.5 line-clamp-3 text-sm [overflow-wrap:anywhere]">{o.body}</p>
-              <span className="mt-2 inline-block rounded-md bg-[var(--sage)] px-2.5 py-1 text-[11px] font-semibold text-[var(--primary)]">
+              <span className="mt-2 inline-block rounded-md bg-[var(--sage)] px-2.5 py-1 text-[0.6875rem] font-semibold text-[var(--primary)]">
                 {o.category}
               </span>
             </li>

@@ -63,7 +63,7 @@ export default function GoalsPreview() {
               >
                 <div className="h-full rounded-full bg-[var(--primary)]" style={{ width: `${g.progress}%` }} />
               </div>
-              <span className="mt-3 inline-block rounded-md bg-[var(--sage)] px-2.5 py-1 text-[11px] font-semibold text-[var(--primary)]">
+              <span className="mt-3 inline-block rounded-md bg-[var(--sage)] px-2.5 py-1 text-[0.6875rem] font-semibold text-[var(--primary)]">
                 {g.status} · {g.progress}%
               </span>
             </li>

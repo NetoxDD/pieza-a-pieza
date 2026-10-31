@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ChevronRight, FileText, Users } from "lucide-react";
+import { ChevronRight, FileText, Settings, Users } from "lucide-react";
 
 const items = [
   { href: "/documentos", icon: FileText, title: "Documentos", text: "Archivos y recursos compartidos." },
   { href: "/equipo", icon: Users, title: "Equipo", text: "Quién acompaña, sus roles e invitaciones." },
+    { href: "/ajustes", icon: Settings, title: "Ajustes", text: "Tamaño de letra, contraste, tema y modo calma." },
 ];
 
 export default function Mas() {
@@ -34,7 +35,7 @@ export default function Mas() {
         ))}
       </ul>
 
-      <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[#74613d]">
+      <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[var(--sand-text)]">
         Proyecto escolar con datos de ejemplo. No uses información real de menores.
       </div>
     </div>

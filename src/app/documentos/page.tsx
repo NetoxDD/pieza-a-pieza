@@ -55,7 +55,7 @@ export default function Documentos() {
       </div>
 
       <section className="rounded-2xl bg-[var(--sage)] p-6">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--primary)]">
+        <p className="text-[0.625rem] font-bold uppercase tracking-widest text-[var(--primary)]">
           Materiales compartidos
         </p>
         <h2 className="mt-2 text-2xl font-medium">Lo que nos ayuda, a mano.</h2>
@@ -73,7 +73,7 @@ export default function Documentos() {
             <h2 className="text-lg font-semibold [overflow-wrap:anywhere]">{d.title}</h2>
             <p className="mt-2 text-sm">{d.description.replaceAll("Mateo", child.name)}</p>
             <span
-              className={`mt-3 inline-block rounded-md px-2.5 py-1 text-[11px] font-semibold ${
+              className={`mt-3 inline-block rounded-md px-2.5 py-1 text-[0.6875rem] font-semibold ${
                 d.blue ? "bg-[var(--blue)] text-[var(--blue-text)]" : "bg-[var(--sage)] text-[var(--primary)]"
               }`}
             >
@@ -124,7 +124,7 @@ export default function Documentos() {
           Arrastra un archivo aquí o selecciónalo. Es una prueba: no se guarda. No uses
           información personal o clínica real.
         </p>
-        <label className="mt-4 inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-white transition hover:bg-[var(--primary-hover)] focus-within:outline focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-[var(--blue-text)]">
+        <label className="mt-4 inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--on-primary)] transition hover:bg-[var(--primary-hover)] focus-within:outline focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-[var(--blue-text)]">
           <Upload size={16} aria-hidden />
           Seleccionar documento
           <input
