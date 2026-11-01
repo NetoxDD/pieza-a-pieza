@@ -5,8 +5,11 @@ import { useChildProfile } from "@/components/ChildProfileProvider";
 import ConsentCard from "@/components/ficha/ConsentCard";
 import IdentitySection from "@/components/ficha/IdentitySection";
 import AllergiesSection from "@/components/ficha/AllergiesSection";
+import MedicationsSection from "@/components/ficha/MedicationsSection";
+import ConditionsSection from "@/components/ficha/ConditionsSection";
 import ContactsSection from "@/components/ficha/ContactsSection";
 import HelpsSection from "@/components/ficha/HelpsSection";
+import PrivacySection from "@/components/ficha/PrivacySection";
 
 export default function Ficha() {
   const { child } = useChild();
@@ -41,8 +44,11 @@ export default function Ficha() {
         <>
           <IdentitySection />
           <AllergiesSection />
+          <MedicationsSection />
+          <ConditionsSection />
           <ContactsSection />
           <HelpsSection />
+          <PrivacySection />
         </>
       )}
 

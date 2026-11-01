@@ -21,8 +21,7 @@ const empty = {
 
 export default function ContactsSection() {
   const { child } = useChild();
-  const { contacts, editable, reload } = useChildProfile();
-  const [open, setOpen] = useState(false);
+   const { contacts, editable, reload, access } = useChildProfile();  const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(empty);
   const [busy, setBusy] = useState(false);
@@ -115,7 +114,11 @@ export default function ContactsSection() {
           </button>
         )}
       </div>
-
+   {!access.contacts && (
+     <p className="mt-3 text-xs text-[var(--muted)]">
+       La familia compartió contigo solo los contactos de emergencia.
+     </p>
+   )}
       {sorted.length === 0 ? (
         <p className="mt-3 rounded-xl bg-[var(--background)] p-4 text-sm text-[var(--muted)]">
           Aún no hay contactos. Aquí van familiares, el pediatra, el hospital y la escuela.

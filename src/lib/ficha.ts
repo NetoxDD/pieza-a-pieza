@@ -78,3 +78,37 @@ export function formatDate(iso: string | null): string {
 
 export const mapsUrl = (address: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+
+export type Medication = {
+  id: string;
+  name: string;
+  dose: string | null;
+  frequency: string | null;
+  category: "tdah_autismo" | "general";
+  prescriber: string | null;
+  started_on: string | null;
+  notes: string | null;
+  active: boolean;
+};
+
+export type SectionKey = "medications" | "conditions" | "contacts";
+export type Access = Record<SectionKey, boolean>;
+
+export const medCategoryLabel: Record<string, string> = {
+  tdah_autismo: "TDAH o autismo",
+  general: "General",
+};
+
+export const SECTIONS: { key: SectionKey; label: string; hint: string }[] = [
+  { key: "medications", label: "Medicamentos", hint: "Lista de medicamentos y su dosis." },
+  { key: "conditions", label: "Otras condiciones", hint: "El texto opcional de condiciones de salud." },
+  { key: "contacts", label: "Otros contactos y lugares", hint: "Pediatra, hospital, escuela y demás. Los contactos de emergencia siempre se ven." },
+];
+
+export const CONFIGURABLE_ROLES = ["cuidador", "pediatra", "terapeuta", "logopeda", "tutor"];
+
+// Debe coincidir con los valores iniciales de la función can_view_section de la base de datos
+export function defaultAllowed(section: SectionKey, role: string): boolean {
+  if (section === "contacts") return true;
+  return ["pediatra", "terapeuta", "logopeda"].includes(role);
+}
