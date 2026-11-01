@@ -8,6 +8,7 @@ import Choice from "@/components/Choice";
 import PalettePicker from "@/components/PalettePicker";
 import { ACCENTS, childColor } from "@/lib/childColor";
 import type { Settings } from "@/lib/settings";
+import EmergencyDeviceSettings from "@/components/EmergencyDeviceSettings";
 
 export default function Ajustes() {
   const { settings, update, reset, restartOnboarding } = useSettings();
@@ -93,6 +94,7 @@ export default function Ajustes() {
           onChange={(v) => update({ calm: v === "si" })}
         />
       </section>
+      <EmergencyDeviceSettings />
 
       {role === "familia" && (
         <section className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">

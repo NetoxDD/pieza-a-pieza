@@ -2,6 +2,7 @@
 
 import { Fragment, createContext, useCallback, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import OfflineEmergency from "@/components/OfflineEmergency";
 
 type Child = { id: string; name: string; accent: string | null };
 type Kid = Child & { role: string };
@@ -167,10 +168,14 @@ export default function ChildGate({ children }: { children: React.ReactNode }) {
   const [userName, setUserName] = useState("");
 
   const load = useCallback(async (prefer?: string) => {
-    const { data: auth } = await supabase.auth.getUser();
-    if (!auth.user) return;
-    const uid = auth.user.id;
-    setUserId(uid);
+const { data: sess } = await supabase.auth.getSession();
+const uid = sess.session?.user.id;
+if (!uid) {
+  setFailed(true);
+  setLoading(false);
+  return;
+}
+setUserId(uid);
 
     const [prof, list, mem] = await Promise.all([
       supabase.from("profiles").select("full_name").eq("id", uid).maybeSingle(),
@@ -256,6 +261,7 @@ export default function ChildGate({ children }: { children: React.ReactNode }) {
           >
             Reintentar
           </button>
+          <OfflineEmergency userId={userId} />
         </div>
       </div>
     );

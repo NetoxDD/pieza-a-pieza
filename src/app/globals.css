@@ -171,3 +171,19 @@ html { font-size: 100%; }
 :root[data-calm="si"] svg {
   filter: none !important;
 }
+/* ===================== Impresión de la ficha de emergencia ===================== */
+@page {
+  margin: 14mm;
+}
+@media print {
+  html[data-emergency="open"] body > *:not(.emergency-overlay) {
+    display: none !important;
+  }
+  html[data-emergency="open"] .emergency-overlay {
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}

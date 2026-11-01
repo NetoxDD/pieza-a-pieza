@@ -9,6 +9,7 @@ import { childColor, initials } from "@/lib/childColor";
 import Link from "next/link";
 import Avatar from "@/components/Avatar";
 import { useProfiles } from "@/components/ProfilesProvider";
+import EmergencyButton from "@/components/EmergencyButton";
 
 export default function ChildHeader() {
    const { child, kids, role, userId, userName, switchChild, startAdding } = useChild();
@@ -118,6 +119,7 @@ export default function ChildHeader() {
       </div>
 
       <div className="flex shrink-0 items-center gap-3">
+        <EmergencyButton />
         {userName && (
    <Link
      href="/perfil"

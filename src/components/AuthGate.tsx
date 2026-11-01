@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { clearCopies, listCopies } from "@/lib/emergency";
+import { storedUserId } from "@/lib/offlineSession";
+import { OfflineScreen } from "@/components/OfflineEmergency";
 import { BASE } from "@/lib/base";
 
 function AuthForm() {
@@ -14,6 +17,7 @@ function AuthForm() {
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [busy, setBusy] = useState(false);
+  
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,15 +125,24 @@ function AuthForm() {
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [offlineUid, setOfflineUid] = useState<string | null>(null);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => setSession(s));
-    return () => sub.subscription.unsubscribe();
-  }, []);
+useEffect(() => {
+  supabase.auth.getSession().then(({ data }) => {
+    setSession(data.session);
+    // Sin internet y con la sesión vencida: se ofrece la ficha de emergencia guardada
+    if (!data.session && typeof navigator !== "undefined" && !navigator.onLine) {
+      const uid = storedUserId();
+      if (uid && listCopies(uid).length > 0) setOfflineUid(uid);
+    }
+    setLoading(false);
+  });
+  const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
+    if (event === "SIGNED_OUT") clearCopies();
+    setSession(s);
+  });
+  return () => sub.subscription.unsubscribe();
+}, []);
 
   if (loading)
     return (
@@ -138,5 +151,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
       </div>
     );
 
-  return session ? <>{children}</> : <AuthForm />;
+  if (session) return <>{children}</>;
+if (offlineUid) return <OfflineScreen uid={offlineUid} />;
+return <AuthForm />;
 }
