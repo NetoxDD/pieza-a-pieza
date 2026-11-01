@@ -1,66 +1,45 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Check, ChevronDown, Plus } from "lucide-react";
 import { useChild } from "@/components/ChildGate";
-import SignOutButton from "@/components/SignOutButton";
+import EmergencyButton from "@/components/EmergencyButton";
+import UserMenu from "@/components/UserMenu";
 import { roleLabel } from "@/lib/roles";
 import { childColor, initials } from "@/lib/childColor";
-import Link from "next/link";
-import Avatar from "@/components/Avatar";
-import { useProfiles } from "@/components/ProfilesProvider";
-import EmergencyButton from "@/components/EmergencyButton";
+import { useDismiss } from "@/lib/useDismiss";
 
 export default function ChildHeader() {
-   const { child, kids, role, userId, userName, switchChild, startAdding } = useChild();
-   const { get } = useProfiles();
-   const me = get(userId);
-   const myName = me?.name || userName;  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const { child, kids, switchChild, startAdding } = useChild();
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  useDismiss(open, () => setOpen(false), wrapRef, btnRef);
   const color = childColor(child.id, child.accent);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
 
   return (
     <header
-      className="flex items-center justify-between gap-4 border-b border-[var(--border)] bg-[var(--surface)] px-5 py-3 md:px-9"
+      className="flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 md:px-9"
       style={{ borderTop: `4px solid ${color.bar}` }}
     >
-      <div ref={ref} className="relative min-w-0">
+      <div ref={wrapRef} className="relative min-w-0">
         <button
+          ref={btnRef}
           type="button"
           onClick={() => setOpen((o) => !o)}
           aria-expanded={open}
           aria-haspopup="true"
+          aria-label={`Niño activo: ${child.name}. Cambiar de niño`}
           className="flex min-h-11 max-w-full items-center gap-3 rounded-xl px-2 text-left hover:bg-[var(--background)]"
         >
           <span
             aria-hidden
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-bold"
             style={{ background: color.bg, color: color.fg }}
           >
             {initials(child.name)}
           </span>
-          <span className="min-w-0 leading-tight">
-            <strong className="block truncate text-sm">{child.name}</strong>
-            <small className="block truncate text-xs text-[var(--muted)]">
-              Tu rol: {roleLabel[role] ?? role}
-            </small>
-          </span>
+          <strong className="min-w-0 truncate text-sm">{child.name}</strong>
           <ChevronDown size={16} aria-hidden className="shrink-0 text-[var(--muted)]" />
         </button>
 
@@ -118,18 +97,9 @@ export default function ChildHeader() {
         )}
       </div>
 
-      <div className="flex shrink-0 items-center gap-3">
+      <div className="flex shrink-0 items-center gap-2">
         <EmergencyButton />
-        {userName && (
-   <Link
-     href="/perfil"
-     aria-label="Mi perfil"
-     className="flex min-h-11 items-center gap-2 rounded-full pr-2 hover:bg-[var(--background)]"
-   >
-     <Avatar profile={me} name={myName} size={32} />
-     <span className="hidden text-xs text-[var(--muted)] sm:block">Hola, {myName}</span>
-   </Link>        )}
-        <SignOutButton />
+        <UserMenu />
       </div>
     </header>
   );

@@ -13,8 +13,8 @@ import {
   Users,
   Menu,
   HeartPulse,
-    Settings,
-    User,
+  User,
+  Settings,
 } from "lucide-react";
 import { BASE } from "@/lib/base";
 
@@ -37,14 +37,16 @@ const GROUPS = [
   {
     title: "Archivo y equipo",
     items: [
+      { href: "/ficha", label: "Ficha del niño", icon: HeartPulse },
       { href: "/documentos", label: "Documentos", icon: FileText },
       { href: "/equipo", label: "Equipo", icon: Users },
       { href: "/perfil", label: "Mi perfil", icon: User },
-        { href: "/ajustes", label: "Ajustes", icon: Settings },
-        { href: "/ficha", label: "Ficha del niño", icon: HeartPulse },
+      { href: "/ajustes", label: "Ajustes", icon: Settings },
     ],
   },
 ];
+
+const MORE_ROUTES = ["/mas", "/ficha", "/documentos", "/equipo", "/perfil", "/ajustes"];
 
 const BOTTOM = [
   { href: "/", label: "Inicio", icon: Home, match: (p: string) => p === "/" },
@@ -57,10 +59,10 @@ const BOTTOM = [
     match: (p: string) => p.startsWith("/objetivos") || p.startsWith("/calendario"),
   },
   {
-    href: "/mas,/perfil",
+    href: "/mas",
     label: "Más",
     icon: Menu,
-    match: (p: string) =>   ["/mas", "/documentos", "/equipo", "/ajustes","/ficha"].some((x) => p.startsWith(x)),
+    match: (p: string) => MORE_ROUTES.some((x) => p.startsWith(x)),
   },
 ];
 
