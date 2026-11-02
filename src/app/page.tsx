@@ -8,6 +8,7 @@ import GoalsPreview from "@/components/GoalsPreview";
 import NextEvent from "@/components/NextEvent";
 import { useChild } from "@/components/ChildGate";
 import HelpsBanner from "@/components/HelpsBanner";
+import PinnedMaterial from "@/components/PinnedMaterial";
 
 export default function Home() {
   const { child } = useChild();
@@ -20,15 +21,7 @@ export default function Home() {
         <p className="mt-1 text-[var(--muted)]">Una mirada compartida a su día a día.</p>
       </div>
 
-      <section className="rounded-2xl bg-[var(--sage)] p-6">
-        <p className="text-[0.625rem] font-bold uppercase tracking-widest text-[var(--primary)]">
-          Lo que nos ayuda a conectar
-        </p>
-        <h2 className="mt-2 text-2xl font-medium">Mucho por descubrir, a su ritmo.</h2>
-        <p className="mt-2 max-w-3xl text-[var(--muted)]">
-          Darle tiempo para responder y anticipar lo que viene ayuda a participar con confianza.
-        </p>
-      </section>
+   <PinnedMaterial />
 
       <QuickLog onSaved={() => setRefresh((r) => r + 1)} />
 

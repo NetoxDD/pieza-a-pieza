@@ -7,6 +7,7 @@ import { ChevronLeft } from "lucide-react";
 const PLAN = [
   { href: "/objetivos", label: "Objetivos" },
   { href: "/calendario", label: "Calendario" },
+  { href: "/material", label: "Material" },
 ];
 const MORE = ["/documentos", "/equipo", "/ajustes", "/perfil", "/ficha"];
 

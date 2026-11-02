@@ -15,6 +15,7 @@ import {
   HeartPulse,
   User,
   Settings,
+  BookOpen,
 } from "lucide-react";
 import { BASE } from "@/lib/base";
 
@@ -32,6 +33,7 @@ const GROUPS = [
     items: [
       { href: "/objetivos", label: "Objetivos", icon: Target },
       { href: "/calendario", label: "Calendario", icon: CalendarDays },
+         { href: "/material", label: "Material", icon: BookOpen },
     ],
   },
   {
@@ -56,7 +58,8 @@ const BOTTOM = [
     href: "/objetivos",
     label: "Plan",
     icon: Target,
-    match: (p: string) => p.startsWith("/objetivos") || p.startsWith("/calendario"),
+       match: (p: string) =>
+     p.startsWith("/objetivos") || p.startsWith("/calendario") || p.startsWith("/material"),
   },
   {
     href: "/mas",
