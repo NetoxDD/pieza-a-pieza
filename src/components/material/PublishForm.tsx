@@ -11,15 +11,17 @@ const input =
 const area = "rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-sm font-normal";
 
 export default function PublishForm({
+  goals,
   onDone,
   onCancel,
-}: {
+  }: {
+  goals: { id: string; title: string }[];
   onDone: () => void;
   onCancel: () => void;
 }) {
   const { child } = useChild();
   const fileRef = useRef<HTMLInputElement>(null);
-
+  const [goalId, setGoalId] = useState("");
   const [kind, setKind] = useState<MaterialKind>("actividad");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -45,7 +47,8 @@ export default function PublishForm({
       title: t,
       description: description.trim() || null,
       category,
-      audience,
+      audience,       
+      goal_id: goalId || null,
     };
     const uploaded: string[] = [];
 
@@ -264,6 +267,19 @@ export default function PublishForm({
         <p role="alert" className="text-sm text-[var(--danger)]">
           {error}
         </p>
+      )}
+            {goals.length > 0 && (
+        <label className="grid gap-1.5 text-xs font-semibold">
+          Objetivo relacionado (opcional)
+          <select value={goalId} onChange={(e) => setGoalId(e.target.value)} className={input}>
+            <option value="">Sin relacionar</option>
+            {goals.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.title}
+              </option>
+            ))}
+          </select>
+        </label>
       )}
 
       <div className="flex flex-wrap gap-2">

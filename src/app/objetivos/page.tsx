@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
 import NextEvent from "@/components/NextEvent";
 import WeeklyChart from "@/components/WeeklyChart";
+import GoalMaterials from "@/components/GoalMaterials";
 
 type Support = { id: string; text: string; active: boolean; created_at: string };
 type Goal = {
@@ -185,6 +186,7 @@ function GoalCard({ goal, userId, reload }: { goal: Goal; userId: string; reload
           <p className="mt-1 [overflow-wrap:anywhere]">{goal.observing}</p>
         </div>
       )}
+            <GoalMaterials goalId={goal.id} />
 
       {editing ? (
         <div className="mt-5 grid gap-4 rounded-xl bg-[var(--background)] p-4">

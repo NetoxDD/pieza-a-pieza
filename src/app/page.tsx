@@ -9,6 +9,7 @@ import NextEvent from "@/components/NextEvent";
 import { useChild } from "@/components/ChildGate";
 import HelpsBanner from "@/components/HelpsBanner";
 import PinnedMaterial from "@/components/PinnedMaterial";
+import ExpiringDocs from "@/components/ExpiringDocs";
 
 export default function Home() {
   const { child } = useChild();
@@ -33,6 +34,7 @@ export default function Home() {
         </div>
 
         <aside className="grid gap-6">
+          <ExpiringDocs />
           <NextEvent />
    <HelpsBanner />
         </aside>

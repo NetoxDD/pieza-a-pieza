@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { FileText } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { formatBytes, type Doc, type Folder } from "@/lib/documents";
+import { expiryLabel, expiryOf, formatBytes, type Doc, type Folder } from "@/lib/documents";
 import { formatDate } from "@/lib/ficha";
+
 
 const input =
   "min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-normal";
@@ -33,8 +34,7 @@ export default function DocumentItem({
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
-  const today = new Date().toISOString().slice(0, 10);
-  const expired = !!doc.valid_until && doc.valid_until < today;
+const exp = expiryOf(doc.valid_until);
 
   const startEdit = () => {
     setForm({
@@ -114,16 +114,17 @@ export default function DocumentItem({
               .filter(Boolean)
               .join(" · ")}
           </p>
-          {doc.valid_until && (
-            <p
-              className={`mt-0.5 text-xs font-semibold ${
-                expired ? "text-[var(--danger)]" : "text-[var(--muted)]"
-              }`}
-            >
-              {expired ? "Vencida el " : "Vigente hasta el "}
-              {formatDate(doc.valid_until)}
-            </p>
-          )}
+{doc.valid_until && (
+  <p
+    className={`mt-0.5 text-xs font-semibold ${
+      exp.state === "expired" || exp.state === "soon" ? "text-[var(--danger)]" : "text-[var(--muted)]"
+    }`}
+  >
+    {exp.state === "ok" ? "Vigente hasta el " : "Vigencia: "}
+    {formatDate(doc.valid_until)}
+    {(exp.state === "soon" || exp.state === "expired") && ` · ${expiryLabel(exp)}`}
+  </p>
+)}
           {doc.notes && <p className="mt-1 text-sm [overflow-wrap:anywhere]">{doc.notes}</p>}
           <small className="mt-1 block text-xs text-[var(--muted)]">
             Subido por {uploaderName} el{" "}
@@ -248,4 +249,4 @@ export default function DocumentItem({
       )}
     </li>
   );
-}
+}   

@@ -16,6 +16,7 @@ export type Material = {
   storage_path: string | null;
   thumb_path: string | null;
   pinned: boolean;
+  goal_id: string | null;
   created_at: string;
 };
 

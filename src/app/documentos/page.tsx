@@ -9,7 +9,8 @@ import ConsentCard from "@/components/ficha/ConsentCard";
 import UploadButtons from "@/components/documents/UploadButtons";
 import DocumentItem from "@/components/documents/DocumentItem";
 import FolderAccessPanel from "@/components/documents/FolderAccessPanel";
-import { formatBytes, type Doc, type Folder } from "@/lib/documents";
+import OrphanCleaner from "@/components/documents/OrphanCleaner";
+import { expiryOf, formatBytes, type Doc, type Folder } from "@/lib/documents";
 
 const input =
   "min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-normal";
@@ -28,6 +29,7 @@ export default function Documentos() {
   const [usage, setUsage] = useState<{ used: number; quota: number } | null>(null);
   const [folderId, setFolderId] = useState<string | null>(null);
   const [q, setQ] = useState("");
+  const [soonOnly, setSoonOnly] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
@@ -67,7 +69,6 @@ export default function Documentos() {
       )
     );
 
-    // Enlaces temporales para las miniaturas
     const paths = docsData.map((x) => x.thumb_path).filter((p): p is string => !!p);
     if (paths.length > 0) {
       const { data } = await supabase.storage.from("documents").createSignedUrls(paths, 3600);
@@ -93,6 +94,11 @@ export default function Documentos() {
     load();
   }, [load]);
 
+  // Si se llega desde Inicio con #vencen, se activa el filtro
+  useEffect(() => {
+    if (!loading && window.location.hash === "#vencen") setSoonOnly(true);
+  }, [loading]);
+
   // La primera vez, la familia recibe las carpetas iniciales
   const triedDefaults = useRef(false);
   useEffect(() => {
@@ -103,7 +109,6 @@ export default function Documentos() {
     }
   }, [loading, editable, folders.length, child.id, load]);
 
-  // Mantiene una carpeta seleccionada
   useEffect(() => {
     if (folders.length === 0) {
       setFolderId(null);
@@ -114,9 +119,19 @@ export default function Documentos() {
 
   const current = folders.find((f) => f.id === folderId) ?? null;
   const search = q.trim().toLowerCase();
-  const shown = search
+  const soonDocs = docs
+    .filter((x) => {
+      const s = expiryOf(x.valid_until).state;
+      return s === "soon" || s === "expired";
+    })
+    .sort((a, b) => (a.valid_until ?? "").localeCompare(b.valid_until ?? ""));
+  const listing = soonOnly || !!search;
+  const shown = soonOnly
+    ? soonDocs
+    : search
     ? docs.filter((x) => x.title.toLowerCase().includes(search))
     : docs.filter((x) => x.folder_id === folderId);
+
   const folderName = (id: string) => folders.find((f) => f.id === id)?.name;
   const count = (id: string) => docs.filter((x) => x.folder_id === id).length;
   const moveTargets = folders.filter((f) => rights[f.id]);
@@ -134,7 +149,6 @@ export default function Documentos() {
       return;
     }
     const w = window.open(data.signedUrl, "_blank", "noopener,noreferrer");
-    // Si el navegador bloqueó la ventana, se ofrece un enlace
     if (!w) setReadyUrl(data.signedUrl);
   };
 
@@ -187,7 +201,6 @@ export default function Documentos() {
     if (!ok) return;
     setMsg("");
     const paths = inside.flatMap((x) => [x.storage_path, ...(x.thumb_path ? [x.thumb_path] : [])]);
-    // Primero se borran los registros (se corta el acceso) y luego los archivos
     const { data, error } = await supabase
       .from("document_folders")
       .delete()
@@ -201,6 +214,13 @@ export default function Documentos() {
     setShowAccess(false);
     load();
   };
+
+  const chip = (active: boolean) =>
+    `min-h-11 rounded-full border px-4 text-sm transition ${
+      active
+        ? "border-[var(--primary)] bg-[var(--sage)] font-bold text-[var(--primary)]"
+        : "border-[var(--border)] hover:bg-[var(--sage)]"
+    }`;
 
   return (
     <div className="grid max-w-3xl gap-6">
@@ -233,7 +253,7 @@ export default function Documentos() {
           {canEdit && usage && (
             <section className="grid gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
               <div className="flex items-center justify-between gap-3 text-sm">
-                <strong>Almacenamiento</strong>
+                <strong>Almacenamiento (documentos y material)</strong>
                 <span className="text-[var(--muted)]">
                   {formatBytes(usage.used)} de {formatBytes(usage.quota)}
                 </span>
@@ -248,10 +268,7 @@ export default function Documentos() {
               >
                 <div
                   className="h-full rounded-full"
-                  style={{
-                    width: `${pct}%`,
-                    background: pct >= 90 ? "var(--danger)" : "var(--primary)",
-                  }}
+                  style={{ width: `${pct}%`, background: pct >= 90 ? "var(--danger)" : "var(--primary)" }}
                 />
               </div>
             </section>
@@ -262,7 +279,10 @@ export default function Documentos() {
             <input
               type="search"
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={(e) => {
+                setQ(e.target.value);
+                if (e.target.value) setSoonOnly(false);
+              }}
               placeholder="Ej. receta, análisis…"
               className={input}
             />
@@ -276,20 +296,36 @@ export default function Documentos() {
                 onClick={() => {
                   setFolderId(f.id);
                   setQ("");
+                  setSoonOnly(false);
                   setRenaming(false);
                   setShowAccess(false);
                   setReadyUrl("");
                 }}
-                aria-pressed={!search && f.id === folderId}
-                className={`min-h-11 rounded-full border px-4 text-sm transition ${
-                  !search && f.id === folderId
-                    ? "border-[var(--primary)] bg-[var(--sage)] font-bold text-[var(--primary)]"
-                    : "border-[var(--border)] hover:bg-[var(--sage)]"
-                }`}
+                aria-pressed={!listing && f.id === folderId}
+                className={chip(!listing && f.id === folderId)}
               >
                 {f.name} <span className="text-xs text-[var(--muted)]">({count(f.id)})</span>
               </button>
             ))}
+            {(soonDocs.length > 0 || soonOnly) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSoonOnly((v) => !v);
+                  setQ("");
+                  setRenaming(false);
+                  setShowAccess(false);
+                }}
+                aria-pressed={soonOnly}
+                className={`min-h-11 rounded-full border px-4 text-sm transition ${
+                  soonOnly
+                    ? "border-[var(--danger)] bg-[var(--sand)] font-bold text-[var(--danger)]"
+                    : "border-[var(--border)] text-[var(--danger)] hover:bg-[var(--sand)]"
+                }`}
+              >
+                Vencen pronto ({soonDocs.length})
+              </button>
+            )}
             {editable && (
               <button type="button" onClick={() => setShowNew((s) => !s)} className={`${ghost} rounded-full`}>
                 + Nueva carpeta
@@ -319,7 +355,7 @@ export default function Documentos() {
             </form>
           )}
 
-          {current && !search && (
+          {current && !listing && (
             <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 {renaming ? (
@@ -396,14 +432,23 @@ export default function Documentos() {
           )}
 
           <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
-            {search && (
+            {soonOnly && (
+              <h2 className="text-lg font-semibold">
+                Por vencer o vencidos ({shown.length})
+              </h2>
+            )}
+            {!soonOnly && search && (
               <h2 className="text-lg font-semibold">
                 Resultados para «{q.trim()}» ({shown.length})
               </h2>
             )}
             {shown.length === 0 ? (
               <p className="rounded-xl bg-[var(--background)] p-4 text-sm text-[var(--muted)]">
-                {search ? "No hay documentos con ese título." : "Esta carpeta está vacía."}
+                {soonOnly
+                  ? "No hay documentos por vencer."
+                  : search
+                  ? "No hay documentos con ese título."
+                  : "Esta carpeta está vacía."}
               </p>
             ) : (
               <ul className="divide-y divide-[var(--border)]">
@@ -412,7 +457,7 @@ export default function Documentos() {
                     key={d.id}
                     doc={d}
                     thumbUrl={d.thumb_path ? thumbs[d.thumb_path] : undefined}
-                    folderName={search ? folderName(d.folder_id) : undefined}
+                    folderName={listing ? folderName(d.folder_id) : undefined}
                     uploaderName={get(d.uploaded_by)?.name ?? "alguien del equipo"}
                     canManage={canEdit || d.uploaded_by === userId}
                     moveTargets={moveTargets}
@@ -433,6 +478,8 @@ export default function Documentos() {
               (el enlace dura 5 minutos).
             </p>
           )}
+
+          {canEdit && consented && <OrphanCleaner />}
         </>
       )}
 

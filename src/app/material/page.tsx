@@ -24,13 +24,13 @@ export default function MaterialPage() {
   const [category, setCategory] = useState("todas");
   const [onlyLiked, setOnlyLiked] = useState(false);
   const [highlight, setHighlight] = useState("");
+  const [goals, setGoals] = useState<{ id: string; title: string }[]>([]);
 
   const load = useCallback(async () => {
     const mat = await supabase
       .from("materials")
       .select(
-        "id,author_id,kind,title,description,category,audience,url,steps,duration_min,mime,size_bytes,storage_path,thumb_path,pinned,created_at"
-      )
+"id,author_id,kind,title,description,category,audience,url,steps,duration_min,mime,size_bytes,storage_path,thumb_path,pinned,goal_id,created_at"      )
       .eq("child_id", child.id)
       .order("created_at", { ascending: false });
 
@@ -41,6 +41,7 @@ export default function MaterialPage() {
     }
 
     const list = mat.data as Material[];
+    const g = await supabase.from("goals").select("id,title").eq("child_id", child.id).order("created_at");
     const ids = list.map((x) => x.id);
 
     let likes: { material_id: string; user_id: string }[] = [];
@@ -68,6 +69,7 @@ export default function MaterialPage() {
     setLikeCounts(counts);
     setMyLikes(mine);
     setThumbs(map);
+    setGoals((g.data ?? []) as { id: string; title: string }[]);
     setError("");
     setLoading(false);
   }, [child.id, userId]);
@@ -120,7 +122,7 @@ export default function MaterialPage() {
       </div>
 
       {showForm && canPublish && (
-        <PublishForm
+        <PublishForm goals={goals}
           onCancel={() => setShowForm(false)}
           onDone={() => {
             setShowForm(false);
@@ -180,7 +182,8 @@ export default function MaterialPage() {
 
       <ul className="grid gap-4">
         {shown.map((m) => (
-          <MaterialItem
+          <MaterialItem            goals={goals}
+            goalTitle={goals.find((g) => g.id === m.goal_id)?.title}
             key={m.id}
             m={m}
             thumbUrl={m.thumb_path ? thumbs[m.thumb_path] : undefined}

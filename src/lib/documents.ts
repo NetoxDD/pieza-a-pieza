@@ -63,3 +63,29 @@ export async function processImage(file: File): Promise<{ full: Blob; thumb: Blo
     bitmap.close?.();
   }
 }
+// ---------- Vigencias ----------
+export const SOON_DAYS = 30;
+
+export type Expiry = { state: "none" | "ok" | "soon" | "expired"; days: number };
+
+export function expiryOf(valid: string | null): Expiry {
+  if (!valid) return { state: "none", days: 0 };
+  const [y, m, d] = valid.split("-").map(Number);
+  const target = new Date(y, m - 1, d).getTime();
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const days = Math.round((target - today) / 86400000);
+  if (days < 0) return { state: "expired", days };
+  if (days <= SOON_DAYS) return { state: "soon", days };
+  return { state: "ok", days };
+}
+
+export function expiryLabel(e: Expiry): string {
+  if (e.state === "expired") {
+    const n = -e.days;
+    return `vencida hace ${n} ${n === 1 ? "día" : "días"}`;
+  }
+  if (e.days === 0) return "vence hoy";
+  if (e.days === 1) return "vence mañana";
+  return `vence en ${e.days} días`;
+}

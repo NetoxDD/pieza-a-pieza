@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { FileText, Link2, ListChecks, Lock, Pin, ThumbsUp } from "lucide-react";
+import { FileText, Link2, ListChecks, Lock, Pin, Target, ThumbsUp } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import Avatar from "@/components/Avatar";
 import { roleLabel } from "@/lib/roles";
 import type { PublicProfile } from "@/lib/profile";
 import { CATEGORIES, categoryLabel, domainOf, kindLabel, normalizeUrl, type Material } from "@/lib/material";
+
 
 const input =
   "min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-normal";
@@ -22,6 +23,8 @@ export default function MaterialItem({
   likeCount,
   liked,
   highlight,
+    goals,
+  goalTitle,
   onChanged,
 }: {
   m: Material;
@@ -29,6 +32,8 @@ export default function MaterialItem({
   author?: PublicProfile;
   userId: string;
   isFamily: boolean;
+    goals: { id: string; title: string }[];
+  goalTitle?: string;
   likeCount: number;
   liked: boolean;
   highlight: boolean;
@@ -43,6 +48,7 @@ export default function MaterialItem({
     category: "",
     audience: "todos" as "todos" | "familia",
     url: "",
+    goalId: "",
     steps: "",
     duration: "",
   });
@@ -55,7 +61,8 @@ export default function MaterialItem({
       title: m.title,
       description: m.description ?? "",
       category: m.category,
-      audience: m.audience,
+      audience: m.audience,     
+      goalId: m.goal_id ?? "",
       url: m.url ?? "",
       steps: m.steps ?? "",
       duration: m.duration_min ? String(m.duration_min) : "",
@@ -72,7 +79,8 @@ export default function MaterialItem({
       title,
       description: form.description.trim() || null,
       category: form.category,
-      audience: form.audience,
+      audience: form.audience,      
+      goal_id: form.goalId || null,
     };
     if (m.kind === "enlace") {
       const u = normalizeUrl(form.url);
@@ -187,6 +195,12 @@ export default function MaterialItem({
               <span className="inline-flex items-center gap-1 rounded-md bg-[var(--primary)] px-2 py-0.5 text-[0.6875rem] font-semibold text-[var(--on-primary)]">
                 <Pin size={11} aria-hidden />
                 Fijada en Inicio
+              </span>
+            )}
+                        {goalTitle && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-[var(--blue)] px-2 py-0.5 text-[0.6875rem] font-semibold text-[var(--blue-text)]">
+                <Target size={11} aria-hidden />
+                Objetivo: {goalTitle}
               </span>
             )}
           </div>
@@ -377,7 +391,25 @@ export default function MaterialItem({
               </select>
             </label>
           </div>
+                    {goals.length > 0 && (
+            <label className="grid gap-1.5 text-xs font-semibold">
+              Objetivo relacionado (opcional)
+              <select
+                value={form.goalId}
+                onChange={(e) => setForm({ ...form, goalId: e.target.value })}
+                className={input}
+              >
+                <option value="">Sin relacionar</option>
+                {goals.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <div className="flex flex-wrap gap-2">
+            
             <button
               type="submit"
               disabled={busy || !form.title.trim()}
