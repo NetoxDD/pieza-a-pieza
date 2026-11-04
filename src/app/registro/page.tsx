@@ -1,72 +1,93 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
-import { roleLabel } from "@/lib/roles";
+import { useProfiles } from "@/components/ProfilesProvider";
+import { MARK_ROLES, hhmm, isoWeekday, localDate, placeLabel, type Routine, type Step } from "@/lib/routines";
 
-type Tag = "Comunicación" | "Apoyos sensoriales" | "Rutinas" | "Disfrute";
+type DoneInfo = { done_by: string; done_at: string };
 
-type Observation = {
-  id: string;
-  author_id: string;
-  category: Tag;
-  body: string;
-  created_at: string;
-};
+const TABLES = ["routines", "routine_steps", "routine_step_done", "routine_overrides", "routine_step_moves"];
 
-const tags: Tag[] = ["Comunicación", "Apoyos sensoriales", "Rutinas", "Disfrute"];
+export default function Hoy() {
+  const { child, role, userId } = useChild();
+  const { get } = useProfiles();
+  const canMark = MARK_ROLES.includes(role);
+  const isFamily = role === "familia";
 
-const tagStyle: Record<Tag, string> = {
-  Comunicación: "bg-[var(--sage)] text-[var(--primary)]",
-  "Apoyos sensoriales": "bg-[var(--blue)] text-[var(--blue-text)]",
-  Rutinas: "bg-[var(--sand)] text-[var(--sand-text)]",
-  Disfrute: "bg-[var(--sage)] text-[var(--primary)]",
-};
-
-const routines = [
-  { time: "08:00", title: "Prepararnos para salir", detail: "Secuencia visual · Elegir la chaqueta", badge: "Con apoyo visual" },
-  { time: "14:00", title: "Comer y descansar", detail: "Ambiente tranquilo · Respetar sus tiempos", badge: "A su ritmo" },
-  { time: "17:30", title: "Un cuento compartido", detail: "Dos opciones · Esperar su elección", badge: "Prevista" },
-  { time: "20:00", title: "Preparar el descanso", detail: "Luz suave · Anticipar los pasos", badge: "Prevista" },
-];
-
-export default function Registro() {
-  const { child, userId } = useChild();
-
-  const [done, setDone] = useState<number[]>([]);
-  const [observations, setObservations] = useState<Observation[]>([]);
-  const [names, setNames] = useState<Record<string, string>>({});
-  const [roles, setRoles] = useState<Record<string, string>>({});
+  const [routines, setRoutines] = useState<Routine[]>([]);
+  const [steps, setSteps] = useState<Step[]>([]);
+  const [done, setDone] = useState<Record<string, DoneInfo>>({});
+  const [skipped, setSkipped] = useState<Set<string>>(new Set());
+  const [moves, setMoves] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [filter, setFilter] = useState<Tag | "Todas">("Todas");
-
-  const [tag, setTag] = useState<Tag>("Comunicación");
-  const [text, setText] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [justAdded, setJustAdded] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [movingId, setMovingId] = useState<string | null>(null);
+  const [moveValue, setMoveValue] = useState("");
 
   const load = useCallback(async () => {
-    const [obs, mem, prof] = await Promise.all([
-      supabase
-        .from("observations")
-        .select("id,author_id,category,body,created_at")
-        .eq("child_id", child.id)
-        .order("created_at", { ascending: false }),
-      supabase.from("child_members").select("user_id,role").eq("child_id", child.id),
-      supabase.from("profiles").select("id,full_name"),
-    ]);
+    const day = localDate();
+    const wd = isoWeekday();
 
-    if (obs.error || mem.error || prof.error) {
-      setError("No se pudieron cargar las observaciones.");
-    } else {
-      setError("");
-      setObservations(obs.data as Observation[]);
-      setRoles(Object.fromEntries(mem.data.map((m) => [m.user_id, m.role])));
-      setNames(Object.fromEntries(prof.data.map((p) => [p.id, p.full_name])));
+    const r = await supabase
+      .from("routines")
+      .select("id,name,place,days,position,active")
+      .eq("child_id", child.id)
+      .eq("active", true)
+      .order("position")
+      .order("created_at");
+    if (r.error) {
+      setError("No se pudieron cargar las rutinas.");
+      setLoading(false);
+      return;
     }
+
+    const todays = (r.data as Routine[]).filter((x) => x.days.includes(wd));
+    const routineIds = todays.map((x) => x.id);
+
+    const s = await supabase
+      .from("routine_steps")
+      .select("id,routine_id,title,at_time,emoji,note,position")
+      .in("routine_id", routineIds)
+      .order("position");
+    if (s.error) {
+      setError("No se pudieron cargar los pasos.");
+      setLoading(false);
+      return;
+    }
+    const stepsData = s.data as Step[];
+    const stepIds = stepsData.map((x) => x.id);
+
+    const [d, o, mv] = await Promise.all([
+      supabase.from("routine_step_done").select("step_id,done_by,done_at").eq("day", day).in("step_id", stepIds),
+      supabase.from("routine_overrides").select("routine_id").eq("day", day).in("routine_id", routineIds),
+      supabase.from("routine_step_moves").select("step_id,at_time").eq("day", day).in("step_id", stepIds),
+    ]);
+    if (d.error || o.error || mv.error) {
+      setError("No se pudo cargar el estado de hoy.");
+      setLoading(false);
+      return;
+    }
+
+    setRoutines(todays);
+    setSteps(stepsData);
+    setDone(
+      Object.fromEntries(
+        (d.data as { step_id: string; done_by: string; done_at: string }[]).map((x) => [
+          x.step_id,
+          { done_by: x.done_by, done_at: x.done_at },
+        ])
+      )
+    );
+    setSkipped(new Set((o.data as { routine_id: string }[]).map((x) => x.routine_id)));
+    setMoves(
+      Object.fromEntries((mv.data as { step_id: string; at_time: string }[]).map((x) => [x.step_id, x.at_time]))
+    );
+    setError("");
     setLoading(false);
   }, [child.id]);
 
@@ -74,226 +95,276 @@ export default function Registro() {
     load();
   }, [load]);
 
-  const toggleRoutine = (i: number) =>
-    setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
+  // En vivo: cuando alguien marca o cambia algo, se actualiza para todo el equipo
+  useEffect(() => {
+    const channel = supabase.channel(`routines:${child.id}`);
+    TABLES.forEach((table) => {
+      channel.on("postgres_changes", { event: "*", schema: "public", table }, () => load());
+    });
+    channel.subscribe();
+    // Respaldo: también se actualiza cada minuto (y así cambia solo al pasar la medianoche)
+    const timer = setInterval(load, 60000);
+    return () => {
+      clearInterval(timer);
+      supabase.removeChannel(channel);
+    };
+  }, [child.id, load]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const body = text.trim();
-    if (!body) return;
-
-    setSaving(true);
-    setError("");
-    const { error } = await supabase
-      .from("observations")
-      .insert({ child_id: child.id, category: tag, body });
-    setSaving(false);
-
-    if (error) {
-      setError("No se pudo publicar la observación. Intenta de nuevo.");
-      return;
+  const toggle = async (s: Step) => {
+    setMsg("");
+    const day = localDate();
+    if (done[s.id]) {
+      const { data, error } = await supabase
+        .from("routine_step_done")
+        .delete()
+        .eq("step_id", s.id)
+        .eq("day", day)
+        .select("step_id");
+      if (error || !data?.length) setMsg("No se pudo desmarcar el paso.");
+    } else {
+      const { error } = await supabase.from("routine_step_done").insert({ step_id: s.id, day });
+      // 23505 = otra persona lo marcó un instante antes: no es un error, solo se actualiza
+      if (error && error.code !== "23505") setMsg("No se pudo marcar el paso.");
     }
-    setText("");
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 2500);
     load();
   };
 
-  const remove = async (id: string) => {
-    if (!window.confirm("¿Eliminar esta observación?")) return;
-    const { error } = await supabase.from("observations").delete().eq("id", id);
-    if (error) setError("No se pudo eliminar.");
-    else load();
+  const skipRoutine = async (r: Routine) => {
+    setMsg("");
+    const { error } = await supabase.from("routine_overrides").insert({ routine_id: r.id, day: localDate() });
+    if (error && error.code !== "23505") setMsg("No se pudo omitir la rutina.");
+    load();
   };
 
-  const visible = observations.filter((o) => filter === "Todas" || o.category === filter);
-
-  const authorLabel = (id: string) => {
-    const name = names[id] || "Alguien del equipo";
-    const role = roleLabel[roles[id]];
-    return role ? `${name} · ${role}` : name;
+  const restoreRoutine = async (r: Routine) => {
+    setMsg("");
+    const { error } = await supabase
+      .from("routine_overrides")
+      .delete()
+      .eq("routine_id", r.id)
+      .eq("day", localDate());
+    if (error) setMsg("No se pudo restaurar la rutina.");
+    load();
   };
+
+  const saveMove = async (s: Step) => {
+    if (!moveValue) return;
+    setMsg("");
+    const { error } = await supabase
+      .from("routine_step_moves")
+      .upsert({ step_id: s.id, day: localDate(), at_time: moveValue }, { onConflict: "step_id,day" });
+    if (error) setMsg("No se pudo cambiar la hora.");
+    else setMovingId(null);
+    load();
+  };
+
+  const clearMove = async (s: Step) => {
+    setMsg("");
+    await supabase.from("routine_step_moves").delete().eq("step_id", s.id).eq("day", localDate());
+    setMovingId(null);
+    load();
+  };
+
+  const effTime = (s: Step) => moves[s.id] ?? s.at_time;
+  const stepsOf = (id: string) => steps.filter((x) => x.routine_id === id);
+  const firstTime = (r: Routine) =>
+    stepsOf(r.id)
+      .map(effTime)
+      .filter((t): t is string => !!t)
+      .sort()[0] ?? "99:99";
+  const ordered = routines
+    .slice()
+    .sort((a, b) => firstTime(a).localeCompare(firstTime(b)) || a.position - b.position);
 
   return (
-    <div className="grid gap-6">
+    <div className="grid max-w-3xl gap-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Cada día nos cuenta algo</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Hoy con {child.name}</h1>
         <p className="mt-1 text-[var(--muted)]">
-          Rutinas flexibles y observaciones para descubrir qué le ayuda.
+          Una guía, no una lista de exigencias. Podemos cambiar el plan.
         </p>
       </div>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
-        <div className="grid gap-6">
-          <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
-            <h2 className="text-lg font-semibold">Las rutinas del día</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              Una guía, no una lista de exigencias. Podemos cambiar el plan.
-            </p>
-            <ul className="mt-3 divide-y divide-[var(--border)]">
-              {routines.map((r, i) => {
-                const isDone = done.includes(i);
-                return (
-                  <li key={r.time} className="flex items-start gap-4 py-4">
-                    <time className="w-12 pt-1 text-xs text-[var(--muted)]">{r.time}</time>
-                    <div className="min-w-0 flex-1">
-                      <h3 className={`font-semibold ${isDone ? "text-[var(--muted)] line-through" : ""}`}>
-                        {r.title}
-                      </h3>
-                      <p className="text-xs text-[var(--muted)]">{r.detail}</p>
-                      <span className="mt-2 inline-block rounded-md bg-[var(--blue)] px-2.5 py-1 text-[0.6875rem] font-semibold text-[var(--blue-text)]">
-                        {r.badge}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => toggleRoutine(i)}
-                      aria-pressed={isDone}
-                      aria-label={`Marcar "${r.title}" como realizada`}
-                      className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border transition ${
-                        isDone
-                          ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--on-primary)]"
-                          : "border-[var(--border)] text-transparent hover:bg-[var(--sage)]"
-                      }`}
-                    >
-                      <Check size={18} aria-hidden />
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
+      {error && (
+        <p role="alert" className="text-sm text-[var(--danger)]">
+          {error}
+        </p>
+      )}
+      {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
 
-          <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
-            <h2 className="text-lg font-semibold">Observaciones compartidas</h2>
+      {!loading && !error && ordered.length === 0 && (
+        <p className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-sm text-[var(--muted)]">
+          No hay rutinas para hoy.{" "}
+          {isFamily ? (
+            <Link href="/registro/rutinas" className="font-semibold text-[var(--primary)] hover:underline">
+              Crear una rutina →
+            </Link>
+          ) : (
+            "La familia puede crearlas en la pestaña Rutinas."
+          )}
+        </p>
+      )}
 
-            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filtrar por categoría">
-              {(["Todas", ...tags] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setFilter(t)}
-                  aria-pressed={filter === t}
-                  className={`min-h-11 rounded-full border px-4 text-xs font-semibold transition ${
-                    filter === t
-                      ? "border-[var(--primary)] bg-[var(--sage)] text-[var(--primary)]"
-                      : "border-[var(--border)] hover:bg-[var(--sage)]"
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-
-            {error && (
-              <p role="alert" className="mt-3 text-sm text-[var(--danger)]">
-                {error}
-              </p>
-            )}
-
-            <ul className="mt-2 divide-y divide-[var(--border)]">
-              {loading && <li className="py-6 text-sm text-[var(--muted)]">Cargando…</li>}
-              {!loading && visible.length === 0 && (
-                <li className="py-6 text-sm text-[var(--muted)]">
-                  Aún no hay observaciones aquí. ¡Escribe la primera!
-                </li>
-              )}
-              {visible.map((o) => (
-                <li key={o.id} className="py-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <strong className="text-sm">{authorLabel(o.author_id)}</strong>
-                      <small className="block text-xs text-[var(--muted)]">
-                        {new Date(o.created_at).toLocaleString("es-MX", {
-                          day: "numeric",
-                          month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </small>
-                    </div>
-                    {o.author_id === userId && (
-                      <button
-                        type="button"
-                        onClick={() => remove(o.id)}
-                        className="min-h-11 rounded-lg px-3 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--sage)] hover:text-[var(--primary)]"
-                      >
-                        Eliminar
-                      </button>
-                    )}
-                  </div>
-                  <p className="mt-2 text-sm [overflow-wrap:anywhere]">{o.body}</p>
-                  <span className={`mt-3 inline-block rounded-md px-2.5 py-1 text-[0.6875rem] font-semibold ${tagStyle[o.category]}`}>
-                    {o.category}
+      {ordered.map((r) => {
+        const list = stepsOf(r.id);
+        const isSkipped = skipped.has(r.id);
+        const count = list.filter((s) => done[s.id]).length;
+        return (
+          <section key={r.id} className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold [overflow-wrap:anywhere]">{r.name}</h2>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <span className="rounded-md bg-[var(--blue)] px-2 py-0.5 text-[0.6875rem] font-semibold text-[var(--blue-text)]">
+                    {placeLabel[r.place]}
                   </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </div>
-
-        <div className="grid gap-6">
-          <form
-            onSubmit={handleSubmit}
-            className="grid gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6"
-          >
-            <div>
-              <h2 className="text-lg font-semibold">Añadir observación</h2>
-              <p className="mt-1 text-sm text-[var(--muted)]">
-                Lo que ocurrió, el contexto y lo que ayudó.
-              </p>
-            </div>
-
-            <label className="grid gap-1.5 text-xs font-semibold">
-              Categoría
-              <select
-                value={tag}
-                onChange={(e) => setTag(e.target.value as Tag)}
-                className="min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-normal"
-              >
-                {tags.map((t) => (
-                  <option key={t}>{t}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="grid gap-1.5 text-xs font-semibold">
-              ¿Qué te gustaría compartir?
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                rows={6}
-                maxLength={2000}
-                placeholder="Describe lo ocurrido y qué ayudó…"
-                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-sm font-normal"
-              />
-            </label>
-
-            <small className="text-xs text-[var(--muted)]">
-              Se guarda con tu nombre y la ven las personas del equipo.
-            </small>
-
-            <div className="flex items-center gap-3">
-              <button
-                type="submit"
-                disabled={!text.trim() || saving}
-                className="min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--on-primary)] transition hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {saving ? "Guardando…" : "Publicar"}
-              </button>
-              {justAdded && (
-                <p role="status" className="text-sm font-medium text-[var(--primary)]">
-                  ✓ Observación guardada
-                </p>
+                  {!isSkipped && list.length > 0 && (
+                    <small className="text-xs text-[var(--muted)]">
+                      {count} de {list.length} pasos
+                    </small>
+                  )}
+                </div>
+              </div>
+              {canMark && (
+                <button
+                  type="button"
+                  onClick={() => (isSkipped ? restoreRoutine(r) : skipRoutine(r))}
+                  className="min-h-11 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-[var(--primary)] hover:bg-[var(--sage)]"
+                >
+                  {isSkipped ? "Restaurar" : "Omitir hoy"}
+                </button>
               )}
             </div>
-          </form>
 
-          <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[var(--sand-text)]">
-            También puedes registrar un disfrute, una elección o algo que hoy no funcionó.
-          </div>
-        </div>
-      </div>
+            {isSkipped ? (
+              <p className="mt-3 rounded-xl bg-[var(--background)] p-4 text-sm text-[var(--muted)]">
+                Omitida hoy. Sin problema: mañana seguimos.
+              </p>
+            ) : list.length === 0 ? (
+              <p className="mt-3 text-sm text-[var(--muted)]">Esta rutina aún no tiene pasos.</p>
+            ) : (
+              <ul className="mt-3 divide-y divide-[var(--border)]">
+                {list.map((s) => {
+                  const d = done[s.id];
+                  const who = d ? get(d.done_by)?.name ?? "alguien del equipo" : "";
+                  const time = effTime(s);
+                  const moved = !!moves[s.id];
+                  const cannotUnmark = !!d && d.done_by !== userId && !isFamily;
+                  return (
+                    <li key={s.id} className="py-4">
+                      <div className="flex items-start gap-4">
+                        <button
+                          type="button"
+                          onClick={() => toggle(s)}
+                          disabled={!canMark || cannotUnmark}
+                          aria-pressed={!!d}
+                          aria-label={`${d ? "Desmarcar" : "Marcar como hecho"}: ${s.title}`}
+                          className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border transition disabled:opacity-60 ${
+                            d
+                              ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--on-primary)]"
+                              : "border-[var(--border)] text-transparent hover:bg-[var(--sage)]"
+                          }`}
+                        >
+                          <Check size={18} aria-hidden />
+                        </button>
+
+                        <div className="min-w-0 flex-1">
+                          <h3
+                            className={`font-semibold [overflow-wrap:anywhere] ${
+                              d ? "text-[var(--muted)] line-through" : ""
+                            }`}
+                          >
+                            {s.emoji && <span aria-hidden>{s.emoji} </span>}
+                            {s.title}
+                          </h3>
+                          <p className="text-xs text-[var(--muted)]">
+                            {[time && hhmm(time) + (moved ? " (cambiada hoy)" : ""), s.note]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </p>
+                          {d && (
+                            <p className="mt-0.5 text-xs text-[var(--primary)]">
+                              Hecho por {who} ·{" "}
+                              {new Date(d.done_at).toLocaleTimeString("es-MX", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
+                          )}
+
+                          {canMark && !d && movingId !== s.id && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setMovingId(s.id);
+                                setMoveValue(hhmm(time));
+                              }}
+                              className="mt-1 min-h-11 text-xs font-semibold text-[var(--primary)] hover:underline"
+                            >
+                              Mover la hora hoy
+                            </button>
+                          )}
+
+                          {movingId === s.id && (
+                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                              <label className="sr-only" htmlFor={`mv-${s.id}`}>
+                                Nueva hora para hoy
+                              </label>
+                              <input
+                                id={`mv-${s.id}`}
+                                type="time"
+                                value={moveValue}
+                                onChange={(e) => setMoveValue(e.target.value)}
+                                className="min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => saveMove(s)}
+                                disabled={!moveValue}
+                                className="min-h-11 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-[var(--on-primary)] disabled:opacity-50"
+                              >
+                                Guardar
+                              </button>
+                              {moved && (
+                                <button
+                                  type="button"
+                                  onClick={() => clearMove(s)}
+                                  className="min-h-11 rounded-xl px-3 text-sm font-semibold text-[var(--muted)] hover:bg-[var(--sage)]"
+                                >
+                                  Quitar el cambio
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => setMovingId(null)}
+                                className="min-h-11 rounded-xl px-3 text-sm font-semibold text-[var(--muted)] hover:bg-[var(--sage)]"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        );
+      })}
+
+      {!loading && !canMark && ordered.length > 0 && (
+        <p className="text-xs text-[var(--muted)]">
+          Puedes ver las rutinas, pero tu rol no marca los pasos.
+        </p>
+      )}
+
+      {msg && (
+        <p role="alert" className="text-sm text-[var(--danger)]">
+          {msg}
+        </p>
+      )}
     </div>
   );
 }
