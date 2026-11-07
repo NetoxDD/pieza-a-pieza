@@ -6,6 +6,7 @@ import { Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
 import { useProfiles } from "@/components/ProfilesProvider";
+import MedsToday from "@/components/MedsToday";
 import { MARK_ROLES, hhmm, isoWeekday, localDate, placeLabel, type Routine, type Step } from "@/lib/routines";
 
 type DoneInfo = { done_by: string; done_at: string };
@@ -184,6 +185,7 @@ export default function Hoy() {
           Una guía, no una lista de exigencias. Podemos cambiar el plan.
         </p>
       </div>
+      <MedsToday />
 
       {error && (
         <p role="alert" className="text-sm text-[var(--danger)]">

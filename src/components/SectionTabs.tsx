@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
+import { useChildProfile } from "@/components/ChildProfileProvider";
 
 type Tab = { href: string; label: string; exact?: boolean };
 
@@ -15,6 +16,7 @@ const PLAN: Tab[] = [
 const DAY: Tab[] = [
   { href: "/registro", label: "Hoy", exact: true },
   { href: "/registro/rutinas", label: "Rutinas" },
+  { href: "/registro/medicinas", label: "Medicinas" },
   { href: "/registro/observaciones", label: "Observaciones" },
 ];
 
@@ -47,8 +49,12 @@ function Tabs({ label, tabs, pathname }: { label: string; tabs: Tab[]; pathname:
 
 export default function SectionTabs() {
   const pathname = usePathname();
+  const { access } = useChildProfile();
 
-  if (pathname.startsWith("/registro")) return <Tabs label="Día a día" tabs={DAY} pathname={pathname} />;
+  if (pathname.startsWith("/registro")) {
+    const tabs = access.medications ? DAY : DAY.filter((t) => t.href !== "/registro/medicinas");
+    return <Tabs label="Día a día" tabs={tabs} pathname={pathname} />;
+  }
   if (PLAN.some((t) => pathname.startsWith(t.href))) return <Tabs label="Plan" tabs={PLAN} pathname={pathname} />;
 
   if (MORE.some((p) => pathname.startsWith(p)))
