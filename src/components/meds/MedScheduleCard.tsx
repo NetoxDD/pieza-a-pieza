@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { DAY_LABELS, hhmm } from "@/lib/routines";
+import MedExtras from "@/components/meds/MedExtras";
 import { ADMIN_ROLES, scheduleText, type Med } from "@/lib/meds";
 import { defaultAllowed, formatDate, medCategoryLabel } from "@/lib/ficha";
 import { roleLabel } from "@/lib/roles";
@@ -14,11 +15,17 @@ export default function MedScheduleCard({
   med,
   isFamily,
   viewOverrides,
+    rxValidUntil,
+  onHand,
+  docs,
   onChanged,
 }: {
   med: Med;
   isFamily: boolean;
   viewOverrides: { role: string; allowed: boolean }[];
+    rxValidUntil: string | null;
+  onHand: number | null;
+  docs: { id: string; title: string; valid_until: string | null }[];
   onChanged: () => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -323,6 +330,14 @@ export default function MedScheduleCard({
           ))}
         </fieldset>
       )}
+            <MedExtras
+        med={med}
+        isFamily={isFamily}
+        rxValidUntil={rxValidUntil}
+        onHand={onHand}
+        docs={docs}
+        onChanged={onChanged}
+      />
 
       {msg && (
         <p role="alert" className="mt-3 text-sm text-[var(--danger)]">

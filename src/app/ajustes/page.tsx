@@ -93,6 +93,16 @@ export default function Ajustes() {
           ]}
           onChange={(v) => update({ calm: v === "si" })}
         />
+                <Choice<"si" | "no">
+          legend="Recordatorios en Inicio"
+          hint="Muestra en Inicio las tomas, pasos y avisos pendientes. Solo se actualizan con la app abierta."
+          value={settings.alerts ? "si" : "no"}
+          options={[
+            { value: "si", label: "Mostrar" },
+            { value: "no", label: "Ocultar" },
+          ]}
+          onChange={(v) => update({ alerts: v === "si" })}
+        />
       </section>
       <EmergencyDeviceSettings />
 

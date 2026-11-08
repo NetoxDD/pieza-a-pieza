@@ -7,6 +7,7 @@ export type Settings = {
   calm: boolean;
   theme: "claro" | "oscuro" | "auto";
   font: "normal" | "legible";
+  alerts: boolean;
   palette: Palette;
 };
 
@@ -28,6 +29,7 @@ export function systemDefaults(): Settings {
   return {
     fontScale: "normal",
     contrast: "normal",
+    alerts: true,
     calm,
     theme: "auto",
     font: "normal",

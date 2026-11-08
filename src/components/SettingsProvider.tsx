@@ -38,6 +38,7 @@ async function persist(s: Settings, done: boolean) {
     calm: s.calm,
     theme: s.theme,
     reading_font: s.font,
+    show_alerts: s.alerts,
     palette: s.palette,
     onboarding_done: done,
     updated_at: new Date().toISOString(),
@@ -58,7 +59,7 @@ export default function SettingsProvider({ children }: { children: React.ReactNo
       if (!uid) return;
       const { data, error } = await supabase
         .from("user_settings")
-        .select("font_scale,contrast,calm,theme,reading_font,palette,onboarding_done")
+        .select("font_scale,contrast,calm,theme,reading_font,palette,onboarding_done,show_alerts")
         .eq("user_id", uid)
         .maybeSingle();
       if (cancelled || error) return;
@@ -69,6 +70,7 @@ export default function SettingsProvider({ children }: { children: React.ReactNo
       const s: Settings = {
         fontScale: data.font_scale,
         contrast: data.contrast,
+        alerts: data.show_alerts ?? true,
         calm: data.calm,
         theme: data.theme,
         font: data.reading_font,

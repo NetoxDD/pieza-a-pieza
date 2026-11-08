@@ -18,6 +18,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { BASE } from "@/lib/base";
+import { useToday } from "@/components/TodayProvider";
 
 const GROUPS = [
   {
@@ -33,7 +34,7 @@ const GROUPS = [
     items: [
       { href: "/objetivos", label: "Objetivos", icon: Target },
       { href: "/calendario", label: "Calendario", icon: CalendarDays },
-         { href: "/material", label: "Material", icon: BookOpen },
+      { href: "/material", label: "Material", icon: BookOpen },
     ],
   },
   {
@@ -58,8 +59,8 @@ const BOTTOM = [
     href: "/objetivos",
     label: "Plan",
     icon: Target,
-       match: (p: string) =>
-     p.startsWith("/objetivos") || p.startsWith("/calendario") || p.startsWith("/material"),
+    match: (p: string) =>
+      p.startsWith("/objetivos") || p.startsWith("/calendario") || p.startsWith("/material"),
   },
   {
     href: "/mas",
@@ -69,8 +70,19 @@ const BOTTOM = [
   },
 ];
 
+function AttentionDot({ className = "" }: { className?: string }) {
+  return (
+    <span
+      role="img"
+      aria-label="Hay tomas sin registrar"
+      className={`h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--danger)] ${className}`}
+    />
+  );
+}
+
 export default function Nav() {
   const pathname = usePathname();
+  const { attention } = useToday();
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
@@ -104,7 +116,8 @@ export default function Nav() {
                     }`}
                   >
                     <Icon size={18} aria-hidden />
-                    {label}
+                    <span className="flex-1">{label}</span>
+                    {href === "/registro" && attention && <AttentionDot />}
                   </Link>
                 ))}
               </div>
@@ -134,7 +147,12 @@ export default function Nav() {
                 active ? "font-bold text-[var(--primary)]" : "text-[var(--muted)]"
               }`}
             >
-              <Icon size={20} aria-hidden />
+              <span className="relative">
+                <Icon size={20} aria-hidden />
+                {href === "/registro" && attention && (
+                  <AttentionDot className="absolute -right-1 -top-1" />
+                )}
+              </span>
               {label}
             </Link>
           );

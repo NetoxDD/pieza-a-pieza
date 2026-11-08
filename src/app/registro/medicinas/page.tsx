@@ -10,6 +10,8 @@ import DoseHistory from "@/components/meds/DoseHistory";
 import { childColor, initials } from "@/lib/childColor";
 import { MED_COLS, type Med } from "@/lib/meds";
 
+type DocOpt = { id: string; title: string; valid_until: string | null };
+
 export default function Medicinas() {
   const { child, role } = useChild();
   const { access } = useChildProfile();
@@ -18,6 +20,9 @@ export default function Medicinas() {
 
   const [meds, setMeds] = useState<Med[]>([]);
   const [overrides, setOverrides] = useState<{ role: string; allowed: boolean }[]>([]);
+  const [rx, setRx] = useState<Record<string, string>>({});
+  const [stock, setStock] = useState<Record<string, number>>({});
+  const [docs, setDocs] = useState<DocOpt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -38,13 +43,40 @@ export default function Medicinas() {
     }
     setMeds(m.data as Med[]);
 
+    const [r, s] = await Promise.all([
+      supabase.rpc("my_med_rx", { cid: child.id }),
+      supabase.rpc("my_stock", { cid: child.id }),
+    ]);
+    if (!r.error) {
+      setRx(
+        Object.fromEntries(
+          (r.data as { medication_id: string; valid_until: string }[]).map((x) => [x.medication_id, x.valid_until])
+        )
+      );
+    }
+    if (!s.error) {
+      setStock(
+        Object.fromEntries(
+          (s.data as { medication_id: string; on_hand: number | string }[]).map((x) => [x.medication_id, Number(x.on_hand)])
+        )
+      );
+    }
+
     if (isFamily) {
-      const o = await supabase
-        .from("child_section_access")
-        .select("role,allowed")
-        .eq("child_id", child.id)
-        .eq("section", "medications");
+      const [o, d] = await Promise.all([
+        supabase
+          .from("child_section_access")
+          .select("role,allowed")
+          .eq("child_id", child.id)
+          .eq("section", "medications"),
+        supabase
+          .from("documents")
+          .select("id,title,valid_until")
+          .eq("child_id", child.id)
+          .order("created_at", { ascending: false }),
+      ]);
       if (!o.error) setOverrides(o.data as { role: string; allowed: boolean }[]);
+      if (!d.error) setDocs(d.data as DocOpt[]);
     }
     setError("");
     setLoading(false);
@@ -53,6 +85,19 @@ export default function Medicinas() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // En vivo: el inventario cambia solo cuando alguien registra una dosis
+  useEffect(() => {
+    if (!access.medications) return;
+    const channel = supabase.channel(`medspage:${child.id}`);
+    ["med_stock_ledger", "child_medications"].forEach((table) => {
+      channel.on("postgres_changes", { event: "*", schema: "public", table }, () => load());
+    });
+    channel.subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [child.id, access.medications, load]);
 
   const active = meds.filter((m) => m.active);
   const suspended = meds.length - active.length;
@@ -69,7 +114,7 @@ export default function Medicinas() {
         </span>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Medicinas de {child.name}</h1>
-          <p className="mt-1 text-[var(--muted)]">Horarios, permisos de registro e historial.</p>
+          <p className="mt-1 text-[var(--muted)]">Horarios, receta, inventario, permisos e historial.</p>
         </div>
       </div>
 
@@ -106,6 +151,9 @@ export default function Medicinas() {
                 med={m}
                 isFamily={isFamily}
                 viewOverrides={overrides}
+                rxValidUntil={rx[m.id] ?? null}
+                onHand={m.stock_enabled ? stock[m.id] ?? null : null}
+                docs={docs}
                 onChanged={load}
               />
             ))}
@@ -127,7 +175,8 @@ export default function Medicinas() {
 
       <div className="rounded-xl bg-[var(--sand)] p-4 text-sm text-[var(--sand-text)]">
         Esta pantalla es un registro y un recordatorio: no sugiere dosis ni sustituye la indicación de un
-        médico. Proyecto escolar: usa medicinas de ejemplo, nunca las de un menor real.
+        médico. El inventario es una estimación. Proyecto escolar: usa medicinas de ejemplo, nunca las de un
+        menor real.
       </div>
     </div>
   );

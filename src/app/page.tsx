@@ -9,6 +9,7 @@ import NextEvent from "@/components/NextEvent";
 import { useChild } from "@/components/ChildGate";
 import HelpsBanner from "@/components/HelpsBanner";
 import PinnedMaterial from "@/components/PinnedMaterial";
+import TodayCard from "@/components/TodayCard";
 import ExpiringDocs from "@/components/ExpiringDocs";
 
 export default function Home() {
@@ -33,11 +34,11 @@ export default function Home() {
           <GoalsPreview />
         </div>
 
-        <aside className="grid gap-6">
-          <ExpiringDocs />
-          <NextEvent />
-   <HelpsBanner />
-        </aside>
+<aside className="grid gap-6">
+  <TodayCard />
+  <NextEvent />
+  <PinnedMaterial />
+</aside>
       </div>
     </div>
   );
