@@ -11,6 +11,7 @@ import {
   CalendarDays,
   FileText,
   Users,
+  Stethoscope,
   Menu,
   HeartPulse,
   User,
@@ -18,6 +19,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { BASE } from "@/lib/base";
+   import { useChild } from "@/components/ChildGate";
 import { useToday } from "@/components/TodayProvider";
 
 const GROUPS = [
@@ -43,13 +45,14 @@ const GROUPS = [
       { href: "/ficha", label: "Ficha del niño", icon: HeartPulse },
       { href: "/documentos", label: "Documentos", icon: FileText },
       { href: "/equipo", label: "Equipo", icon: Users },
+         { href: "/informe", label: "Informe para el pediatra", icon: Stethoscope },
       { href: "/perfil", label: "Mi perfil", icon: User },
       { href: "/ajustes", label: "Ajustes", icon: Settings },
     ],
   },
 ];
 
-const MORE_ROUTES = ["/mas", "/ficha", "/documentos", "/equipo", "/perfil", "/ajustes"];
+const MORE_ROUTES = ["/mas", "/ficha", "/documentos", "/equipo", "/perfil", "/ajustes","/informe"];
 
 const BOTTOM = [
   { href: "/", label: "Inicio", icon: Home, match: (p: string) => p === "/" },
@@ -83,6 +86,7 @@ function AttentionDot({ className = "" }: { className?: string }) {
 export default function Nav() {
   const pathname = usePathname();
   const { attention } = useToday();
+     const { role } = useChild();
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
@@ -104,7 +108,9 @@ export default function Nav() {
                 {g.title}
               </p>
               <div className="grid gap-1">
-                {g.items.map(({ href, label, icon: Icon }) => (
+                   {g.items
+     .filter((i) => i.href !== "/informe" || role === "familia")
+     .map(({ href, label, icon: Icon }) => (
                   <Link
                     key={href}
                     href={href}

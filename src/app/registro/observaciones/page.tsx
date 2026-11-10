@@ -8,6 +8,7 @@ import { roleLabel } from "@/lib/roles";
 type Tag = "Comunicación" | "Apoyos sensoriales" | "Rutinas" | "Disfrute";
 
 type Observation = {
+  include_in_report: boolean;
   id: string;
   author_id: string;
   category: Tag;
@@ -25,7 +26,8 @@ const tagStyle: Record<Tag, string> = {
 };
 
 export default function Observaciones() {
-  const { child, userId } = useChild();
+  const { child, userId, role } = useChild();
+  const isFamily = role === "familia";
 
   const [observations, setObservations] = useState<Observation[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
@@ -36,6 +38,7 @@ export default function Observaciones() {
 
   const [tag, setTag] = useState<Tag>("Comunicación");
   const [text, setText] = useState("");
+  const [includeInReport, setIncludeInReport] = useState(true);
   const [saving, setSaving] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
 
@@ -43,7 +46,7 @@ export default function Observaciones() {
     const [obs, mem, prof] = await Promise.all([
       supabase
         .from("observations")
-        .select("id,author_id,category,body,created_at")
+        .select("id, author_id, category, body, created_at, include_in_report")
         .eq("child_id", child.id)
         .order("created_at", { ascending: false }),
       supabase.from("child_members").select("user_id,role").eq("child_id", child.id),
@@ -74,7 +77,12 @@ export default function Observaciones() {
     setError("");
     const { error } = await supabase
       .from("observations")
-      .insert({ child_id: child.id, category: tag, body });
+      .insert({ 
+        child_id: child.id, 
+        category: tag, 
+        body, 
+        include_in_report: includeInReport 
+      });
     setSaving(false);
 
     if (error) {
@@ -82,6 +90,7 @@ export default function Observaciones() {
       return;
     }
     setText("");
+    setIncludeInReport(true);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2500);
     load();
@@ -91,6 +100,16 @@ export default function Observaciones() {
     if (!window.confirm("¿Eliminar esta observación?")) return;
     const { error } = await supabase.from("observations").delete().eq("id", id);
     if (error) setError("No se pudo eliminar.");
+    else load();
+  };
+
+  const toggleReport = async (o: Observation) => {
+    const { data, error } = await supabase
+      .from("observations")
+      .update({ include_in_report: !o.include_in_report })
+      .eq("id", o.id)
+      .select("id");
+    if (error || !data?.length) setError("No se pudo cambiar la marca.");
     else load();
   };
 
@@ -160,17 +179,38 @@ export default function Observaciones() {
                       })}
                     </small>
                   </div>
-                  {o.author_id === userId && (
-                    <button
-                      type="button"
-                      onClick={() => remove(o.id)}
-                      className="min-h-11 rounded-lg px-3 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--sage)] hover:text-[var(--primary)]"
-                    >
-                      Eliminar
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {o.include_in_report && (
+                      <span className="rounded bg-[var(--sage)] px-2 py-0.5 text-[10px] font-medium text-[var(--primary)]">
+                        En reporte
+                      </span>
+                    )}
+                    {o.author_id === userId && (
+                      <button
+                        type="button"
+                        onClick={() => remove(o.id)}
+                        className="min-h-11 rounded-lg px-3 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--sage)] hover:text-[var(--primary)]"
+                      >
+                        Eliminar
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <p className="mt-2 text-sm [overflow-wrap:anywhere]">{o.body}</p>
+
+                {/* Step 5 Addition */}
+                {isFamily && (
+                  <label className="mt-2 flex min-h-11 cursor-pointer items-center gap-3 text-xs">
+                    <input
+                      type="checkbox"
+                      checked={o.include_in_report}
+                      onChange={() => toggleReport(o)}
+                      className="h-4 w-4 shrink-0 accent-[var(--primary)]"
+                    />
+                    Incluir en el informe para el pediatra
+                  </label>
+                )}
+
                 <span
                   className={`mt-3 inline-block rounded-md px-2.5 py-1 text-[0.6875rem] font-semibold ${tagStyle[o.category]}`}
                 >
@@ -214,6 +254,16 @@ export default function Observaciones() {
                 placeholder="Describe lo ocurrido y qué ayudó…"
                 className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-sm font-normal"
               />
+            </label>
+
+            <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+              <input
+                type="checkbox"
+                checked={includeInReport}
+                onChange={(e) => setIncludeInReport(e.target.checked)}
+                className="rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)]"
+              />
+              Incluir esta observación en el reporte
             </label>
 
             <small className="text-xs text-[var(--muted)]">
