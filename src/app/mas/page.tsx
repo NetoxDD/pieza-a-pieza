@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, FileText, HeartPulse, Settings, Stethoscope, User, Users } from "lucide-react";
+import { ChevronRight, FileText, HeartPulse, Settings, Stethoscope, User,ShieldCheck, Users } from "lucide-react";
 import { useChild } from "@/components/ChildGate";
 
 const items = [
@@ -10,6 +10,7 @@ const items = [
   { href: "/informe", icon: Stethoscope, title: "Informe para el pediatra", text: "Un resumen listo para imprimir.", familyOnly: true },
   { href: "/equipo", icon: Users, title: "Equipo", text: "Quién acompaña, sus roles e invitaciones." },
   { href: "/perfil", icon: User, title: "Mi perfil", text: "Tu foto o avatar y tus datos de contacto." },
+       { href: "/datos", icon: ShieldCheck, title: "Datos y privacidad", text: "Exporta tus datos y revisa el historial de accesos." },
   { href: "/ajustes", icon: Settings, title: "Ajustes", text: "Tamaño de letra, contraste, tema y modo calma." },
 ];
 

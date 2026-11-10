@@ -16,6 +16,7 @@ import {
   HeartPulse,
   User,
   Settings,
+  ShieldCheck,
   BookOpen,
 } from "lucide-react";
 import { BASE } from "@/lib/base";
@@ -47,12 +48,13 @@ const GROUPS = [
       { href: "/equipo", label: "Equipo", icon: Users },
          { href: "/informe", label: "Informe para el pediatra", icon: Stethoscope },
       { href: "/perfil", label: "Mi perfil", icon: User },
+               { href: "/datos", label: "Datos y privacidad", icon: ShieldCheck },
       { href: "/ajustes", label: "Ajustes", icon: Settings },
     ],
   },
 ];
 
-const MORE_ROUTES = ["/mas", "/ficha", "/documentos", "/equipo", "/perfil", "/ajustes","/informe"];
+const MORE_ROUTES = ["/mas", "/ficha", "/documentos", "/equipo", "/perfil", "/ajustes","/informe","/datos"];
 
 const BOTTOM = [
   { href: "/", label: "Inicio", icon: Home, match: (p: string) => p === "/" },
