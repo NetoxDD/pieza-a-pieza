@@ -54,7 +54,7 @@ const GROUPS = [
   },
 ];
 
-const MORE_ROUTES = ["/mas", "/ficha", "/documentos", "/equipo", "/perfil", "/ajustes","/informe","/datos"];
+const MORE_ROUTES = ["/mas", "/ficha", "/documentos", "/equipo", "/perfil", "/ajustes","/informe","/datos","/privacidad"];
 
 const BOTTOM = [
   { href: "/", label: "Inicio", icon: Home, match: (p: string) => p === "/" },

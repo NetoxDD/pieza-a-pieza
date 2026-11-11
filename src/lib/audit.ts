@@ -194,6 +194,11 @@ export function describe(
       };
     case "historial_depurado":
       return { cat: "datos", text: `${who} borró ${String(d.borrados ?? 0)} registros antiguos del historial` };
+          case "propiedad_transferida":
+      return {
+        cat: "equipo",
+        text: `${who} transfirió la propiedad del espacio a ${nameOf(r.entity_id)}`,
+      };
 
     case "registro_añadido":
       if (r.entity === "med_doses") return { cat: "medicinas", text: `${who} registró una dosis` };

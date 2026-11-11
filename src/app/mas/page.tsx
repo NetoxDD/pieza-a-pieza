@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, FileText, HeartPulse, Settings, Stethoscope, User,ShieldCheck, Users } from "lucide-react";
+import { ChevronRight, FileText, HeartPulse, Settings, Stethoscope, User,ShieldCheck, Users,Lock } from "lucide-react";
 import { useChild } from "@/components/ChildGate";
 
 const items = [
@@ -12,6 +12,7 @@ const items = [
   { href: "/perfil", icon: User, title: "Mi perfil", text: "Tu foto o avatar y tus datos de contacto." },
        { href: "/datos", icon: ShieldCheck, title: "Datos y privacidad", text: "Exporta tus datos y revisa el historial de accesos." },
   { href: "/ajustes", icon: Settings, title: "Ajustes", text: "Tamaño de letra, contraste, tema y modo calma." },
+     { href: "/privacidad", icon: Lock, title: "Aviso de privacidad", text: "Qué datos se guardan y cómo se protegen." },
 ];
 
 export default function Mas() {
