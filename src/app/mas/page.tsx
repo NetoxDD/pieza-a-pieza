@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, FileText, HeartPulse, Settings, Stethoscope, User,ShieldCheck, Users,Lock } from "lucide-react";
+import { ChevronRight, FileText, HeartPulse, Settings, Stethoscope, User,ShieldCheck, Users,Lock,Smile } from "lucide-react";
 import { useChild } from "@/components/ChildGate";
 
 const items = [
   { href: "/ficha", icon: HeartPulse, title: "Ficha del niño", text: "Datos generales, alergias, contactos y lo que le ayuda." },
   { href: "/documentos", icon: FileText, title: "Documentos", text: "Archivos y recursos compartidos." },
   { href: "/informe", icon: Stethoscope, title: "Informe para el pediatra", text: "Un resumen listo para imprimir.", familyOnly: true },
+     { href: "/ninos", icon: Smile, title: "Zona de niños", text: "Rutinas y actividades con botones grandes. Se sale con un PIN de adulto." },
   { href: "/equipo", icon: Users, title: "Equipo", text: "Quién acompaña, sus roles e invitaciones." },
   { href: "/perfil", icon: User, title: "Mi perfil", text: "Tu foto o avatar y tus datos de contacto." },
        { href: "/datos", icon: ShieldCheck, title: "Datos y privacidad", text: "Exporta tus datos y revisa el historial de accesos." },

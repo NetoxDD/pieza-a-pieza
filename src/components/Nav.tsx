@@ -15,6 +15,7 @@ import {
   Menu,
   HeartPulse,
   User,
+  Smile,
   Settings,
   ShieldCheck,
   BookOpen,
@@ -30,6 +31,7 @@ const GROUPS = [
       { href: "/", label: "Inicio", icon: Home },
       { href: "/registro", label: "Día a día", icon: ClipboardList },
       { href: "/comunicacion", label: "Mensajes", icon: MessageCircle },
+         { href: "/ninos", label: "Zona de niños", icon: Smile },
     ],
   },
   {
