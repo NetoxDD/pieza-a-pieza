@@ -51,7 +51,7 @@ export default function Privacidad() {
           </li>
           <li>
             <strong>Del seguimiento:</strong> estados de ánimo, observaciones, rutinas, objetivos, calendario,
-            mensajes, documentos y material de apoyo.
+            mensajes, documentos, material de apoyo, observaciones con etiquetas y, si se quiere, hasta 3 fotos cada una.
           </li>
           <li>
             <strong>De uso:</strong> un historial de accesos y cambios (qué ocurrió, quién y cuándo, nunca los
@@ -85,6 +85,10 @@ export default function Privacidad() {
           <li>
             <strong>Observaciones, mensajes, rutinas y calendario:</strong> el equipo.
           </li>
+                    <li>
+            <strong>La Zona de niños</strong> no muestra medicinas, mensajes, documentos ni la ficha: solo las
+            rutinas de hoy y actividades.
+          </li>
           <li>
             <strong>El informe para el pediatra</strong> lo genera solo la familia y lo comparte por su cuenta.
           </li>
@@ -116,6 +120,10 @@ export default function Privacidad() {
           <li>
             La app es un registro y un recordatorio. No da consejo médico, no sugiere dosis y no sustituye a un
             profesional de la salud ni una alarma propia.
+          </li>
+                    <li>
+            El PIN de la Zona de niños se guarda en el dispositivo y evita salidas accidentales, pero no es una
+            cerradura.
           </li>
         </ul>
       </Block>

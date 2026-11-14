@@ -85,7 +85,7 @@ export default function Informe() {
         supabase.from("mood_logs").select("mood,created_at").eq("child_id", child.id).gte("created_at", fromIso),
         supabase
           .from("observations")
-          .select("id,author_id,category,body,created_at")
+          .select("id,author_id,category,body,created_at,tags")
           .eq("child_id", child.id)
           .eq("include_in_report", true)
           .gte("created_at", fromIso)
@@ -124,11 +124,11 @@ export default function Informe() {
         moods: MOODS.map((label) => ({ label, n: moodRows.filter((x) => x.mood === label).length })),
         moodDays,
         moodTotal: moodRows.length,
-        observations: (obs.data as { author_id: string; category: string; body: string; created_at: string }[]).map(
+        observations: (obs.data as { author_id: string; category: string; body: string; created_at: string;tags: string[] | null;}[]).map(
           (o) => ({
             when: new Date(o.created_at).toLocaleDateString("es-MX", { day: "numeric", month: "short" }),
             who: get(o.author_id)?.name ?? "Alguien del equipo",
-            category: o.category,
+               category: o.tags?.length ? `${o.category} · ${o.tags.join(", ")}` : o.category,
             text: o.body,
           })
         ),

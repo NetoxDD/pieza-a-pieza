@@ -46,6 +46,8 @@ const ENTITY: Record<string, { label: string; cat: Category }> = {
   document_folders: { label: "una carpeta de documentos", cat: "documentos" },
   materials: { label: "una publicación de material", cat: "otros" },
   routines: { label: "una rutina", cat: "otros" },
+    observations: { label: "una observación", cat: "otros" },
+  observation_photos: { label: "una foto de una observación", cat: "otros" },
 };
 
 const FIELD: Record<string, string> = {
@@ -103,6 +105,9 @@ const FIELD: Record<string, string> = {
   void_reason: "motivo de anulación",
   voided_by: "quién anuló",
   postponed_until: "hora de posposición",
+    tags: "etiquetas",
+  edited_at: "fecha de edición",
+  include_in_report: "marca para el informe",
 };
 
 const SECTION: Record<string, string> = {

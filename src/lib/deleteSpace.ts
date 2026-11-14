@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 
 // Todos los archivos de un espacio viven bajo "{id del niño}/..."
-const BUCKETS = ["documents", "materials", "child-photos"];
+const BUCKETS = ["documents", "materials", "child-photos", "obs-photos"];
 
 async function listAll(bucket: string, folder: string): Promise<string[]> {
   const out: string[] = [];

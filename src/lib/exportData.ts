@@ -71,6 +71,8 @@ export async function exportSpace(childId: string) {
     "med_stock_ledger",
     "med_schedule_history",
     "observations",
+    "observation_versions",
+    "observation_photos",
     "mood_logs",
     "goals",
     "events",
