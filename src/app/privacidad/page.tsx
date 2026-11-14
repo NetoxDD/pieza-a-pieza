@@ -51,7 +51,7 @@ export default function Privacidad() {
           </li>
           <li>
             <strong>Del seguimiento:</strong> estados de ánimo, observaciones, rutinas, objetivos,sueño, comidas, calendario,
-            mensajes, documentos, material de apoyo, plan de calma, observaciones con etiquetas y, si se quiere, hasta 3 fotos cada una.
+            mensajes, documentos, material de apoyo,episodios (qué pasó antes, durante y después), plan de calma, observaciones con etiquetas y, si se quiere, hasta 3 fotos cada una.
           </li>
           <li>
             <strong>De uso:</strong> un historial de accesos y cambios (qué ocurrió, quién y cuándo, nunca los
@@ -103,6 +103,7 @@ export default function Privacidad() {
           <li>Las fotos se redibujan antes de subirse, y así pierden su ubicación y datos ocultos.</li>
           <li>El historial de accesos y cambios lo ve el familiar principal.</li>
           <li>Los datos viven en un servicio de base de datos en la nube, y el sitio se publica en GitHub Pages.</li>
+          <li>Episodios: cada persona ve los que registró; los profesionales ven todos, y la familia puede abrirlo al resto.</li>
         </ul>
       </Block>
 

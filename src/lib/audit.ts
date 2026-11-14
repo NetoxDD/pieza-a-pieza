@@ -52,6 +52,7 @@ const ENTITY: Record<string, { label: string; cat: Category }> = {
   meal_logs: { label: "un registro de comida", cat: "ficha" },
     calm_plan_items: { label: "un elemento del plan de calma", cat: "ficha" },
   calm_plan_settings: { label: "los ajustes del plan de calma", cat: "ficha" },
+  episodes: { label: "un episodio", cat: "ficha" },
 };
 
 const FIELD: Record<string, string> = {
@@ -118,6 +119,13 @@ const FIELD: Record<string, string> = {
   amount: "cuánto comió",
   note: "nota",
   in_emergency: "mostrar en la ficha de emergencia",
+    occurred_at: "fecha y hora",
+  antecedent: "lo que pasó antes",
+  behavior: "lo que pasó",
+  consequence: "lo que siguió",
+  intensity: "intensidad",
+  duration_minn: "duración",
+  helped: "qué ayudó",
 };
 
 const SECTION: Record<string, string> = {
@@ -125,6 +133,7 @@ const SECTION: Record<string, string> = {
   conditions: "Otras condiciones",
   contacts: "Otros contactos y lugares",
   wellbeing: "Sueño y comidas",
+  episodes: "Episodios de otras personas",
 };
 
 const s = (v: unknown) => (typeof v === "string" ? v : "");
@@ -219,11 +228,16 @@ export function describe(
     case "registro_añadido":
       if (r.entity === "med_doses") return { cat: "medicinas", text: `${who} registró una dosis` };
       return { cat, text: `${who} añadió ${label}` };
+      
     case "registro_modificado": {
       const campos = Array.isArray(d.campos) ? (d.campos as string[]) : [];
       if (r.entity === "med_doses" && campos.includes("voided_at")) {
+        
         return { cat: "medicinas", text: `${who} anuló un registro de dosis` };
       }
+        if (r.entity === "episodes" && campos.includes("voided_at")) {
+    return { cat: "ficha", text: `${who} anuló un registro de episodio` };
+  }
       const what = campos.length ? ` (cambió: ${campos.map((f) => FIELD[f] ?? f).join(", ")})` : "";
       return { cat, text: `${who} modificó ${label}${what}` };
     }

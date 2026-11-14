@@ -19,6 +19,7 @@ const DAY: Tab[] = [
   { href: "/registro/medicinas", label: "Medicinas" },
   { href: "/registro/observaciones", label: "Observaciones" },
      { href: "/registro/bienestar", label: "Sueño y comidas" },
+  { href: "/registro/episodios", label: "Episodios" },
 ];
 
 const MORE = ["/documentos", "/equipo", "/ajustes", "/perfil", "/ficha","/informe","/datos","/privacidad","/plan-calma"];
