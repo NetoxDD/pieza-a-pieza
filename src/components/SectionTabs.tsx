@@ -11,6 +11,7 @@ const PLAN: Tab[] = [
   { href: "/objetivos", label: "Objetivos" },
   { href: "/calendario", label: "Calendario" },
   { href: "/material", label: "Material" },
+  { href: "/logros", label: "Logros" },
 ];
 
 const DAY: Tab[] = [

@@ -12,9 +12,11 @@ import FirstThen from "@/components/kids/FirstThen";
 import Breathe from "@/components/kids/Breathe";
 import Memory from "@/components/kids/Memory";
 import { checkPin, clearPin, hasPin, savePin } from "@/lib/kids";
+import KidWins from "@/components/kids/KidWins";
 
 type Stage = "loading" | "setpin" | "confirmpin" | "play" | "exit";
-type Screen = "home" | "routine" | "feel" | "firstthen" | "breathe" | "memory";
+   
+type Screen = "home" | "routine" | "feel" | "firstthen" | "breathe" | "memory" | "wins";
 
 const MENU: { id: Exclude<Screen, "home">; emoji: string; label: string }[] = [
   { id: "routine", emoji: "🌞", label: "Mi día" },
@@ -22,6 +24,7 @@ const MENU: { id: Exclude<Screen, "home">; emoji: string; label: string }[] = [
   { id: "firstthen", emoji: "➡️", label: "Primero… Después…" },
   { id: "breathe", emoji: "🌬️", label: "Respira conmigo" },
   { id: "memory", emoji: "🧩", label: "Memorama" },
+  { id: "wins", emoji: "🌟", label: "Mis logros" },
 ];
 
 export default function KidZone() {
@@ -167,6 +170,7 @@ export default function KidZone() {
             {screen === "firstthen" && <FirstThen />}
             {screen === "breathe" && <Breathe />}
             {screen === "memory" && <Memory />}
+            {screen === "wins" && <KidWins />}
           </div>
         )}
       </div>

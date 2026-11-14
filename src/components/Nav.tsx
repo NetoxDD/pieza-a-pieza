@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   BookOpen,
   LifeBuoy,
+  Trophy,
 } from "lucide-react";
 import { BASE } from "@/lib/base";
    import { useChild } from "@/components/ChildGate";
@@ -41,6 +42,7 @@ const GROUPS = [
       { href: "/objetivos", label: "Objetivos", icon: Target },
       { href: "/calendario", label: "Calendario", icon: CalendarDays },
       { href: "/material", label: "Material", icon: BookOpen },
+      { href: "/logros", label: "Logros", icon: Trophy },
     ],
   },
   {
@@ -69,7 +71,7 @@ const BOTTOM = [
     label: "Plan",
     icon: Target,
     match: (p: string) =>
-      p.startsWith("/objetivos") || p.startsWith("/calendario") || p.startsWith("/material"),
+      p.startsWith("/objetivos") || p.startsWith("/calendario") || p.startsWith("/material")|| p.startsWith("/logros"),
   },
   {
     href: "/mas",

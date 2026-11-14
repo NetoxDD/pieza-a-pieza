@@ -54,6 +54,7 @@ const ENTITY: Record<string, { label: string; cat: Category }> = {
   calm_plan_settings: { label: "los ajustes del plan de calma", cat: "ficha" },
   episodes: { label: "un episodio", cat: "ficha" },
   notebook_entries: { label: "una nota del cuaderno escuela–casa", cat: "otros" },
+  achievements: { label: "un logro", cat: "otros" },
 };
 
 const FIELD: Record<string, string> = {
@@ -127,6 +128,10 @@ const FIELD: Record<string, string> = {
   intensity: "intensidad",
   duration_minn: "duración",
   helped: "qué ayudó",
+  achieved_on: "fecha del logro",
+  area: "área", 
+  show_to_child: "mostrar al niño",
+  photo_path: "foto",
 };
 
 const SECTION: Record<string, string> = {
