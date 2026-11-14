@@ -21,7 +21,7 @@ const DAY: Tab[] = [
      { href: "/registro/bienestar", label: "Sueño y comidas" },
 ];
 
-const MORE = ["/documentos", "/equipo", "/ajustes", "/perfil", "/ficha","/informe","/datos","/privacidad"];
+const MORE = ["/documentos", "/equipo", "/ajustes", "/perfil", "/ficha","/informe","/datos","/privacidad","/plan-calma"];
 
 function Tabs({ label, tabs, pathname }: { label: string; tabs: Tab[]; pathname: string }) {
   const clean = pathname.replace(/\/$/, "") || "/";

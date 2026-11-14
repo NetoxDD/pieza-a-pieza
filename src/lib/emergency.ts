@@ -20,6 +20,7 @@ export type EmergencySnapshot = {
   }[];
   meds: { name: string; dose: string | null; frequency: string | null; category: string }[] | null;
   conditions: { visible: boolean; text: string | null };
+  calm?: { kind: string; body: string }[] | null;
 };
 
 const PREFIX = "pap:emergency:";
@@ -37,6 +38,7 @@ export function buildSnapshot(a: {
   meds: Medication[];
   conditions: string | null;
   access: Access;
+  calm?: { kind: string; body: string }[] | null;
 }): EmergencySnapshot {
   return {
     v: 1,
@@ -69,6 +71,7 @@ export function buildSnapshot(a: {
           .map((m) => ({ name: m.name, dose: m.dose, frequency: m.frequency, category: m.category }))
       : null,
     conditions: { visible: a.access.conditions, text: a.access.conditions ? a.conditions : null },
+    calm: a.calm ?? null,
   };
 }
 

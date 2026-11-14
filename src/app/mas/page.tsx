@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, FileText, HeartPulse, Settings, Stethoscope, User,ShieldCheck, Users,Lock,Smile } from "lucide-react";
+import { ChevronRight, FileText, HeartPulse, Settings, Stethoscope, User,ShieldCheck, Users,Lock,Smile,LifeBuoy } from "lucide-react";
 import { useChild } from "@/components/ChildGate";
 
 const items = [
   { href: "/ficha", icon: HeartPulse, title: "Ficha del niño", text: "Datos generales, alergias, contactos y lo que le ayuda." },
+  { href: "/plan-calma", icon: LifeBuoy, title: "Plan de calma", text: "Qué hacer y qué evitar cuando se siente mal." },
   { href: "/documentos", icon: FileText, title: "Documentos", text: "Archivos y recursos compartidos." },
   { href: "/informe", icon: Stethoscope, title: "Informe para el pediatra", text: "Un resumen listo para imprimir.", familyOnly: true },
      { href: "/ninos", icon: Smile, title: "Zona de niños", text: "Rutinas y actividades con botones grandes. Se sale con un PIN de adulto." },

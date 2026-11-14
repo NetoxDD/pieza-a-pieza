@@ -11,6 +11,7 @@ const ORDER: Record<string, string> = {
   child_members: "user_id",
   material_likes: "material_id",
   med_administer_roles: "medication_id",
+  calm_plan_settings: "child_id",
 };
 
 // Trae todas las filas visibles para esta persona, de mil en mil
@@ -85,6 +86,8 @@ export async function exportSpace(childId: string) {
     "audit_log",
     "sleep_logs",
     "meal_logs",
+    "calm_plan_items",
+    "calm_plan_settings",
   ];
   for (const table of byChild) datos[table] = await grab(table, "child_id", childId);
 

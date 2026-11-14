@@ -19,6 +19,7 @@ import {
   Settings,
   ShieldCheck,
   BookOpen,
+  LifeBuoy,
 } from "lucide-react";
 import { BASE } from "@/lib/base";
    import { useChild } from "@/components/ChildGate";
@@ -46,6 +47,7 @@ const GROUPS = [
     title: "Archivo y equipo",
     items: [
       { href: "/ficha", label: "Ficha del niño", icon: HeartPulse },
+      { href: "/plan-calma", label: "Plan de calma", icon: LifeBuoy },
       { href: "/documentos", label: "Documentos", icon: FileText },
       { href: "/equipo", label: "Equipo", icon: Users },
          { href: "/informe", label: "Informe para el pediatra", icon: Stethoscope },
@@ -56,7 +58,7 @@ const GROUPS = [
   },
 ];
 
-const MORE_ROUTES = ["/mas", "/ficha", "/documentos", "/equipo", "/perfil", "/ajustes","/informe","/datos","/privacidad"];
+const MORE_ROUTES = ["/mas", "/ficha", "/documentos", "/equipo", "/perfil", "/ajustes","/informe","/datos","/privacidad","/plan-calma"];
 
 const BOTTOM = [
   { href: "/", label: "Inicio", icon: Home, match: (p: string) => p === "/" },

@@ -50,6 +50,8 @@ const ENTITY: Record<string, { label: string; cat: Category }> = {
   observation_photos: { label: "una foto de una observación", cat: "otros" },
     sleep_logs: { label: "un registro de sueño", cat: "ficha" },
   meal_logs: { label: "un registro de comida", cat: "ficha" },
+    calm_plan_items: { label: "un elemento del plan de calma", cat: "ficha" },
+  calm_plan_settings: { label: "los ajustes del plan de calma", cat: "ficha" },
 };
 
 const FIELD: Record<string, string> = {
@@ -115,6 +117,7 @@ const FIELD: Record<string, string> = {
   quality: "cómo fue la noche",
   amount: "cuánto comió",
   note: "nota",
+  in_emergency: "mostrar en la ficha de emergencia",
 };
 
 const SECTION: Record<string, string> = {

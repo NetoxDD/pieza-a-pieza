@@ -7,10 +7,12 @@ import { useChild } from "@/components/ChildGate";
 import { useChildProfile } from "@/components/ChildProfileProvider";
 import EmergencyView from "@/components/EmergencyView";
 import { buildSnapshot, copyEnabled, readCopy, saveCopy } from "@/lib/emergency";
+   import { useCalmForEmergency } from "@/components/useCalmForEmergency";
 
 export default function EmergencyButton() {
   const { child, role, userId } = useChild();
   const p = useChildProfile();
+     const calm = useCalmForEmergency(child.id);
   const [open, setOpen] = useState(false);
   const [tick, setTick] = useState(0);
 
@@ -28,9 +30,10 @@ export default function EmergencyButton() {
         meds: p.meds,
         conditions: p.conditions,
         access: p.access,
+        calm,
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [child.id, child.name, role, p.profile, p.allergies, p.contacts, p.meds, p.conditions, p.access]
+    [child.id, child.name, role, p.profile, p.allergies, p.contacts, p.meds, p.conditions, p.access,calm]
   );
 
   // Cada vez que los datos cargan bien, se actualiza la copia (si está activada)

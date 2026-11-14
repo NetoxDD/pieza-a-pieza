@@ -51,7 +51,7 @@ export default function Privacidad() {
           </li>
           <li>
             <strong>Del seguimiento:</strong> estados de ánimo, observaciones, rutinas, objetivos,sueño, comidas, calendario,
-            mensajes, documentos, material de apoyo, observaciones con etiquetas y, si se quiere, hasta 3 fotos cada una.
+            mensajes, documentos, material de apoyo, plan de calma, observaciones con etiquetas y, si se quiere, hasta 3 fotos cada una.
           </li>
           <li>
             <strong>De uso:</strong> un historial de accesos y cambios (qué ocurrió, quién y cuándo, nunca los

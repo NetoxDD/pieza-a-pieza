@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+   import { groupCalm } from "@/lib/calm";
 import { AlertTriangle, MapPin, Phone, Printer, X } from "lucide-react";
 import {
   ageText,
@@ -75,6 +76,7 @@ export default function EmergencyView({
     doctors: false,
     meds: false,
     conditions: false,
+    calm: true,
   });
 
   useEffect(() => {
@@ -101,6 +103,8 @@ export default function EmergencyView({
     : [];
   const hasMeds = !!snap?.meds && snap.meds.length > 0;
   const hasConditions = !!snap?.conditions.text;
+     const calmGroups = groupCalm(snap?.calm);
+   const hasCalm = calmGroups.length > 0;
   const limited = !!snap && (snap.meds === null || !snap.conditions.visible);
 
   const age = snap ? ageText(snap.birthDate) : "";
@@ -279,6 +283,38 @@ export default function EmergencyView({
               </section>
             )}
 
+                        {hasCalm && (
+              <section aria-labelledby="emg-calm">
+                <h2 id="emg-calm" className="text-2xl font-extrabold">
+                  Plan de calma
+                </h2>
+                <div className="mt-3 grid gap-3">
+                  {calmGroups.map((g) => (
+                    <div key={g.kind} className="rounded-xl border-2 border-black p-4">
+                      <h3 className="text-lg font-extrabold">{g.title}</h3>
+                      {g.ordered ? (
+                        <ol className="mt-2 grid list-decimal gap-1 pl-6 text-lg">
+                          {g.items.map((t, i) => (
+                            <li key={i} className="[overflow-wrap:anywhere]">
+                              {t}
+                            </li>
+                          ))}
+                        </ol>
+                      ) : (
+                        <ul className="mt-2 grid list-disc gap-1 pl-6 text-lg">
+                          {g.items.map((t, i) => (
+                            <li key={i} className="[overflow-wrap:anywhere]">
+                              {t}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {limited && (
               <p className="text-sm">
                 Es posible que haya más información que tu rol no puede ver en esta ficha.
@@ -293,6 +329,7 @@ export default function EmergencyView({
               {check("doctors", "Pediatra y hospital", doctors.length === 0)}
               {check("meds", "Medicamentos", !hasMeds)}
               {check("conditions", "Otras condiciones", !hasConditions)}
+                 {hasCalm && check("calm", "Plan de calma")}
               <button
                 type="button"
                 onClick={print}
@@ -391,6 +428,28 @@ export default function EmergencyView({
             <div style={{ marginTop: "12pt" }}>
               <h2 style={{ fontSize: "14pt", fontWeight: 800 }}>OTRAS CONDICIONES</h2>
               <p style={{ fontSize: "11pt", whiteSpace: "pre-wrap" }}>{snap.conditions.text}</p>
+            </div>
+          )}
+
+                    {inc.calm && hasCalm && (
+            <div style={{ marginTop: "12pt" }}>
+              <h2 style={{ fontSize: "14pt", fontWeight: 800 }}>PLAN DE CALMA</h2>
+              {calmGroups.map((g) => (
+                <div key={g.kind} style={{ marginTop: "6pt" }}>
+                  <p style={{ fontSize: "11pt", fontWeight: 700 }}>{g.title}</p>
+                  <ul
+                    style={{
+                      fontSize: "11pt",
+                      paddingLeft: "16pt",
+                      listStyle: g.ordered ? "decimal" : "disc",
+                    }}
+                  >
+                    {g.items.map((t, i) => (
+                      <li key={i}>{t}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
           )}
 
