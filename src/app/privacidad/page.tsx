@@ -51,7 +51,7 @@ export default function Privacidad() {
           </li>
           <li>
             <strong>Del seguimiento:</strong> estados de ánimo, observaciones, rutinas, objetivos,sueño, comidas, calendario,
-            mensajes, documentos, material de apoyo,episodios (qué pasó antes, durante y después), plan de calma, observaciones con etiquetas y, si se quiere, hasta 3 fotos cada una.
+            mensajes, notas del cuaderno escuela–casa, documentos, material de apoyo,episodios (qué pasó antes, durante y después), plan de calma, observaciones con etiquetas y, si se quiere, hasta 3 fotos cada una.
           </li>
           <li>
             <strong>De uso:</strong> un historial de accesos y cambios (qué ocurrió, quién y cuándo, nunca los
@@ -83,7 +83,7 @@ export default function Privacidad() {
             <strong>Documentos:</strong> cada carpeta tiene sus permisos de ver y de subir.
           </li>
           <li>
-            <strong>Observaciones, mensajes, rutinas y calendario:</strong> el equipo.
+            <strong>Observaciones, mensajes, rutinas, calendario y las notas del cuaderno escuela–casa”.:</strong> el equipo.
           </li>
                     <li>
             <strong>La Zona de niños</strong> no muestra medicinas, mensajes, documentos ni la ficha: solo las

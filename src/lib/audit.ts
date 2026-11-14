@@ -53,6 +53,7 @@ const ENTITY: Record<string, { label: string; cat: Category }> = {
     calm_plan_items: { label: "un elemento del plan de calma", cat: "ficha" },
   calm_plan_settings: { label: "los ajustes del plan de calma", cat: "ficha" },
   episodes: { label: "un episodio", cat: "ficha" },
+  notebook_entries: { label: "una nota del cuaderno escuela–casa", cat: "otros" },
 };
 
 const FIELD: Record<string, string> = {

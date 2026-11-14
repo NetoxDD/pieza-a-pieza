@@ -22,7 +22,7 @@ export type Episode = {
   behavior: string;
   consequence: string | null;
   intensity: number;
-  duration_min: number | null;
+  duration_minn: number | null;
   helped: string[];
   voided_at: string | null;
   voided_by: string | null;
@@ -31,7 +31,7 @@ export type Episode = {
 };
 
 export const EP_COLS =
-  "id,author_id,occurred_at,place,antecedent,behavior,consequence,intensity,duration_min,helped,voided_at,voided_by,void_reason,created_at";
+  "id,author_id,occurred_at,place,antecedent,behavior,consequence,intensity,duration_minn,helped,voided_at,voided_by,void_reason,created_at";
 
 export const placeLabel = (k: string) => PLACES.find((p) => p.key === k)?.label ?? k;
 export const intensityLabel = (n: number) => INTENSITY.find((i) => i.key === n)?.label ?? String(n);

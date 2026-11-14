@@ -88,6 +88,8 @@ export async function exportSpace(childId: string) {
     "meal_logs",
     "calm_plan_items",
     "calm_plan_settings",
+    "episodes",
+    "notebook_entries",
   ];
   for (const table of byChild) datos[table] = await grab(table, "child_id", childId);
 

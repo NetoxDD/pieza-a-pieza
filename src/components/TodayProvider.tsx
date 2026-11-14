@@ -7,6 +7,7 @@ import { useChildProfile } from "@/components/ChildProfileProvider";
 import { SOON_DAYS, expiryLabel, expiryOf } from "@/lib/documents";
 import { DOSE_COLS, MED_COLS, computeSlots, fmtQty, lowStock, type Dose, type Med } from "@/lib/meds";
 import { isoWeekday, localDate } from "@/lib/routines";
+import { SIDE_OF } from "@/lib/notebook";
 
 export type TodayAlert = {
   id: string;
@@ -190,6 +191,30 @@ export default function TodayProvider({ children }: { children: React.ReactNode 
      }
    }
 
+      // ---------- Cuaderno escuela–casa ----------
+   const mySide = SIDE_OF[role];
+   if (mySide) {
+     const since = localDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3));
+     const nb = await supabase
+       .from("notebook_entries")
+       .select("id,side,seen_at")
+       .eq("child_id", child.id)
+       .gte("day", since);
+     if (!nb.error) {
+       const unseen = (nb.data as { side: string; seen_at: string | null }[]).filter(
+         (x) => x.side !== mySide && !x.seen_at
+       ).length;
+       if (unseen > 0) {
+         alerts.push({
+           id: "notebook",
+           label: unseen === 1 ? "Hay una nota nueva en el cuaderno escuela–casa" : `Hay ${unseen} notas nuevas en el cuaderno escuela–casa`,
+           href: "/registro/cuaderno",
+           tone: "normal",
+         });
+       }
+     }
+   }
+
     alerts.sort((a, b) => Number(b.tone === "atencion") - Number(a.tone === "atencion"));
 
     setData({
@@ -210,7 +235,7 @@ export default function TodayProvider({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     const channel = supabase.channel(`today:${child.id}`);
-    ["med_doses", "routine_step_done", "med_stock_ledger"].forEach((table) => {
+    ["med_doses", "routine_step_done", "med_stock_ledger","notebook_entries"].forEach((table) => {
       channel.on("postgres_changes", { event: "*", schema: "public", table }, () => load());
     });
     channel.subscribe();
