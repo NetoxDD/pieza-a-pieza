@@ -91,7 +91,7 @@ export type Medication = {
   active: boolean;
 };
 
-export type SectionKey = "medications" | "conditions" | "contacts";
+   export type SectionKey = "medications" | "conditions" | "contacts" | "wellbeing";
 export type Access = Record<SectionKey, boolean>;
 
 export const medCategoryLabel: Record<string, string> = {
@@ -103,12 +103,13 @@ export const SECTIONS: { key: SectionKey; label: string; hint: string }[] = [
   { key: "medications", label: "Medicamentos", hint: "Lista de medicamentos y su dosis." },
   { key: "conditions", label: "Otras condiciones", hint: "El texto opcional de condiciones de salud." },
   { key: "contacts", label: "Otros contactos y lugares", hint: "Pediatra, hospital, escuela y demás. Los contactos de emergencia siempre se ven." },
+     { key: "wellbeing", label: "Sueño y comidas", hint: "Cuánto durmió y cómo comió. El pediatra puede verlo, pero no anotarlo." },
 ];
 
 export const CONFIGURABLE_ROLES = ["cuidador", "pediatra", "terapeuta", "logopeda", "tutor"];
 
 // Debe coincidir con los valores iniciales de la función can_view_section de la base de datos
 export function defaultAllowed(section: SectionKey, role: string): boolean {
-  if (section === "contacts") return true;
+     if (section === "contacts" || section === "wellbeing") return true;
   return ["pediatra", "terapeuta", "logopeda"].includes(role);
 }

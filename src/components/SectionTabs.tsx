@@ -18,6 +18,7 @@ const DAY: Tab[] = [
   { href: "/registro/rutinas", label: "Rutinas" },
   { href: "/registro/medicinas", label: "Medicinas" },
   { href: "/registro/observaciones", label: "Observaciones" },
+     { href: "/registro/bienestar", label: "Sueño y comidas" },
 ];
 
 const MORE = ["/documentos", "/equipo", "/ajustes", "/perfil", "/ficha","/informe","/datos","/privacidad"];
@@ -52,8 +53,11 @@ export default function SectionTabs() {
   const { access } = useChildProfile();
 
   if (pathname.startsWith("/registro")) {
-    const tabs = access.medications ? DAY : DAY.filter((t) => t.href !== "/registro/medicinas");
-    return <Tabs label="Día a día" tabs={tabs} pathname={pathname} />;
+   const tabs = DAY.filter(
+     (t) =>
+       (t.href !== "/registro/medicinas" || access.medications) &&
+       (t.href !== "/registro/bienestar" || access.wellbeing)
+   );    return <Tabs label="Día a día" tabs={tabs} pathname={pathname} />;
   }
   if (PLAN.some((t) => pathname.startsWith(t.href))) return <Tabs label="Plan" tabs={PLAN} pathname={pathname} />;
 

@@ -50,7 +50,7 @@ export default function Privacidad() {
             medicinas (horarios, dosis registradas e inventario), otras condiciones de salud y lo que le ayuda.
           </li>
           <li>
-            <strong>Del seguimiento:</strong> estados de ánimo, observaciones, rutinas, objetivos, calendario,
+            <strong>Del seguimiento:</strong> estados de ánimo, observaciones, rutinas, objetivos,sueño, comidas, calendario,
             mensajes, documentos, material de apoyo, observaciones con etiquetas y, si se quiere, hasta 3 fotos cada una.
           </li>
           <li>

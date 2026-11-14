@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Printer, X } from "lucide-react";
 import type { ReportData } from "@/lib/report";
+import { fmtDuration } from "@/lib/wellbeing";
 
 const th = "border border-black px-2 py-1 text-left font-bold";
 const td = "border border-black px-2 py-1 align-top";
@@ -230,6 +231,62 @@ export default function ReportView({
                         </li>
                       ))}
                   </ul>
+                </>
+              )}
+            </Section>
+          )}
+                    {inc.wellbeing && (
+            <Section title="Sueño y comidas">
+              {d.wellbeing.nights === 0 && d.wellbeing.meals.every((m) => m.total === 0) ? (
+                <p>No hay registros de sueño ni de comidas en este periodo.</p>
+              ) : (
+                <>
+                  {d.wellbeing.nights > 0 && d.wellbeing.avgMinutes !== null && (
+                    <>
+                      <p className="font-bold">Sueño</p>
+                      <p>
+                        {d.wellbeing.nights} {d.wellbeing.nights === 1 ? "noche registrada" : "noches registradas"}.
+                        Promedio: {fmtDuration(d.wellbeing.avgMinutes)} y{" "}
+                        {(d.wellbeing.avgWakeups ?? 0).toFixed(1)} despertares por noche.
+                      </p>
+                      <p>
+                        {d.wellbeing.quality
+                          .filter((q) => q.n > 0)
+                          .map((q) => `${q.label}: ${q.n}`)
+                          .join(" · ") || "Sin valoración de la noche."}
+                      </p>
+                    </>
+                  )}
+                  <p className="mt-3 font-bold">Comidas</p>
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        <th className={th}>Comida</th>
+                        <th className={th}>Nada</th>
+                        <th className={th}>Poco</th>
+                        <th className={th}>Normal</th>
+                        <th className={th}>Mucho</th>
+                        <th className={th}>Registros</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {d.wellbeing.meals.map((m) => (
+                        <tr key={m.label}>
+                          <td className={td}>{m.label}</td>
+                          {m.counts.map((c) => (
+                            <td key={c.label} className={td}>
+                              {c.n}
+                            </td>
+                          ))}
+                          <td className={td}>{m.total}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <p className="mt-2 text-xs">
+                    Solo cuentan los días en que alguien anotó el dato: no registrar no significa que no haya
+                    dormido o comido.
+                  </p>
                 </>
               )}
             </Section>

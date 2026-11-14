@@ -48,6 +48,8 @@ const ENTITY: Record<string, { label: string; cat: Category }> = {
   routines: { label: "una rutina", cat: "otros" },
     observations: { label: "una observación", cat: "otros" },
   observation_photos: { label: "una foto de una observación", cat: "otros" },
+    sleep_logs: { label: "un registro de sueño", cat: "ficha" },
+  meal_logs: { label: "un registro de comida", cat: "ficha" },
 };
 
 const FIELD: Record<string, string> = {
@@ -108,12 +110,18 @@ const FIELD: Record<string, string> = {
     tags: "etiquetas",
   edited_at: "fecha de edición",
   include_in_report: "marca para el informe",
+    sleep_minutes: "duración del sueño",
+  wakeups: "despertares",
+  quality: "cómo fue la noche",
+  amount: "cuánto comió",
+  note: "nota",
 };
 
 const SECTION: Record<string, string> = {
   medications: "Medicamentos",
   conditions: "Otras condiciones",
   contacts: "Otros contactos y lugares",
+  wellbeing: "Sueño y comidas",
 };
 
 const s = (v: unknown) => (typeof v === "string" ? v : "");

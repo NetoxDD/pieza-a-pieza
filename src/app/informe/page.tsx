@@ -10,6 +10,7 @@ import { PERIODS, adherence, fmtDay, type Hist, type ReportData } from "@/lib/re
 import { DOSE_COLS, MED_COLS, scheduleText, statusLabel, type Dose, type Med } from "@/lib/meds";
 import { ageText } from "@/lib/ficha";
 import { localDate } from "@/lib/routines";
+import { summarizeWellbeing } from "@/lib/wellbeing";
 
 const MOODS = ["Contento", "Tranquilo", "Neutro", "Incómodo", "Triste", "Frustrado"];
 
@@ -18,6 +19,7 @@ const SECTIONS = [
   { key: "meds", label: "Medicinas actuales" },
   { key: "adherence", label: "Registro de tomas" },
   { key: "mood", label: "Estado de ánimo" },
+     { key: "wellbeing", label: "Sueño y comidas" },
   { key: "observations", label: "Observaciones que marqué para el informe" },
   { key: "goals", label: "Objetivos y avance" },
   { key: "notes", label: "Notas de las dosis" },
@@ -36,6 +38,7 @@ export default function Informe() {
     meds: true,
     adherence: true,
     mood: true,
+    wellbeing: true,
     observations: true,
     goals: true,
     notes: false,
@@ -105,6 +108,14 @@ export default function Informe() {
       const inPeriod = (x: Dose) =>
         (x.scheduled_date && x.scheduled_date >= fromStr) ||
         (x.taken_at && new Date(x.taken_at).getTime() >= from.getTime());
+           const [sl, ml] = await Promise.all([
+     supabase.from("sleep_logs").select("sleep_minutes,wakeups,quality").eq("child_id", child.id).gte("night_of", fromStr),
+     supabase.from("meal_logs").select("meal,amount").eq("child_id", child.id).gte("day", fromStr),
+   ]);
+   const wellbeing = summarizeWellbeing(
+     (sl.data ?? []) as { sleep_minutes: number; wakeups: number; quality: string | null }[],
+     (ml.data ?? []) as { meal: string; amount: string }[]
+   );
 
       const data: ReportData = {
         childName: child.name,
@@ -124,6 +135,7 @@ export default function Informe() {
         moods: MOODS.map((label) => ({ label, n: moodRows.filter((x) => x.mood === label).length })),
         moodDays,
         moodTotal: moodRows.length,
+        wellbeing,
         observations: (obs.data as { author_id: string; category: string; body: string; created_at: string;tags: string[] | null;}[]).map(
           (o) => ({
             when: new Date(o.created_at).toLocaleDateString("es-MX", { day: "numeric", month: "short" }),

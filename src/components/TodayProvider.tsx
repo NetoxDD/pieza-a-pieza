@@ -44,7 +44,7 @@ const pad = (n: number) => String(n).padStart(2, "0");
 const isoDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 
 export default function TodayProvider({ children }: { children: React.ReactNode }) {
-  const { child } = useChild();
+  const { child, role } = useChild();
   const { access } = useChildProfile();
   const [data, setData] = useState<Ctx>(EMPTY);
 
@@ -176,6 +176,20 @@ export default function TodayProvider({ children }: { children: React.ReactNode 
         });
     }
 
+   // ---------- Sueño de anoche ----------
+   if (access.wellbeing && role !== "pediatra" && now.getHours() >= 5 && now.getHours() < 14) {
+     const night = localDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
+     const sl = await supabase.from("sleep_logs").select("id").eq("child_id", child.id).eq("night_of", night).limit(1);
+     if (!sl.error && (sl.data?.length ?? 0) === 0) {
+       alerts.push({
+         id: "sleep",
+         label: "Falta anotar cómo durmió anoche",
+         href: "/registro/bienestar",
+         tone: "normal",
+       });
+     }
+   }
+
     alerts.sort((a, b) => Number(b.tone === "atencion") - Number(a.tone === "atencion"));
 
     setData({
@@ -188,7 +202,7 @@ export default function TodayProvider({ children }: { children: React.ReactNode 
       alerts,
       attention: lateDoses > 0,
     });
-  }, [child.id, access.medications]);
+  }, [child.id, role, access.medications, access.wellbeing]);
 
   useEffect(() => {
     load();

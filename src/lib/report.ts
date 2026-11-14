@@ -1,5 +1,6 @@
 import { hhmm, isoWeekday, localDate } from "@/lib/routines";
 import { atTime, type Dose, type Med } from "@/lib/meds";
+import type { WellbeingSummary } from "@/lib/wellbeing";
 
 export const PERIODS = [7, 30, 90];
 
@@ -38,6 +39,7 @@ export type ReportData = {
     mood: boolean;
     observations: boolean;
     goals: boolean;
+      wellbeing: boolean;
     notes: boolean;
   };
   allergies: { substance: string; severity: string; reaction: string | null }[];
@@ -48,6 +50,7 @@ export type ReportData = {
   moods: { label: string; n: number }[];
   moodDays: number;
   moodTotal: number;
+  wellbeing: WellbeingSummary;
   observations: { when: string; who: string; category: string; text: string }[];
   goals: { title: string; status: string; progress: number }[];
   notes: { when: string; med: string; status: string; note: string }[];

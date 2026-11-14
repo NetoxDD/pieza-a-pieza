@@ -32,7 +32,7 @@ export function useChildProfile() {
   return c;
 }
 
-const NO_ACCESS: Access = { medications: false, conditions: false, contacts: false };
+const NO_ACCESS: Access = { medications: false, conditions: false, contacts: false, wellbeing: false };
 
 export default function ChildProfileProvider({ children }: { children: React.ReactNode }) {
   const { child, role } = useChild();
