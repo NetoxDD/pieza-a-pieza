@@ -257,6 +257,88 @@ export default function ReportView({
                       </p>
                     </>
                   )}
+
+          {inc.episodes && (
+            <Section title="Episodios (resumen)">
+              {d.episodes.total === 0 ? (
+                <p>No hay episodios registrados en este periodo.</p>
+              ) : (
+                <>
+                  <p>
+                    {d.episodes.total} {d.episodes.total === 1 ? "episodio" : "episodios"} en {d.episodes.days}{" "}
+                    {d.episodes.days === 1 ? "día" : "días"} distintos
+                    {d.episodes.avgDuration !== null && d.episodes.withDuration >= 5
+                      ? `. Duración promedio: ${Math.round(d.episodes.avgDuration)} min (en ${d.episodes.withDuration} episodios con duración anotada)`
+                      : ""}
+                    .
+                  </p>
+                  <p>
+                    <strong>Intensidad:</strong> {d.episodes.intensity.map((i) => `${i.label}: ${i.n}`).join(" · ")}
+                  </p>
+                  <p>
+                    <strong>Momento del día:</strong>{" "}
+                    {d.episodes.time.filter((x) => x.n > 0).map((x) => `${x.long ?? x.label}: ${x.n}`).join(" · ")}
+                  </p>
+                  <p>
+                    <strong>Lugar:</strong>{" "}
+                    {d.episodes.place.filter((x) => x.n > 0).map((x) => `${x.label}: ${x.n}`).join(" · ")}
+                  </p>
+                  {d.episodes.helped.length > 0 && (
+                    <p>
+                      <strong>Lo que más se anotó como ayuda:</strong>{" "}
+                      {d.episodes.helped.map((x) => `${x.label} (${x.n})`).join(" · ")}
+                    </p>
+                  )}
+                  <p className="mt-2 text-xs">
+                    Son conteos de lo que la familia y el equipo anotaron; no incluyen los textos de los episodios
+                    y no son un diagnóstico.
+                  </p>
+                </>
+              )}
+            </Section>
+          )}
+
+          {inc.episodes && (
+            <Section title="Episodios (resumen)">
+              {d.episodes.total === 0 ? (
+                <p>No hay episodios registrados en este periodo.</p>
+              ) : (
+                <>
+                  <p>
+                    {d.episodes.total} {d.episodes.total === 1 ? "episodio" : "episodios"} en {d.episodes.days}{" "}
+                    {d.episodes.days === 1 ? "día" : "días"} distintos
+                    {d.episodes.avgDuration !== null && d.episodes.withDuration >= 5
+                      ? `. Duración promedio: ${Math.round(d.episodes.avgDuration)} min (en ${d.episodes.withDuration} episodios con duración anotada)`
+                      : ""}
+                    .
+                  </p>
+                  <p>
+                    <strong>Intensidad:</strong> {d.episodes.intensity.map((i) => `${i.label}: ${i.n}`).join(" · ")}
+                  </p>
+                  <p>
+                    <strong>Momento del día:</strong>{" "}
+                    {d.episodes.time.filter((x) => x.n > 0).map((x) => `${x.long ?? x.label}: ${x.n}`).join(" · ")}
+                  </p>
+                  <p>
+                    <strong>Lugar:</strong>{" "}
+                    {d.episodes.place.filter((x) => x.n > 0).map((x) => `${x.label}: ${x.n}`).join(" · ")}
+                  </p>
+                  {d.episodes.helped.length > 0 && (
+                    <p>
+                      <strong>Lo que más se anotó como ayuda:</strong>{" "}
+                      {d.episodes.helped.map((x) => `${x.label} (${x.n})`).join(" · ")}
+                    </p>
+                  )}
+                  <p className="mt-2 text-xs">
+                    Son conteos de lo que la familia y el equipo anotaron; no incluyen los textos de los episodios
+                    y no son un diagnóstico.
+                  </p>
+                </>
+              )}
+            </Section>
+          )}
+
+
                   <p className="mt-3 font-bold">Comidas</p>
                   <table className="w-full border-collapse">
                     <thead>

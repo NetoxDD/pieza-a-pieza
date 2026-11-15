@@ -93,6 +93,7 @@ export default function Privacidad() {
           <li>
             <strong>El informe para el pediatra</strong> lo genera solo la familia y lo comparte por su cuenta.
           </li>
+          <li>La pantalla de Patrones solo calcula con los registros que tu rol ya puede ver</li>
         </ul>
         <p>Estas reglas las hace cumplir la base de datos, no solo la pantalla.</p>
       </Block>

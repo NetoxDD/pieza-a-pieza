@@ -21,6 +21,7 @@ import {
   BookOpen,
   LifeBuoy,
   Trophy,
+  BarChart3,
 } from "lucide-react";
 import { BASE } from "@/lib/base";
    import { useChild } from "@/components/ChildGate";
@@ -33,6 +34,7 @@ const GROUPS = [
       { href: "/", label: "Inicio", icon: Home },
       { href: "/registro", label: "Día a día", icon: ClipboardList },
       { href: "/comunicacion", label: "Mensajes", icon: MessageCircle },
+      { href: "/patrones", label: "Patrones", icon: BarChart3 },
          { href: "/ninos", label: "Zona de niños", icon: Smile },
     ],
   },
@@ -60,7 +62,7 @@ const GROUPS = [
   },
 ];
 
-const MORE_ROUTES = ["/mas", "/ficha", "/documentos", "/equipo", "/perfil", "/ajustes","/informe","/datos","/privacidad","/plan-calma"];
+const MORE_ROUTES = ["/mas", "/ficha", "/documentos", "/equipo", "/perfil", "/ajustes","/informe","/datos","/privacidad","/plan-calma","/patrones"];
 
 const BOTTOM = [
   { href: "/", label: "Inicio", icon: Home, match: (p: string) => p === "/" },

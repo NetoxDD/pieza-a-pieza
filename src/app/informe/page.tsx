@@ -11,8 +11,10 @@ import { DOSE_COLS, MED_COLS, scheduleText, statusLabel, type Dose, type Med } f
 import { ageText } from "@/lib/ficha";
 import { localDate } from "@/lib/routines";
 import { summarizeWellbeing } from "@/lib/wellbeing";
+import { summarizeEpisodes, type EpRow } from "@/lib/patterns";
 
 const MOODS = ["Contento", "Tranquilo", "Neutro", "Incómodo", "Triste", "Frustrado"];
+
 
 const SECTIONS = [
   { key: "child", label: "Datos del niño y alergias" },
@@ -20,6 +22,7 @@ const SECTIONS = [
   { key: "adherence", label: "Registro de tomas" },
   { key: "mood", label: "Estado de ánimo" },
      { key: "wellbeing", label: "Sueño y comidas" },
+     { key: "episodes", label: "Episodios (solo conteos, sin textos)" },
   { key: "observations", label: "Observaciones que marqué para el informe" },
   { key: "goals", label: "Objetivos y avance" },
   { key: "notes", label: "Notas de las dosis" },
@@ -42,6 +45,7 @@ export default function Informe() {
     observations: true,
     goals: true,
     notes: false,
+    episodes: false,
   });
   const [questions, setQuestions] = useState("");
   const [busy, setBusy] = useState(false);
@@ -116,6 +120,12 @@ export default function Informe() {
      (sl.data ?? []) as { sleep_minutes: number; wakeups: number; quality: string | null }[],
      (ml.data ?? []) as { meal: string; amount: string }[]
    );
+      const epq = await supabase
+     .from("episodes")
+     .select("occurred_at,place,intensity,duration_min,helped,voided_at")
+     .eq("child_id", child.id)
+     .gte("occurred_at", fromIso);
+   const episodes = summarizeEpisodes((epq.data ?? []) as EpRow[]);
 
       const data: ReportData = {
         childName: child.name,
@@ -136,6 +146,7 @@ export default function Informe() {
         moodDays,
         moodTotal: moodRows.length,
         wellbeing,
+        episodes,
         observations: (obs.data as { author_id: string; category: string; body: string; created_at: string;tags: string[] | null;}[]).map(
           (o) => ({
             when: new Date(o.created_at).toLocaleDateString("es-MX", { day: "numeric", month: "short" }),
