@@ -3,6 +3,8 @@
 import { Fragment, createContext, useCallback, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import OfflineEmergency from "@/components/OfflineEmergency";
+   import InvitePrompt from "@/components/InvitePrompt";
+   import { clearPending, readPending } from "@/lib/invites";
 
 type Child = { id: string; name: string; accent: string | null };
 type Kid = Child & { role: string };
@@ -58,6 +60,11 @@ function Onboarding({
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+     const [pending, setPending] = useState<string | null>(null);
+
+   useEffect(() => {
+     setPending(readPending());
+   }, []);
 
   const input =
     "min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-normal";
@@ -166,6 +173,11 @@ export default function ChildGate({ children }: { children: React.ReactNode }) {
   const [adding, setAdding] = useState(false);
   const [userId, setUserId] = useState("");
   const [userName, setUserName] = useState("");
+     const [pending, setPending] = useState<string | null>(null);
+
+   useEffect(() => {
+     setPending(readPending());
+   }, []);
 
   const load = useCallback(async (prefer?: string) => {
 const { data: sess } = await supabase.auth.getSession();
@@ -224,14 +236,18 @@ setUserId(uid);
     return null;
   };
 
-  const joinChild = async (code: string) => {
-    const { data, error } = await supabase.rpc("join_child", { invite_code: code });
-    if (error) return "Código no válido o vencido. Pide uno nuevo a la familia.";
-    await load(data as string);
-    setAdding(false);
-    return null;
-  };
-
+   const joinChild = async (code: string) => {
+     const { data, error } = await supabase.rpc("join_child", { invite_code: code });
+     if (error) {
+       return error.message.startsWith("Demasiados")
+         ? error.message
+         : "No se pudo unir. Revisa tu conexión e intenta de nuevo.";
+     }
+     if (!data) return "Código no válido o vencido. Pide uno nuevo a la familia.";
+     await load(data as string);
+     setAdding(false);
+     return null;
+   };
   const switchChild = (id: string) => {
     setActiveId(id);
     saveActive(userId, id);
@@ -265,6 +281,24 @@ setUserId(uid);
         </div>
       </div>
     );
+
+   if (pending) {
+     return (
+       <InvitePrompt
+         code={pending}
+         onDismiss={() => {
+           clearPending();
+           setPending(null);
+         }}
+         onJoined={async (id) => {
+           clearPending();
+           setPending(null);
+           await load(id);
+           setAdding(false);
+         }}
+       />
+     );
+   }
 
   if (kids.length === 0 || adding)
     return (

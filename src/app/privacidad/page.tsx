@@ -105,6 +105,7 @@ export default function Privacidad() {
           <li>El historial de accesos y cambios lo ve el familiar principal.</li>
           <li>Los datos viven en un servicio de base de datos en la nube, y el sitio se publica en GitHub Pages.</li>
           <li>Episodios: cada persona ve los que registró; los profesionales ven todos, y la familia puede abrirlo al resto.</li>
+          <li>Las invitaciones se comparten con un enlace o código QR de un solo uso que vence a los 7 días y que la familia puede revocar</li>
         </ul>
       </Block>
 

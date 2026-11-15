@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import Avatar from "@/components/Avatar";
 import { useProfiles } from "@/components/ProfilesProvider";
 import { useChild } from "@/components/ChildGate";
-
+import InviteShare from "@/components/InviteShare";
 
 import { roleLabel, roleKeys } from "@/lib/roles";
 
@@ -34,6 +34,8 @@ export default function TeamPanel() {
   const [copied, setCopied] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+     const [genRole, setGenRole] = useState("");
+   const [shareFor, setShareFor] = useState("");
 
   const load = useCallback(async () => {
     const [mem, prof, kid, inv] = await Promise.all([
@@ -80,6 +82,7 @@ export default function TeamPanel() {
     if (error) setError(error.message);
     else {
       setCode(data as string);
+      setGenRole(role);
       load();
     }
   };
@@ -231,6 +234,7 @@ export default function TeamPanel() {
                 Comparte este código. Sirve una sola vez y vence en 7 días.
               </p>
               <p className="mt-2 select-all text-xl font-bold tracking-widest">{code}</p>
+                 <InviteShare code={code} role={genRole || role} />
             </div>
           )}
 
@@ -258,6 +262,16 @@ export default function TeamPanel() {
                       >
                         {copied === i.code ? "✓ Copiado" : "Copiar"}
                       </button>
+                      
+   <button
+     type="button"
+     onClick={() => setShareFor(shareFor === i.code ? "" : i.code)}
+     aria-expanded={shareFor === i.code}
+     className="min-h-11 rounded-lg px-3 text-xs font-semibold text-[var(--primary)] hover:bg-[var(--sage)]"
+   >
+     Enlace y QR
+   </button>
+
                       <button
                         type="button"
                         onClick={() => revoke(i.code)}
@@ -266,6 +280,11 @@ export default function TeamPanel() {
                         Revocar
                       </button>
                     </div>
+                       {shareFor === i.code && (
+     <div className="basis-full">
+       <InviteShare code={i.code} role={i.role} />
+     </div>
+   )}
                   </li>
                 ))}
               </ul>

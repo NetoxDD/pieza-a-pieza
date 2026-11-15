@@ -13,6 +13,7 @@ import ProfilesProvider from "@/components/ProfilesProvider";
 import Welcome from "@/components/Welcome";
 import TodayProvider from "@/components/TodayProvider";
 import ChildProfileProvider from "@/components/ChildProfileProvider";
+import InviteCapture from "@/components/InviteCapture";
 
 const legible = Atkinson_Hyperlegible({
   weight: ["400", "700"],
@@ -44,6 +45,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <RegisterSW />
+        <InviteCapture />
         <AuthGate>
           <SettingsProvider>
 <ChildGate>
