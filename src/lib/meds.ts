@@ -1,4 +1,5 @@
 import { daysText, hhmm, isoWeekday, localDate } from "@/lib/routines";
+import { supabase } from "@/lib/supabase";
 
 export type Med = {
   id: string;
@@ -104,7 +105,32 @@ export function doseError(message: string): string {
     : "No se pudo registrar. Revisa tus permisos e intenta de nuevo.";
 }
 
-// ---------- Tomas del día (y las de ayer sin registrar, de las últimas 24 horas) ----------
+// ---------- Tomas que decide la base de datos ----------
+export type SlotRow = { medication_id: string; slot_date: string; slot_time: string; units: number };
+
+// null = no se pudo cargar
+export async function fetchSlots(
+  childId: string,
+  from: string,
+  to: string,
+  includeInactive = false
+): Promise<SlotRow[] | null> {
+  const { data, error } = await supabase.rpc("med_slots", {
+    cid: childId,
+    d_from: from,
+    d_to: to,
+    include_inactive: includeInactive,
+  });
+  if (error) return null;
+  return (data as { medication_id: string; slot_date: string; slot_time: string; units: number | string }[]).map((r) => ({
+    medication_id: r.medication_id,
+    slot_date: r.slot_date,
+    slot_time: hhmm(r.slot_time),
+    units: Number(r.units),
+  }));
+}
+
+// ---------- Estado de las tomas de hoy (y las de ayer sin registrar, de las últimas 24 horas) ----------
 export type SlotView = {
   med: Med;
   time: string;
@@ -115,48 +141,46 @@ export type SlotView = {
   due: Date;
 };
 
-export function computeSlots(meds: Med[], doses: Dose[], now: Date): SlotView[] {
+export function computeSlots(rows: SlotRow[], meds: Med[], doses: Dose[], now: Date): SlotView[] {
   const nowMs = now.getTime();
+  const todayStr = localDate(now);
+  const yesterdayDate = new Date(nowMs - 86400000);
+  const yesterdayStr = localDate(yesterdayDate);
   const live = doses.filter((d) => !d.voided_at);
   const out: SlotView[] = [];
 
-  const days: [Date, boolean][] = [
-    [now, false],
-    [new Date(nowMs - 86400000), true],
-  ];
+  for (const r of rows) {
+    const yesterday = r.slot_date === yesterdayStr;
+    if (r.slot_date !== todayStr && !yesterday) continue;
+    const med = meds.find((m) => m.id === r.medication_id);
+    if (!med) continue;
 
-  for (const [date, yesterday] of days) {
-    const dayStr = localDate(date);
-    for (const med of meds) {
-      if (!appliesOn(med, date)) continue;
-      for (const t of med.times) {
-        const time = hhmm(t);
-        const mine = live.filter(
-          (d) =>
-            d.medication_id === med.id &&
-            d.kind === "programada" &&
-            d.scheduled_date === dayStr &&
-            hhmm(d.scheduled_time) === time
-        );
-        const resolved = mine.some((d) => d.status === "dada" || d.status === "omitida");
-        const postponed = mine
-          .filter((d) => d.status === "pospuesta")
-          .sort((a, b) => b.recorded_at.localeCompare(a.recorded_at))[0];
-        const due = atTime(postponed?.postponed_until ? hhmm(postponed.postponed_until) : time, date);
+    const base = yesterday ? yesterdayDate : now;
+    const time = r.slot_time;
+    const mine = live.filter(
+      (d) =>
+        d.medication_id === med.id &&
+        d.kind === "programada" &&
+        d.scheduled_date === r.slot_date &&
+        hhmm(d.scheduled_time) === time
+    );
+    const resolved = mine.some((d) => d.status === "dada" || d.status === "omitida");
+    const postponed = mine
+      .filter((d) => d.status === "pospuesta")
+      .sort((a, b) => b.recorded_at.localeCompare(a.recorded_at))[0];
+    const due = atTime(postponed?.postponed_until ? hhmm(postponed.postponed_until) : time, base);
 
-        if (yesterday && (resolved || atTime(time, date).getTime() <= nowMs - 86400000)) continue;
+    if (yesterday && (resolved || atTime(time, base).getTime() <= nowMs - 86400000)) continue;
 
-        out.push({
-          med,
-          time,
-          date: dayStr,
-          yesterday,
-          resolved,
-          late: !resolved && nowMs > due.getTime() + med.grace_min * 60000,
-          due,
-        });
-      }
-    }
+    out.push({
+      med,
+      time,
+      date: r.slot_date,
+      yesterday,
+      resolved,
+      late: !resolved && nowMs > due.getTime() + med.grace_min * 60000,
+      due,
+    });
   }
   return out.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
 }

@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
 import { useChildProfile } from "@/components/ChildProfileProvider";
 import { SOON_DAYS, expiryLabel, expiryOf } from "@/lib/documents";
-import { DOSE_COLS, MED_COLS, computeSlots, fmtQty, lowStock, type Dose, type Med } from "@/lib/meds";
+import { DOSE_COLS, MED_COLS, computeSlots,fetchSlots, fmtQty, lowStock, type Dose,type SlotRow, type Med } from "@/lib/meds";
 import { isoWeekday, localDate } from "@/lib/routines";
 import { SIDE_OF } from "@/lib/notebook";
 
@@ -71,8 +71,12 @@ export default function TodayProvider({ children }: { children: React.ReactNode 
         if (!d.error) doses = d.data as Dose[];
       }
     }
-    const slots = computeSlots(meds, doses, now).filter((s) => !s.resolved);
-    const lateDoses = slots.filter((s) => s.late).length;
+   let slotRows: SlotRow[] = [];
+   if (access.medications && meds.length > 0) {
+     const y = new Date(now.getTime() - 86400000);
+     slotRows = (await fetchSlots(child.id, localDate(y), localDate(now))) ?? [];
+   }
+   const slots = computeSlots(slotRows, meds, doses, now).filter((s) => !s.resolved);    const lateDoses = slots.filter((s) => s.late).length;
     const upcoming = slots.filter((s) => !s.late && !s.yesterday).sort((a, b) => a.due.getTime() - b.due.getTime())[0];
     const nextDose = upcoming ? { med: upcoming.med.name, time: upcoming.time } : null;
 

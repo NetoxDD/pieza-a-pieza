@@ -6,8 +6,8 @@ import { useChild } from "@/components/ChildGate";
 import { useChildProfile } from "@/components/ChildProfileProvider";
 import { useProfiles } from "@/components/ProfilesProvider";
 import ReportView from "@/components/report/ReportView";
-import { PERIODS, adherence, fmtDay, type Hist, type ReportData } from "@/lib/report";
-import { DOSE_COLS, MED_COLS, scheduleText, statusLabel, type Dose, type Med } from "@/lib/meds";
+import { PERIODS, adherence, fmtDay, type ReportData } from "@/lib/report";
+import { DOSE_COLS, MED_COLS, scheduleText,fetchSlots, statusLabel, type Dose, type Med } from "@/lib/meds";
 import { ageText } from "@/lib/ficha";
 import { localDate } from "@/lib/routines";
 import { summarizeWellbeing } from "@/lib/wellbeing";
@@ -78,12 +78,8 @@ export default function Informe() {
       const fromIso = from.toISOString();
       const fromStr = localDate(from);
 
-      const [m, h, d, mood, obs, goals] = await Promise.all([
+      const [m, d, mood, obs, goals] = await Promise.all([
         supabase.from("child_medications").select(MED_COLS).eq("child_id", child.id),
-        supabase
-          .from("med_schedule_history")
-          .select("medication_id,as_needed,times,days,valid_from,valid_to")
-          .eq("child_id", child.id),
         supabase
           .from("med_doses")
           .select(DOSE_COLS)
@@ -99,12 +95,13 @@ export default function Informe() {
           .order("created_at", { ascending: false }),
         supabase.from("goals").select("title,status,progress").eq("child_id", child.id).order("created_at"),
       ]);
-      if ([m, h, d, mood, obs, goals].some((r) => r.error)) throw new Error("db");
+      if ([m, d, mood, obs, goals].some((r) => r.error)) throw new Error("db");
 
       const meds = m.data as Med[];
       const doses = d.data as Dose[];
-      const ad = adherence(meds, h.data as Hist[], doses, from, now);
-
+   const slotRows = await fetchSlots(child.id, fromStr, localDate(now), true);
+   if (!slotRows) throw new Error("slots");
+   const ad = adherence(meds, slotRows, doses, from, now);
       const moodRows = mood.data as { mood: string; created_at: string }[];
       const moodDays = new Set(moodRows.map((x) => localDate(new Date(x.created_at)))).size;
 

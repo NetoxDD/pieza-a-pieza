@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { DAY_LABELS, hhmm } from "@/lib/routines";
+import { DAY_LABELS, hhmm,localDate } from "@/lib/routines";
 import MedExtras from "@/components/meds/MedExtras";
 import { ADMIN_ROLES, scheduleText, type Med } from "@/lib/meds";
 import { defaultAllowed, formatDate, medCategoryLabel } from "@/lib/ficha";
@@ -82,6 +82,7 @@ export default function MedScheduleCard({
         times,
         days: form.days,
         ends_on: form.endsOn || null,
+           schedule_effective_on: localDate(),
         grace_min: Number(form.grace) || 0,
         min_interval_hours: form.minInterval ? Number(form.minInterval) : null,
       })

@@ -12,11 +12,12 @@ import {
   DOSE_COLS,
   MED_COLS,
   agoText,
-  appliesOn,
+  fetchSlots,
   atTime,
   doseError,
   type Dose,
   type Med,
+  type SlotRow,
 } from "@/lib/meds";
 
 type Slot = { med: Med; time: string; date: string; yesterday: boolean };
@@ -49,6 +50,7 @@ export default function MedsToday() {
   const [timeValue, setTimeValue] = useState("");
   const [note, setNote] = useState("");
   const [early, setEarly] = useState(false);
+     const [slotRows, setSlotRows] = useState<SlotRow[]>([]);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
@@ -80,6 +82,18 @@ export default function MedsToday() {
       setLoaded(true);
       return;
     }
+       const nowD = new Date();
+   const rows = await fetchSlots(
+     child.id,
+     localDate(new Date(nowD.getTime() - 86400000)),
+     localDate(nowD)
+   );
+   if (!rows) {
+     setError("No se pudieron cargar las tomas.");
+     setLoaded(true);
+     return;
+   }
+   setSlotRows(rows);
     setMeds(m.data as Med[]);
     setDoses(d.data as Dose[]);
     setCanGive(new Set((a.data as { medication_id: string }[]).map((x) => x.medication_id)));
@@ -128,13 +142,16 @@ export default function MedsToday() {
     );
   const resolvedOf = (s: Slot) => slotDoses(s).find((d) => d.status === "dada" || d.status === "omitida");
 
-  const build = (date: Date, yesterday: boolean): Slot[] =>
-    meds
-      .filter((m) => appliesOn(m, date))
-      .flatMap((med) =>
-        med.times.map((t) => ({ med, time: hhmm(t), date: localDate(date), yesterday }))
-      );
-
+   const build = (date: Date, yesterday: boolean): Slot[] => {
+     const dayStr = localDate(date);
+     return slotRows
+       .filter((r) => r.slot_date === dayStr)
+       .map((r) => {
+         const med = meds.find((m) => m.id === r.medication_id);
+         return med ? { med, time: r.slot_time, date: dayStr, yesterday } : null;
+       })
+       .filter((x): x is Slot => !!x);
+   };
   const todaySlots = build(now, false).sort(
     (a, b) => a.time.localeCompare(b.time) || a.med.name.localeCompare(b.med.name)
   );
