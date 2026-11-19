@@ -5,8 +5,9 @@ import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
 import { useChildProfile } from "@/components/ChildProfileProvider";
 import { SOON_DAYS, expiryLabel, expiryOf } from "@/lib/documents";
+import { fetchOccurrences } from "@/lib/events";
 import { DOSE_COLS, MED_COLS, computeSlots, fetchRunouts, fetchSlots, fmtQty, lowStock, type Dose, type SlotRow, type Med } from "@/lib/meds";
-import { isoWeekday, localDate } from "@/lib/routines";
+import { hhmm, isoWeekday, localDate } from "@/lib/routines";
 import { SIDE_OF } from "@/lib/notebook";
 
 export type TodayAlert = {
@@ -237,6 +238,19 @@ export default function TodayProvider({ children }: { children: React.ReactNode 
           });
         }
       }
+    }
+
+    // ---------- Encuentros de hoy ----------
+    const evs = await fetchOccurrences(child.id, localDate(now), localDate(now));
+    if (evs) {
+      evs.slice(0, 2).forEach((e) =>
+        alerts.push({
+          id: `ev-${e.event_id}`,
+          label: `Hoy: ${e.title}${e.event_time ? ` a las ${hhmm(e.event_time)}` : ""}`,
+          href: "/calendario",
+          tone: "normal",
+        })
+      );
     }
 
     alerts.sort((a, b) => Number(b.tone === "atencion") - Number(a.tone === "atencion"));

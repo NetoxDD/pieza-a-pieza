@@ -46,16 +46,18 @@ const ENTITY: Record<string, { label: string; cat: Category }> = {
   document_folders: { label: "una carpeta de documentos", cat: "documentos" },
   materials: { label: "una publicación de material", cat: "otros" },
   routines: { label: "una rutina", cat: "otros" },
-    observations: { label: "una observación", cat: "otros" },
+  observations: { label: "una observación", cat: "otros" },
   observation_photos: { label: "una foto de una observación", cat: "otros" },
-    sleep_logs: { label: "un registro de sueño", cat: "ficha" },
+  sleep_logs: { label: "un registro de sueño", cat: "ficha" },
   meal_logs: { label: "un registro de comida", cat: "ficha" },
-    calm_plan_items: { label: "un elemento del plan de calma", cat: "ficha" },
+  calm_plan_items: { label: "un elemento del plan de calma", cat: "ficha" },
   calm_plan_settings: { label: "los ajustes del plan de calma", cat: "ficha" },
   episodes: { label: "un episodio", cat: "ficha" },
   notebook_entries: { label: "una nota del cuaderno escuela–casa", cat: "otros" },
   achievements: { label: "un logro", cat: "otros" },
   med_pauses: { label: "una pausa de una medicina", cat: "medicinas" },
+  events: { label: "un encuentro del calendario", cat: "otros" },
+  event_exceptions: { label: "un día omitido de un encuentro que se repite", cat: "otros" },
 };
 
 const FIELD: Record<string, string> = {
@@ -113,16 +115,16 @@ const FIELD: Record<string, string> = {
   void_reason: "motivo de anulación",
   voided_by: "quién anuló",
   postponed_until: "hora de posposición",
-    tags: "etiquetas",
+  tags: "etiquetas",
   edited_at: "fecha de edición",
   include_in_report: "marca para el informe",
-    sleep_minutes: "duración del sueño",
+  sleep_minutes: "duración del sueño",
   wakeups: "despertares",
   quality: "cómo fue la noche",
   amount: "cuánto comió",
   note: "nota",
   in_emergency: "mostrar en la ficha de emergencia",
-    occurred_at: "fecha y hora",
+  occurred_at: "fecha y hora",
   antecedent: "lo que pasó antes",
   behavior: "lo que pasó",
   consequence: "lo que siguió",
@@ -130,20 +132,25 @@ const FIELD: Record<string, string> = {
   duration_minn: "duración",
   helped: "qué ayudó",
   achieved_on: "fecha del logro",
-  area: "área", 
+  area: "área",
   show_to_child: "mostrar al niño",
   photo_path: "foto",
   schedule_kind: "tipo de frecuencia",
-every_hours: "cada cuántas horas",
-every_n_days: "cada cuántos días",
-month_day: "día del mes",
-cycle_on_days: "días con medicina",
-cycle_off_days: "días de descanso",
-anchor_date: "fecha de arranque",
-time_units: "cantidad por toma",
-to_date: "fecha de fin de la pausa", 
-cancelled_at: "cancelación",
-
+  every_hours: "cada cuántas horas",
+  every_n_days: "cada cuántos días",
+  month_day: "día del mes",
+  cycle_on_days: "días con medicina",
+  cycle_off_days: "días de descanso",
+  anchor_date: "fecha de arranque",
+  time_units: "cantidad por toma",
+  to_date: "fecha de fin de la pausa",
+  cancelled_at: "cancelación",
+  repeat_kind: "tipo de repetición",
+  repeat_every: "cada cuánto se repite",
+  repeat_days: "días de repetición",
+  repeat_until: "fecha de fin de la serie",
+  event_date: "fecha",
+  event_time: "hora",
 };
 
 const SECTION: Record<string, string> = {
@@ -233,11 +240,13 @@ export function describe(
     case "exportacion_datos":
       return {
         cat: "datos",
-        text: `${who} exportó ${d.tipo === "espacio" ? "los datos del espacio" : "sus datos personales"}`,
+        text: `${who} exportó ${
+          d.tipo === "espacio" ? "los datos del espacio" : d.tipo === "calendario" ? "el calendario (.ics)" : "sus datos personales"
+        }`,
       };
     case "historial_depurado":
       return { cat: "datos", text: `${who} borró ${String(d.borrados ?? 0)} registros antiguos del historial` };
-          case "propiedad_transferida":
+    case "propiedad_transferida":
       return {
         cat: "equipo",
         text: `${who} transfirió la propiedad del espacio a ${nameOf(r.entity_id)}`,
@@ -246,16 +255,15 @@ export function describe(
     case "registro_añadido":
       if (r.entity === "med_doses") return { cat: "medicinas", text: `${who} registró una dosis` };
       return { cat, text: `${who} añadió ${label}` };
-      
+
     case "registro_modificado": {
       const campos = Array.isArray(d.campos) ? (d.campos as string[]) : [];
       if (r.entity === "med_doses" && campos.includes("voided_at")) {
-        
         return { cat: "medicinas", text: `${who} anuló un registro de dosis` };
       }
-        if (r.entity === "episodes" && campos.includes("voided_at")) {
-    return { cat: "ficha", text: `${who} anuló un registro de episodio` };
-  }
+      if (r.entity === "episodes" && campos.includes("voided_at")) {
+        return { cat: "ficha", text: `${who} anuló un registro de episodio` };
+      }
       const what = campos.length ? ` (cambió: ${campos.map((f) => FIELD[f] ?? f).join(", ")})` : "";
       return { cat, text: `${who} modificó ${label}${what}` };
     }

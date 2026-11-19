@@ -91,6 +91,7 @@ export async function exportSpace(childId: string) {
     "episodes",
     "notebook_entries",
     "achievements",
+    "event_exceptions",
   ];
   for (const table of byChild) datos[table] = await grab(table, "child_id", childId);
 
