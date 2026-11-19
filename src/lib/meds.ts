@@ -20,6 +20,14 @@ export type Med = {
   units_per_dose: number;
   units_per_box: number | null;
   refill_alert_days: number;
+     schedule_kind: "weekly" | "every_n_days" | "monthly" | "cycle";
+   every_hours: number | null;
+   every_n_days: number | null;
+   month_day: number | null;
+   cycle_on_days: number | null;
+   cycle_off_days: number | null;
+   anchor_date: string | null;
+   time_units: number[] | null;
 };
 
 export type Dose = {
@@ -39,7 +47,7 @@ export type Dose = {
 };
 
 export const MED_COLS =
-  "id,name,dose,frequency,category,started_on,ends_on,active,as_needed,times,days,grace_min,min_interval_hours,document_id,stock_enabled,units_per_dose,units_per_box,refill_alert_days";
+  "id,name,dose,frequency,category,started_on,ends_on,active,as_needed,times,days,grace_min,min_interval_hours,document_id,stock_enabled,units_per_dose,units_per_box,refill_alert_days,schedule_kind,every_hours,every_n_days,month_day,cycle_on_days,cycle_off_days,anchor_date,time_units";
 export const DOSE_COLS =
   "id,medication_id,kind,scheduled_date,scheduled_time,status,taken_at,postponed_until,note,recorded_by,recorded_at,voided_at,void_reason";
 
@@ -80,12 +88,30 @@ export function agoText(from: Date, to: Date = new Date()): string {
   return `hace ${d} ${d === 1 ? "día" : "días"}`;
 }
 
-export function scheduleText(m: Med): string {
-  if (m.as_needed) return "Solo si es necesario";
-  if (m.times.length === 0) return "Sin horarios";
-  return `${m.times.map(hhmm).join(", ")} · ${daysText(m.days)}`;
-}
+   export function scheduleText(m: Med): string {
+     if (m.as_needed) return "Solo si es necesario";
+     if (m.times.length === 0) return "Sin horarios";
 
+     const mixed = !!m.time_units && new Set(m.time_units.map(Number)).size > 1;
+     const clock = m.times
+       .map((t, i) => (mixed && m.time_units?.[i] != null ? `${hhmm(t)} (${fmtQty(Number(m.time_units[i]))} u.)` : hhmm(t)))
+       .join(", ");
+     const span = (n: number) =>
+       n % 7 === 0 ? `${n / 7} ${n / 7 === 1 ? "semana" : "semanas"}` : `${n} ${n === 1 ? "día" : "días"}`;
+
+     switch (m.schedule_kind) {
+       case "every_n_days": {
+         const n = m.every_n_days ?? 0;
+         return `${n === 7 ? "Cada semana" : `Cada ${span(n)}`} · ${clock}`;
+       }
+       case "monthly":
+         return `El día ${m.month_day} de cada mes · ${clock}`;
+       case "cycle":
+         return `${span(m.cycle_on_days ?? 0)} sí, ${span(m.cycle_off_days ?? 0)} no · ${clock}`;
+       default:
+         return m.every_hours ? `Cada ${m.every_hours} h · ${clock}` : `${clock} · ${daysText(m.days)}`;
+     }
+   }
 // Mensajes de la base de datos que sí se pueden mostrar tal cual
 export function doseError(message: string): string {
   const known = [
@@ -191,14 +217,34 @@ export function fmtQty(n: number) {
 }
 
 // Días que alcanzan, según los horarios y las unidades por dosis. Solo es una estimación.
-export function estimateDays(med: Med, onHand: number): number | null {
-  if (med.as_needed || med.times.length === 0) return null;
-  const perDay = (med.times.length * med.days.length) / 7;
-  const use = perDay * med.units_per_dose;
-  if (use <= 0) return null;
-  return Math.max(0, onHand) / use;
-}
+   // Unidades que se gastan, en promedio, por día (según la frecuencia)
+   export function unitsPerDay(m: Med): number {
+     const perOccurrence =
+       m.time_units && m.time_units.length === m.times.length
+         ? m.time_units.reduce((a, b) => a + Number(b), 0)
+         : m.times.length * m.units_per_dose;
+     switch (m.schedule_kind) {
+       case "every_n_days":
+         return m.every_n_days ? perOccurrence / m.every_n_days : 0;
+       case "monthly":
+         return perOccurrence / 30.44;
+       case "cycle": {
+         const on = m.cycle_on_days ?? 0;
+         const off = m.cycle_off_days ?? 0;
+         return on + off > 0 ? perOccurrence * (on / (on + off)) * (m.days.length / 7) : 0;
+       }
+       default:
+         return perOccurrence * (m.days.length / 7);
+     }
+   }
 
+   // Días que alcanzan (estimación). La fecha exacta llega con las pausas.
+   export function estimateDays(med: Med, onHand: number): number | null {
+     if (med.as_needed || med.times.length === 0) return null;
+     const use = unitsPerDay(med);
+     if (use <= 0) return null;
+     return Math.max(0, onHand) / use;
+   }
 export function lowStock(med: Med, onHand: number, now: Date = new Date()): { low: boolean; days: number | null } {
   const days = estimateDays(med, onHand);
   if (days === null) return { low: false, days: null };

@@ -132,6 +132,14 @@ const FIELD: Record<string, string> = {
   area: "área", 
   show_to_child: "mostrar al niño",
   photo_path: "foto",
+  schedule_kind: "tipo de frecuencia",
+every_hours: "cada cuántas horas",
+every_n_days: "cada cuántos días",
+month_day: "día del mes",
+cycle_on_days: "días con medicina",
+cycle_off_days: "días de descanso",
+anchor_date: "fecha de arranque",
+time_units: "cantidad por toma",
 };
 
 const SECTION: Record<string, string> = {

@@ -15,12 +15,13 @@ import {
   fetchSlots,
   atTime,
   doseError,
+  fmtQty,
   type Dose,
   type Med,
   type SlotRow,
 } from "@/lib/meds";
 
-type Slot = { med: Med; time: string; date: string; yesterday: boolean };
+type Slot = { med: Med; time: string; date: string; yesterday: boolean; units: number; };
 type Acting =
   | { type: "slot"; slot: Slot; status: "dada" | "omitida" | "pospuesta" }
   | { type: "prn"; med: Med };
@@ -148,7 +149,7 @@ export default function MedsToday() {
        .filter((r) => r.slot_date === dayStr)
        .map((r) => {
          const med = meds.find((m) => m.id === r.medication_id);
-         return med ? { med, time: r.slot_time, date: dayStr, yesterday } : null;
+         return med ? { med, time: r.slot_time, date: dayStr, yesterday, units: r.units } : null;
        })
        .filter((x): x is Slot => !!x);
    };
