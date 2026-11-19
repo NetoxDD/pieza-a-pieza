@@ -258,4 +258,42 @@ export function lowStock(med: Med, onHand: number, now: Date = new Date()): { lo
     if (days >= daysToEnd) low = false;
   }
   return { low, days };
+  
+}
+// ---------- Pausas ----------
+export type Pause = {
+  id: string;
+  medication_id: string;
+  med_name: string;
+  from_date: string;
+  to_date: string | null;
+  source: "manual" | "suspension";
+  reason: string | null;
+};
+
+export async function fetchPauses(childId: string): Promise<Pause[] | null> {
+  const { data, error } = await supabase.rpc("med_pauses_view", { cid: childId });
+  return error ? null : (data as Pause[]);
+}
+
+export const pauseActive = (p: Pause, day: string) =>
+  day >= p.from_date && (p.to_date === null || day <= p.to_date);
+
+// ---------- Fecha de agotamiento del inventario ----------
+export type Runout = { medication_id: string; run_date: string; run_time: string; on_hand: number };
+
+// Solo trae las medicinas a las que SÍ les falta dentro de un año; null = no se pudo calcular
+export async function fetchRunouts(childId: string, from: string): Promise<Record<string, Runout> | null> {
+  const { data, error } = await supabase.rpc("my_runouts", { cid: childId, from_date: from });
+  if (error) return null;
+  const out: Record<string, Runout> = {};
+  for (const r of data as { medication_id: string; run_date: string; run_time: string; on_hand: number | string }[]) {
+    out[r.medication_id] = {
+      medication_id: r.medication_id,
+      run_date: r.run_date,
+      run_time: hhmm(r.run_time),
+      on_hand: Number(r.on_hand),
+    };
+  }
+  return out;
 }

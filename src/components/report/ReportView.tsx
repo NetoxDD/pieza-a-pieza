@@ -9,6 +9,9 @@ import { fmtDuration } from "@/lib/wellbeing";
 const th = "border border-black px-2 py-1 text-left font-bold";
 const td = "border border-black px-2 py-1 align-top";
 
+const pd = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-6 print:break-inside-avoid">
@@ -185,6 +188,20 @@ export default function ReportView({
                     Calculado con el horario que tenía cada medicina en cada fecha. «Sin registrar» significa que
                     nadie anotó la toma: no quiere decir que no se haya dado.
                   </p>
+                  {d.pauses.length > 0 && (
+                    <>
+                      <p className="mt-3 font-bold">Pausas en este periodo</p>
+                      <ul className="list-disc pl-5">
+                        {d.pauses.map((p, i) => (
+                          <li key={i}>
+                            {p.name}: {p.suspended ? "suspendida" : "en pausa"} desde el {pd(p.from)}
+                            {p.to ? ` hasta el ${pd(p.to)}` : " (sigue en curso)"}.
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="mt-1 text-xs">Los días de pausa no cuentan como tomas «sin registrar».</p>
+                    </>
+                  )}
                   {d.prn.length > 0 && (
                     <>
                       <p className="mt-3 font-bold">Medicinas «solo si es necesario»</p>
@@ -235,7 +252,8 @@ export default function ReportView({
               )}
             </Section>
           )}
-                    {inc.wellbeing && (
+
+          {inc.wellbeing && (
             <Section title="Sueño y comidas">
               {d.wellbeing.nights === 0 && d.wellbeing.meals.every((m) => m.total === 0) ? (
                 <p>No hay registros de sueño ni de comidas en este periodo.</p>
@@ -257,87 +275,6 @@ export default function ReportView({
                       </p>
                     </>
                   )}
-
-          {inc.episodes && (
-            <Section title="Episodios (resumen)">
-              {d.episodes.total === 0 ? (
-                <p>No hay episodios registrados en este periodo.</p>
-              ) : (
-                <>
-                  <p>
-                    {d.episodes.total} {d.episodes.total === 1 ? "episodio" : "episodios"} en {d.episodes.days}{" "}
-                    {d.episodes.days === 1 ? "día" : "días"} distintos
-                    {d.episodes.avgDuration !== null && d.episodes.withDuration >= 5
-                      ? `. Duración promedio: ${Math.round(d.episodes.avgDuration)} min (en ${d.episodes.withDuration} episodios con duración anotada)`
-                      : ""}
-                    .
-                  </p>
-                  <p>
-                    <strong>Intensidad:</strong> {d.episodes.intensity.map((i) => `${i.label}: ${i.n}`).join(" · ")}
-                  </p>
-                  <p>
-                    <strong>Momento del día:</strong>{" "}
-                    {d.episodes.time.filter((x) => x.n > 0).map((x) => `${x.long ?? x.label}: ${x.n}`).join(" · ")}
-                  </p>
-                  <p>
-                    <strong>Lugar:</strong>{" "}
-                    {d.episodes.place.filter((x) => x.n > 0).map((x) => `${x.label}: ${x.n}`).join(" · ")}
-                  </p>
-                  {d.episodes.helped.length > 0 && (
-                    <p>
-                      <strong>Lo que más se anotó como ayuda:</strong>{" "}
-                      {d.episodes.helped.map((x) => `${x.label} (${x.n})`).join(" · ")}
-                    </p>
-                  )}
-                  <p className="mt-2 text-xs">
-                    Son conteos de lo que la familia y el equipo anotaron; no incluyen los textos de los episodios
-                    y no son un diagnóstico.
-                  </p>
-                </>
-              )}
-            </Section>
-          )}
-
-          {inc.episodes && (
-            <Section title="Episodios (resumen)">
-              {d.episodes.total === 0 ? (
-                <p>No hay episodios registrados en este periodo.</p>
-              ) : (
-                <>
-                  <p>
-                    {d.episodes.total} {d.episodes.total === 1 ? "episodio" : "episodios"} en {d.episodes.days}{" "}
-                    {d.episodes.days === 1 ? "día" : "días"} distintos
-                    {d.episodes.avgDuration !== null && d.episodes.withDuration >= 5
-                      ? `. Duración promedio: ${Math.round(d.episodes.avgDuration)} min (en ${d.episodes.withDuration} episodios con duración anotada)`
-                      : ""}
-                    .
-                  </p>
-                  <p>
-                    <strong>Intensidad:</strong> {d.episodes.intensity.map((i) => `${i.label}: ${i.n}`).join(" · ")}
-                  </p>
-                  <p>
-                    <strong>Momento del día:</strong>{" "}
-                    {d.episodes.time.filter((x) => x.n > 0).map((x) => `${x.long ?? x.label}: ${x.n}`).join(" · ")}
-                  </p>
-                  <p>
-                    <strong>Lugar:</strong>{" "}
-                    {d.episodes.place.filter((x) => x.n > 0).map((x) => `${x.label}: ${x.n}`).join(" · ")}
-                  </p>
-                  {d.episodes.helped.length > 0 && (
-                    <p>
-                      <strong>Lo que más se anotó como ayuda:</strong>{" "}
-                      {d.episodes.helped.map((x) => `${x.label} (${x.n})`).join(" · ")}
-                    </p>
-                  )}
-                  <p className="mt-2 text-xs">
-                    Son conteos de lo que la familia y el equipo anotaron; no incluyen los textos de los episodios
-                    y no son un diagnóstico.
-                  </p>
-                </>
-              )}
-            </Section>
-          )}
-
 
                   <p className="mt-3 font-bold">Comidas</p>
                   <table className="w-full border-collapse">
@@ -368,6 +305,46 @@ export default function ReportView({
                   <p className="mt-2 text-xs">
                     Solo cuentan los días en que alguien anotó el dato: no registrar no significa que no haya
                     dormido o comido.
+                  </p>
+                </>
+              )}
+            </Section>
+          )}
+
+          {inc.episodes && (
+            <Section title="Episodios (resumen)">
+              {d.episodes.total === 0 ? (
+                <p>No hay episodios registrados en este periodo.</p>
+              ) : (
+                <>
+                  <p>
+                    {d.episodes.total} {d.episodes.total === 1 ? "episodio" : "episodios"} en {d.episodes.days}{" "}
+                    {d.episodes.days === 1 ? "día" : "días"} distintos
+                    {d.episodes.avgDuration !== null && d.episodes.withDuration >= 5
+                      ? `. Duración promedio: ${Math.round(d.episodes.avgDuration)} min (en ${d.episodes.withDuration} episodios con duración anotada)`
+                      : ""}
+                    .
+                  </p>
+                  <p>
+                    <strong>Intensidad:</strong> {d.episodes.intensity.map((i) => `${i.label}: ${i.n}`).join(" · ")}
+                  </p>
+                  <p>
+                    <strong>Momento del día:</strong>{" "}
+                    {d.episodes.time.filter((x) => x.n > 0).map((x) => `${x.long ?? x.label}: ${x.n}`).join(" · ")}
+                  </p>
+                  <p>
+                    <strong>Lugar:</strong>{" "}
+                    {d.episodes.place.filter((x) => x.n > 0).map((x) => `${x.label}: ${x.n}`).join(" · ")}
+                  </p>
+                  {d.episodes.helped.length > 0 && (
+                    <p>
+                      <strong>Lo que más se anotó como ayuda:</strong>{" "}
+                      {d.episodes.helped.map((x) => `${x.label} (${x.n})`).join(" · ")}
+                    </p>
+                  )}
+                  <p className="mt-2 text-xs">
+                    Son conteos de lo que la familia y el equipo anotaron; no incluyen los textos de los episodios
+                    y no son un diagnóstico.
                   </p>
                 </>
               )}

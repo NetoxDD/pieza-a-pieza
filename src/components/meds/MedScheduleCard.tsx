@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { hhmm } from "@/lib/routines";
 import MedExtras from "@/components/meds/MedExtras";
-import { ADMIN_ROLES, scheduleText, type Med } from "@/lib/meds";
+import { ADMIN_ROLES, scheduleText, type Med, type Pause, type Runout } from "@/lib/meds";
 import { defaultAllowed, formatDate, medCategoryLabel } from "@/lib/ficha";
 import { roleLabel } from "@/lib/roles";
 import ScheduleEditor from "@/components/meds/ScheduleEditor"; // 1. Added import
+import PausePanel from "@/components/meds/PausePanel";
 
 export default function MedScheduleCard({
   med,
@@ -15,6 +16,8 @@ export default function MedScheduleCard({
   viewOverrides,
   rxValidUntil,
   onHand,
+     pauses,
+   runout,
   docs,
   onChanged,
 }: {
@@ -24,6 +27,8 @@ export default function MedScheduleCard({
   rxValidUntil: string | null;
   onHand: number | null;
   docs: { id: string; title: string; valid_until: string | null }[];
+     pauses: Pause[];
+   runout: Runout | null | undefined;
   onChanged: () => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -133,12 +138,14 @@ export default function MedScheduleCard({
         </fieldset>
       )}
 
+         <PausePanel med={med} pauses={pauses} isFamily={isFamily} onChanged={onChanged} />
       <MedExtras
         med={med}
         isFamily={isFamily}
         rxValidUntil={rxValidUntil}
         onHand={onHand}
         docs={docs}
+        runout={runout}
         onChanged={onChanged}
       />
 

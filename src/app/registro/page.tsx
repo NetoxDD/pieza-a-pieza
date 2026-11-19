@@ -8,6 +8,7 @@ import { useChild } from "@/components/ChildGate";
 import { useProfiles } from "@/components/ProfilesProvider";
 import MedsToday from "@/components/MedsToday";
 import { MARK_ROLES, hhmm, isoWeekday, localDate, placeLabel, type Routine, type Step } from "@/lib/routines";
+import PausedNote from "@/components/meds/PausedNote";
 
 type DoneInfo = { done_by: string; done_at: string };
 

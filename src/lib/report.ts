@@ -58,6 +58,7 @@ export type ReportData = {
   goals: { title: string; status: string; progress: number }[];
   notes: { when: string; med: string; status: string; note: string }[];
   questions: string;
+  pauses: { name: string; from: string; to: string | null; suspended: boolean }[];
 };
 
 export const fmtDay = (d: Date) =>

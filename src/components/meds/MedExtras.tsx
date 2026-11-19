@@ -6,7 +6,8 @@ import { useChild } from "@/components/ChildGate";
 import { useProfiles } from "@/components/ProfilesProvider";
 import { expiryLabel, expiryOf } from "@/lib/documents";
 import { formatDate } from "@/lib/ficha";
-import { estimateDays, fmtQty, lowStock, type Med } from "@/lib/meds";
+import { estimateDays, fmtQty, lowStock, type Med, type Runout } from "@/lib/meds";
+import { localDate } from "@/lib/routines";
 
 type DocOpt = { id: string; title: string; valid_until: string | null };
 type LedgerRow = {
@@ -39,6 +40,7 @@ export default function MedExtras({
   rxValidUntil,
   onHand,
   docs,
+  runout,
   onChanged,
 }: {
   med: Med;
@@ -46,6 +48,7 @@ export default function MedExtras({
   rxValidUntil: string | null;
   onHand: number | null;
   docs: DocOpt[];
+  runout?: Runout | null;
   onChanged: () => void;
 }) {
   const { child } = useChild();
@@ -59,6 +62,10 @@ export default function MedExtras({
   const exp = expiryOf(rxValidUntil);
   const hasStock = med.stock_enabled && onHand !== null;
   const est = hasStock ? lowStock(med, onHand!) : { low: false, days: null };
+     const lowRun =
+     !!runout &&
+     (new Date(`${runout.run_date}T12:00:00`).getTime() - new Date(`${localDate()}T12:00:00`).getTime()) / 86400000 <=
+       med.refill_alert_days;
 
   const open = (m: Mode) => {
     setF({
@@ -239,15 +246,18 @@ export default function MedExtras({
                 ? `Por revisar (el libro marca ${fmtQty(onHand!)})`
                 : `Quedan ${fmtQty(onHand!)} ${onHand === 1 ? "unidad" : "unidades"}`}
             </p>
-            {est.days !== null && (
-              <p
-                className={`text-sm ${est.low ? "font-semibold text-[var(--danger)]" : "text-[var(--muted)]"}`}
-              >
-                ≈ {Math.round(est.days)} {Math.round(est.days) === 1 ? "día" : "días"} de medicina
-                {est.low ? " · conviene resurtir" : ""}
-              </p>
-            )}
-            {med.as_needed && (
+   {runout ? (
+     <p className={`text-sm ${lowRun ? "font-semibold text-[var(--danger)]" : "text-[var(--muted)]"}`}>
+       Falta medicina para la toma del {formatDate(runout.run_date)}, {runout.run_time}
+       {lowRun ? " · conviene resurtir" : ""}
+     </p>
+   ) : (
+     est.days !== null && (
+       <p className="text-sm text-[var(--muted)]">
+         Alcanza más allá del próximo año o hasta el fin del tratamiento, según el horario.
+       </p>
+     )
+   )}            {med.as_needed && (
               <p className="text-xs text-[var(--muted)]">
                 Esta medicina es «solo si es necesario»: muestra la cantidad, pero no puede avisar de cuándo se acaba.
               </p>

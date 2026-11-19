@@ -55,6 +55,7 @@ const ENTITY: Record<string, { label: string; cat: Category }> = {
   episodes: { label: "un episodio", cat: "ficha" },
   notebook_entries: { label: "una nota del cuaderno escuela–casa", cat: "otros" },
   achievements: { label: "un logro", cat: "otros" },
+  med_pauses: { label: "una pausa de una medicina", cat: "medicinas" },
 };
 
 const FIELD: Record<string, string> = {
@@ -140,6 +141,9 @@ cycle_on_days: "días con medicina",
 cycle_off_days: "días de descanso",
 anchor_date: "fecha de arranque",
 time_units: "cantidad por toma",
+to_date: "fecha de fin de la pausa", 
+cancelled_at: "cancelación",
+
 };
 
 const SECTION: Record<string, string> = {

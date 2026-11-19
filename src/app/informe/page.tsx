@@ -7,7 +7,7 @@ import { useChildProfile } from "@/components/ChildProfileProvider";
 import { useProfiles } from "@/components/ProfilesProvider";
 import ReportView from "@/components/report/ReportView";
 import { PERIODS, adherence, fmtDay, type ReportData } from "@/lib/report";
-import { DOSE_COLS, MED_COLS, scheduleText,fetchSlots, statusLabel, type Dose, type Med } from "@/lib/meds";
+import { DOSE_COLS, MED_COLS, scheduleText,fetchSlots, fetchPauses, statusLabel, type Dose, type Med } from "@/lib/meds";
 import { ageText } from "@/lib/ficha";
 import { localDate } from "@/lib/routines";
 import { summarizeWellbeing } from "@/lib/wellbeing";
@@ -101,7 +101,7 @@ export default function Informe() {
       const doses = d.data as Dose[];
    const slotRows = await fetchSlots(child.id, fromStr, localDate(now), true);
    if (!slotRows) throw new Error("slots");
-   const ad = adherence(meds, slotRows, doses, from, now);
+   const ad = adherence(meds, slotRows, doses, from, now);  
       const moodRows = mood.data as { mood: string; created_at: string }[];
       const moodDays = new Set(moodRows.map((x) => localDate(new Date(x.created_at)))).size;
 
@@ -113,6 +113,10 @@ export default function Informe() {
      supabase.from("sleep_logs").select("sleep_minutes,wakeups,quality").eq("child_id", child.id).gte("night_of", fromStr),
      supabase.from("meal_logs").select("meal,amount").eq("child_id", child.id).gte("day", fromStr),
    ]);
+      const pz = (await fetchPauses(child.id)) ?? [];
+   const pauses = pz
+     .filter((p) => p.from_date <= localDate(now) && (p.to_date === null || p.to_date >= fromStr))
+     .map((p) => ({ name: p.med_name, from: p.from_date, to: p.to_date, suspended: p.source === "suspension" }));
    const wellbeing = summarizeWellbeing(
      (sl.data ?? []) as { sleep_minutes: number; wakeups: number; quality: string | null }[],
      (ml.data ?? []) as { meal: string; amount: string }[]
@@ -132,6 +136,7 @@ export default function Informe() {
         fromLabel: fmtDay(from),
         toLabel: fmtDay(now),
         include,
+        pauses,
         allergies: allergies.map((a) => ({ substance: a.substance, severity: a.severity, reaction: a.reaction })),
         conditions,
         meds: meds

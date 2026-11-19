@@ -8,7 +8,8 @@ import { useChildProfile } from "@/components/ChildProfileProvider";
 import MedScheduleCard from "@/components/meds/MedScheduleCard";
 import DoseHistory from "@/components/meds/DoseHistory";
 import { childColor, initials } from "@/lib/childColor";
-import { MED_COLS, type Med } from "@/lib/meds";
+import { MED_COLS, fetchPauses, fetchRunouts, type Pause, type Runout, type Med } from "@/lib/meds";
+import { localDate } from "@/lib/routines";
 
 type DocOpt = { id: string; title: string; valid_until: string | null };
 
@@ -22,6 +23,8 @@ export default function Medicinas() {
   const [overrides, setOverrides] = useState<{ role: string; allowed: boolean }[]>([]);
   const [rx, setRx] = useState<Record<string, string>>({});
   const [stock, setStock] = useState<Record<string, number>>({});
+  const [pauses, setPauses] = useState<Pause[]>([]);
+  const [runouts, setRunouts] = useState<Record<string, Runout>>({});
   const [docs, setDocs] = useState<DocOpt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -61,6 +64,10 @@ export default function Medicinas() {
         )
       );
     }
+
+    const [pz, ro] = await Promise.all([fetchPauses(child.id), fetchRunouts(child.id, localDate())]);
+    if (pz) setPauses(pz);
+    if (ro) setRunouts(ro);
 
     if (isFamily) {
       const [o, d] = await Promise.all([
@@ -154,6 +161,8 @@ export default function Medicinas() {
                 rxValidUntil={rx[m.id] ?? null}
                 onHand={m.stock_enabled ? stock[m.id] ?? null : null}
                 docs={docs}
+                pauses={pauses.filter((p) => p.medication_id === m.id)}
+                runout={m.stock_enabled ? runouts[m.id] ?? null : undefined}
                 onChanged={load}
               />
             ))}

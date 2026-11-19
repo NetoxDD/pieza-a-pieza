@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
 import { useChildProfile } from "@/components/ChildProfileProvider";
 import { SOON_DAYS, expiryLabel, expiryOf } from "@/lib/documents";
-import { DOSE_COLS, MED_COLS, computeSlots,fetchSlots, fmtQty, lowStock, type Dose,type SlotRow, type Med } from "@/lib/meds";
+import { DOSE_COLS, MED_COLS, computeSlots, fetchRunouts, fetchSlots, fmtQty, lowStock, type Dose, type SlotRow, type Med } from "@/lib/meds";
 import { isoWeekday, localDate } from "@/lib/routines";
 import { SIDE_OF } from "@/lib/notebook";
 
@@ -71,12 +71,13 @@ export default function TodayProvider({ children }: { children: React.ReactNode 
         if (!d.error) doses = d.data as Dose[];
       }
     }
-   let slotRows: SlotRow[] = [];
-   if (access.medications && meds.length > 0) {
-     const y = new Date(now.getTime() - 86400000);
-     slotRows = (await fetchSlots(child.id, localDate(y), localDate(now))) ?? [];
-   }
-   const slots = computeSlots(slotRows, meds, doses, now).filter((s) => !s.resolved);    const lateDoses = slots.filter((s) => s.late).length;
+    let slotRows: SlotRow[] = [];
+    if (access.medications && meds.length > 0) {
+      const y = new Date(now.getTime() - 86400000);
+      slotRows = (await fetchSlots(child.id, localDate(y), localDate(now))) ?? [];
+    }
+    const slots = computeSlots(slotRows, meds, doses, now).filter((s) => !s.resolved);
+    const lateDoses = slots.filter((s) => s.late).length;
     const upcoming = slots.filter((s) => !s.late && !s.yesterday).sort((a, b) => a.due.getTime() - b.due.getTime())[0];
     const nextDose = upcoming ? { med: upcoming.med.name, time: upcoming.time } : null;
 
@@ -109,9 +110,10 @@ export default function TodayProvider({ children }: { children: React.ReactNode 
 
     // ---------- Receta e inventario ----------
     if (access.medications && meds.length > 0) {
-      const [rx, st] = await Promise.all([
+      const [rx, st, ro] = await Promise.all([
         supabase.rpc("my_med_rx", { cid: child.id }),
         supabase.rpc("my_stock", { cid: child.id }),
+        fetchRunouts(child.id, localDate(now)),
       ]);
       if (!rx.error) {
         (rx.data as { medication_id: string; valid_until: string }[]).forEach((x) => {
@@ -141,15 +143,33 @@ export default function TodayProvider({ children }: { children: React.ReactNode 
             });
             return;
           }
-          const s = lowStock(med, onHand, now);
-          if (s.low && s.days !== null) {
-            const n = Math.round(s.days);
-            alerts.push({
-              id: `stk-${med.id}`,
-              label: `De ${med.name} quedan unos ${n} ${n === 1 ? "día" : "días"}. Conviene resurtir`,
-              href: "/registro/medicinas",
-              tone: n <= 2 ? "atencion" : "normal",
-            });
+          if (ro) {
+            const r = ro[med.id];
+            if (r) {
+              const days = Math.round(
+                (new Date(`${r.run_date}T12:00:00`).getTime() - new Date(`${localDate(now)}T12:00:00`).getTime()) / 86400000
+              );
+              if (days <= med.refill_alert_days) {
+                const when = new Date(`${r.run_date}T12:00:00`).toLocaleDateString("es-MX", { day: "numeric", month: "short" });
+                alerts.push({
+                  id: `stk-${med.id}`,
+                  label: `De ${med.name} falta para la toma del ${when}. Conviene resurtir`,
+                  href: "/registro/medicinas",
+                  tone: days <= 2 ? "atencion" : "normal",
+                });
+              }
+            }
+          } else {
+            const s = lowStock(med, onHand, now);
+            if (s.low && s.days !== null) {
+              const n = Math.round(s.days);
+              alerts.push({
+                id: `stk-${med.id}`,
+                label: `De ${med.name} quedan unos ${n} ${n === 1 ? "día" : "días"}. Conviene resurtir`,
+                href: "/registro/medicinas",
+                tone: n <= 2 ? "atencion" : "normal",
+              });
+            }
           }
         });
       }
@@ -181,43 +201,43 @@ export default function TodayProvider({ children }: { children: React.ReactNode 
         });
     }
 
-   // ---------- Sueño de anoche ----------
-   if (access.wellbeing && role !== "pediatra" && now.getHours() >= 5 && now.getHours() < 14) {
-     const night = localDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
-     const sl = await supabase.from("sleep_logs").select("id").eq("child_id", child.id).eq("night_of", night).limit(1);
-     if (!sl.error && (sl.data?.length ?? 0) === 0) {
-       alerts.push({
-         id: "sleep",
-         label: "Falta anotar cómo durmió anoche",
-         href: "/registro/bienestar",
-         tone: "normal",
-       });
-     }
-   }
+    // ---------- Sueño de anoche ----------
+    if (access.wellbeing && role !== "pediatra" && now.getHours() >= 5 && now.getHours() < 14) {
+      const night = localDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
+      const sl = await supabase.from("sleep_logs").select("id").eq("child_id", child.id).eq("night_of", night).limit(1);
+      if (!sl.error && (sl.data?.length ?? 0) === 0) {
+        alerts.push({
+          id: "sleep",
+          label: "Falta anotar cómo durmió anoche",
+          href: "/registro/bienestar",
+          tone: "normal",
+        });
+      }
+    }
 
-      // ---------- Cuaderno escuela–casa ----------
-   const mySide = SIDE_OF[role];
-   if (mySide) {
-     const since = localDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3));
-     const nb = await supabase
-       .from("notebook_entries")
-       .select("id,side,seen_at")
-       .eq("child_id", child.id)
-       .gte("day", since);
-     if (!nb.error) {
-       const unseen = (nb.data as { side: string; seen_at: string | null }[]).filter(
-         (x) => x.side !== mySide && !x.seen_at
-       ).length;
-       if (unseen > 0) {
-         alerts.push({
-           id: "notebook",
-           label: unseen === 1 ? "Hay una nota nueva en el cuaderno escuela–casa" : `Hay ${unseen} notas nuevas en el cuaderno escuela–casa`,
-           href: "/registro/cuaderno",
-           tone: "normal",
-         });
-       }
-     }
-   }
+    // ---------- Cuaderno escuela–casa ----------
+    const mySide = SIDE_OF[role];
+    if (mySide) {
+      const since = localDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3));
+      const nb = await supabase
+        .from("notebook_entries")
+        .select("id,side,seen_at")
+        .eq("child_id", child.id)
+        .gte("day", since);
+      if (!nb.error) {
+        const unseen = (nb.data as { side: string; seen_at: string | null }[]).filter(
+          (x) => x.side !== mySide && !x.seen_at
+        ).length;
+        if (unseen > 0) {
+          alerts.push({
+            id: "notebook",
+            label: unseen === 1 ? "Hay una nota nueva en el cuaderno escuela–casa" : `Hay ${unseen} notas nuevas en el cuaderno escuela–casa`,
+            href: "/registro/cuaderno",
+            tone: "normal",
+          });
+        }
+      }
+    }
 
     alerts.sort((a, b) => Number(b.tone === "atencion") - Number(a.tone === "atencion"));
 
@@ -239,7 +259,7 @@ export default function TodayProvider({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     const channel = supabase.channel(`today:${child.id}`);
-    ["med_doses", "routine_step_done", "med_stock_ledger","notebook_entries"].forEach((table) => {
+    ["med_doses", "routine_step_done", "med_stock_ledger", "notebook_entries"].forEach((table) => {
       channel.on("postgres_changes", { event: "*", schema: "public", table }, () => load());
     });
     channel.subscribe();
