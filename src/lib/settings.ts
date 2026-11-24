@@ -1,5 +1,5 @@
 export type FontScale = "normal" | "grande" | "muy-grande";
-export type Palette = "bosque" | "oceano" | "arena" | "lavanda" | "coral";
+export type Palette = "calida" | "clara" | "ludica";
 
 export type Settings = {
   fontScale: FontScale;
@@ -11,13 +11,18 @@ export type Settings = {
   palette: Palette;
 };
 
-export const PALETTES: { id: Palette; label: string; swatch: string }[] = [
-  { id: "bosque", label: "Bosque", swatch: "#426f5d" },
-  { id: "oceano", label: "Océano", swatch: "#3f6f8a" },
-  { id: "arena", label: "Arena", swatch: "#7d6219" },
-  { id: "lavanda", label: "Lavanda", swatch: "#6a5a86" },
-  { id: "coral", label: "Coral", swatch: "#9a4f4f" },
+export const PALETTES: { id: Palette; label: string; hint: string; colors: [string, string, string] }[] = [
+  { id: "calida", label: "Cálida y calmada", hint: "Tonos suaves y letra con calidez.", colors: ["#f6f2e9", "#3f5e45", "#cdb574"] },
+  { id: "clara", label: "Clara y profesional", hint: "Limpia, sobria y muy ordenada.", colors: ["#f3f6f8", "#2c566e", "#bccfdb"] },
+  { id: "ludica", label: "Lúdica", hint: "Redondeada y con colores alegres.", colors: ["#fff8e8", "#34553a", "#a3b899"] },
 ];
+
+// Los nombres de las paletas anteriores se convierten a los temas nuevos
+export function normalizePalette(p: unknown): Palette {
+  if (p === "calida" || p === "clara" || p === "ludica") return p;
+  if (p === "oceano") return "clara";
+  return "calida";
+}
 
 export const KEY = "pap:settings";
 
@@ -33,14 +38,17 @@ export function systemDefaults(): Settings {
     calm,
     theme: "auto",
     font: "normal",
-    palette: "bosque",
+    palette: "calida",
   };
 }
 
 export function readLocal(): Settings | null {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? { ...systemDefaults(), ...JSON.parse(raw) } : null;
+    if (!raw) return null;
+    const s = { ...systemDefaults(), ...JSON.parse(raw) };
+    s.palette = normalizePalette(s.palette);
+    return s;
   } catch {
     return null;
   }
@@ -80,7 +88,7 @@ d.dataset.fontscale=(s&&s.fontScale)||'normal';
 d.dataset.contrast=(s&&s.contrast)||'normal';
 d.dataset.calm=calm?'si':'no';
 d.dataset.font=(s&&s.font)||'normal';
-d.dataset.palette=(s&&s.palette)||'bosque';
+d.dataset.palette=(['calida','clara','ludica'].indexOf(s&&s.palette)>-1?s.palette:(s&&s.palette==='oceano'?'clara':'calida'));
 d.dataset.theme=dark?'oscuro':'claro';
 d.style.colorScheme=dark?'dark':'light';
 }catch(e){}})();`;

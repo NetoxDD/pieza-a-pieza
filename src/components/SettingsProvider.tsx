@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   applySettings,
+  normalizePalette,
   readLocal,
   systemDefaults,
   writeLocal,
@@ -74,7 +75,7 @@ export default function SettingsProvider({ children }: { children: React.ReactNo
         calm: data.calm,
         theme: data.theme,
         font: data.reading_font,
-        palette: data.palette,
+        palette: normalizePalette(data.palette),
       };
       setSettings(s);
       writeLocal(s);

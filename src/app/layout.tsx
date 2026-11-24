@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible } from "next/font/google";
+import { Atkinson_Hyperlegible, Fraunces, IBM_Plex_Sans, Nunito } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import AuthGate from "@/components/AuthGate";
@@ -22,6 +22,11 @@ const legible = Atkinson_Hyperlegible({
   variable: "--font-legible",
 });
 
+const atkinson = Atkinson_Hyperlegible({ weight: ["400", "700"], subsets: ["latin"], display: "swap", variable: "--font-atkinson" });
+const fraunces = Fraunces({ subsets: ["latin"], display: "swap", variable: "--font-fraunces" });
+const plex = IBM_Plex_Sans({ weight: ["400", "500", "600", "700"], subsets: ["latin"], display: "swap", variable: "--font-plex" });
+const nunito = Nunito({ subsets: ["latin"], display: "swap", variable: "--font-nunito" });
+
 export const metadata: Metadata = {
   title: "Pieza a pieza",
   description: "Seguimiento compartido para familias y profesionales",
@@ -39,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" suppressHydrationWarning className={legible.variable}>
+    <html lang="es" suppressHydrationWarning className={`${legible.variable} ${atkinson.variable} ${fraunces.variable} ${plex.variable} ${nunito.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: INIT_SCRIPT }} />
       </head>
