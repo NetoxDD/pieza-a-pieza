@@ -311,7 +311,7 @@ export default function ScheduleEditor({
 
   const dayChips = (
     <fieldset>
-      <legend className="text-xs font-semibold">Días de la semana</legend>
+      <legend className="text-sm font-semibold">Días de la semana</legend>
       <div className="mt-2 flex flex-wrap gap-2">
         {DAY_LABELS.map((label, i) => {
           const d = i + 1;
@@ -340,7 +340,7 @@ export default function ScheduleEditor({
   );
 
   const sinceField = (label: string) => (
-    <label className="grid max-w-48 gap-1.5 text-xs font-semibold">
+    <label className="grid max-w-48 gap-1.5 text-sm font-semibold">
       {label}
       <input type="date" value={f.anchorDate} onChange={(e) => e.target.value && set({ anchorDate: e.target.value })} className={input} />
     </label>
@@ -348,7 +348,7 @@ export default function ScheduleEditor({
 
   const timeRows = (
     <fieldset className="grid gap-2">
-      <legend className="text-xs font-semibold">Horas de cada toma</legend>
+      <legend className="text-sm font-semibold">Horas de cada toma</legend>
       <div className="grid gap-2">
         {f.rows.map((r, i) => (
           <div key={i} className="flex flex-wrap items-center gap-2">
@@ -360,7 +360,7 @@ export default function ScheduleEditor({
               className={input}
             />
             {f.perUnits && (
-              <label className="flex items-center gap-1 text-xs">
+              <label className="flex items-center gap-1 text-sm">
                 <span className="sr-only">Unidades de la toma {i + 1}</span>
                 <input
                   type="number"
@@ -380,7 +380,7 @@ export default function ScheduleEditor({
                 type="button"
                 onClick={() => set({ rows: f.rows.filter((_, k) => k !== i) })}
                 aria-label={`Quitar la hora ${i + 1}`}
-                className="min-h-11 rounded-lg px-3 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--sage)]"
+                className="min-h-11 rounded-lg px-3 text-sm font-semibold text-[var(--muted)] hover:bg-[var(--sage)]"
               >
                 Quitar
               </button>
@@ -418,7 +418,7 @@ export default function ScheduleEditor({
   return (
     <form onSubmit={save} className="mt-4 grid gap-5 rounded-xl bg-[var(--background)] p-4">
       <fieldset className="grid gap-2">
-        <legend className="text-xs font-semibold">Frecuencia</legend>
+        <legend className="text-sm font-semibold">Frecuencia</legend>
         <div className="flex flex-wrap gap-2">
           {MODES.map((m) => (
             <label key={m.key} className={chip(f.mode === m.key)}>
@@ -433,13 +433,13 @@ export default function ScheduleEditor({
             </label>
           ))}
         </div>
-        <p className="text-xs text-[var(--muted)]">{MODES.find((m) => m.key === f.mode)?.hint}</p>
+        <p className="text-sm text-[var(--muted)]">{MODES.find((m) => m.key === f.mode)?.hint}</p>
       </fieldset>
 
       {f.mode === "hours" && (
         <div className="grid gap-3">
           <div className="flex flex-wrap items-end gap-4">
-            <label className="grid gap-1.5 text-xs font-semibold">
+            <label className="grid gap-1.5 text-sm font-semibold">
               Cada
               <select value={f.everyHours} onChange={(e) => set({ everyHours: Number(e.target.value) })} className={input}>
                 {HOURS.map((h) => (
@@ -449,7 +449,7 @@ export default function ScheduleEditor({
                 ))}
               </select>
             </label>
-            <label className="grid gap-1.5 text-xs font-semibold">
+            <label className="grid gap-1.5 text-sm font-semibold">
               Desde las
               <input type="time" value={f.anchorTime} onChange={(e) => e.target.value && set({ anchorTime: e.target.value })} className={input} />
             </label>
@@ -457,7 +457,7 @@ export default function ScheduleEditor({
           <p className="text-sm">
             Tomas del día: <strong>{hoursTimes(f.anchorTime, f.everyHours).join(" · ")}</strong>
           </p>
-          <p className="text-xs text-[var(--muted)]">
+          <p className="text-sm text-[var(--muted)]">
             Solo se ofrecen las frecuencias que reparten el día en partes iguales, para que las horas sean las mismas
             todos los días.
           </p>
@@ -466,7 +466,7 @@ export default function ScheduleEditor({
 
       {f.mode === "days" && (
         <div className="flex flex-wrap items-end gap-4">
-          <label className="grid gap-1.5 text-xs font-semibold">
+          <label className="grid gap-1.5 text-sm font-semibold">
             Cada cuántos días
             <input type="number" min={2} max={60} value={f.everyN} onChange={(e) => set({ everyN: e.target.value })} className={`${input} w-28`} />
           </label>
@@ -476,11 +476,11 @@ export default function ScheduleEditor({
 
       {f.mode === "weeks" && (
         <div className="flex flex-wrap items-end gap-4">
-          <label className="grid gap-1.5 text-xs font-semibold">
+          <label className="grid gap-1.5 text-sm font-semibold">
             Cada cuántas semanas
             <input type="number" min={1} max={8} value={f.weeksN} onChange={(e) => set({ weeksN: e.target.value })} className={`${input} w-28`} />
           </label>
-          <label className="grid gap-1.5 text-xs font-semibold">
+          <label className="grid gap-1.5 text-sm font-semibold">
             El día
             <select value={f.weekday} onChange={(e) => set({ weekday: Number(e.target.value) })} className={input}>
               {WEEKDAYS.map((w, i) => (
@@ -495,21 +495,21 @@ export default function ScheduleEditor({
       )}
 
       {f.mode === "monthly" && (
-        <label className="grid max-w-48 gap-1.5 text-xs font-semibold">
+        <label className="grid max-w-48 gap-1.5 text-sm font-semibold">
           Día del mes
           <input type="number" min={1} max={31} value={f.monthDay} onChange={(e) => set({ monthDay: e.target.value })} className={input} />
-          <small className="text-xs font-normal text-[var(--muted)]">Si el mes es más corto, se usa su último día.</small>
+          <small className="text-sm font-normal text-[var(--muted)]">Si el mes es más corto, se usa su último día.</small>
         </label>
       )}
 
       {f.mode === "cycle" && (
         <div className="grid gap-4">
           <div className="flex flex-wrap items-end gap-4">
-            <label className="grid gap-1.5 text-xs font-semibold">
+            <label className="grid gap-1.5 text-sm font-semibold">
               Días con medicina
               <input type="number" min={1} max={365} value={f.cycleOn} onChange={(e) => set({ cycleOn: e.target.value })} className={`${input} w-28`} />
             </label>
-            <label className="grid gap-1.5 text-xs font-semibold">
+            <label className="grid gap-1.5 text-sm font-semibold">
               Días de descanso
               <input type="number" min={1} max={365} value={f.cycleOff} onChange={(e) => set({ cycleOff: e.target.value })} className={`${input} w-28`} />
             </label>
@@ -525,7 +525,7 @@ export default function ScheduleEditor({
                 key={p.l}
                 type="button"
                 onClick={() => set({ cycleOn: String(p.on), cycleOff: String(p.off) })}
-                className="min-h-11 rounded-full border border-[var(--border)] px-4 text-xs font-semibold hover:bg-[var(--sage)]"
+                className="min-h-11 rounded-full border border-[var(--border)] px-4 text-sm font-semibold hover:bg-[var(--sage)]"
               >
                 {p.l}
               </button>
@@ -538,14 +538,14 @@ export default function ScheduleEditor({
       {(f.mode === "times" || f.mode === "cycle") && dayChips}
 
       {f.mode !== "prn" && (
-        <label className="grid max-w-48 gap-1.5 text-xs font-semibold">
+        <label className="grid max-w-48 gap-1.5 text-sm font-semibold">
           Margen de tolerancia (minutos)
           <input type="number" min={0} max={720} value={f.grace} onChange={(e) => set({ grace: e.target.value })} className={input} />
         </label>
       )}
 
       {f.mode === "prn" && (
-        <label className="grid max-w-64 gap-1.5 text-xs font-semibold">
+        <label className="grid max-w-64 gap-1.5 text-sm font-semibold">
           Espera mínima entre dosis, en horas (opcional)
           <input
             type="number"
@@ -557,13 +557,13 @@ export default function ScheduleEditor({
             placeholder="Según indique tu médico"
             className={input}
           />
-          <small className="text-xs font-normal text-[var(--muted)]">
+          <small className="text-sm font-normal text-[var(--muted)]">
             La app solo compara horas y avisa, sin bloquear. No la propone ella.
           </small>
         </label>
       )}
 
-      <label className="grid max-w-48 gap-1.5 text-xs font-semibold">
+      <label className="grid max-w-48 gap-1.5 text-sm font-semibold">
         Termina el (opcional)
         <input type="date" value={f.endsOn} onChange={(e) => set({ endsOn: e.target.value })} className={input} />
       </label>
@@ -572,17 +572,17 @@ export default function ScheduleEditor({
         <section aria-label="Vista previa de las próximas tomas" className="rounded-xl border border-[var(--border)] p-4">
           <h3 className="text-sm font-semibold">Próximas tomas</h3>
           {preview === null ? (
-            <p className="mt-1 text-xs text-[var(--muted)]">Calculando…</p>
+            <p className="mt-1 text-sm text-[var(--muted)]">Calculando…</p>
           ) : list.length === 0 ? (
-            <p className="mt-1 text-xs text-[var(--muted)]">
+            <p className="mt-1 text-sm text-[var(--muted)]">
               Con esta configuración no hay tomas en los próximos 60 días.
             </p>
           ) : (
             <>
-              <p className="mt-1 text-xs text-[var(--muted)]">
+              <p className="mt-1 text-sm text-[var(--muted)]">
                 {in30} {in30 === 1 ? "toma" : "tomas"} en los próximos 30 días.
               </p>
-              <ul className="mt-2 flex flex-wrap gap-2 text-xs">
+              <ul className="mt-2 flex flex-wrap gap-2 text-sm">
                 {list.slice(0, 10).map((x, i) => (
                   <li key={i} className="rounded-md bg-[var(--sage)] px-2.5 py-1 font-semibold text-[var(--primary)]">
                     {new Date(`${x.d}T12:00:00`).toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short" })}{" "}
@@ -607,7 +607,7 @@ export default function ScheduleEditor({
         </p>
       )}
 
-      <p className="text-xs text-[var(--muted)]">
+      <p className="text-sm text-[var(--muted)]">
         El cambio vale desde hoy. Las tomas de días anteriores no cambian.
       </p>
 

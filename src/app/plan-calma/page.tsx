@@ -15,7 +15,7 @@ const inputCls =
 const primary =
   "min-h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--on-primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50";
 const small =
-  "min-h-11 rounded-lg px-3 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--sage)] hover:text-[var(--primary)] disabled:opacity-40";
+  "min-h-11 rounded-lg px-3 text-sm font-semibold text-[var(--muted)] hover:bg-[var(--sage)] hover:text-[var(--primary)] disabled:opacity-40";
 
 const section = "rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6";
 
@@ -213,7 +213,7 @@ export default function PlanCalma() {
             }}
             className="mt-4 flex flex-wrap items-end gap-2"
           >
-            <label className="grid min-w-0 flex-1 gap-1.5 text-xs font-semibold">
+            <label className="grid min-w-0 flex-1 gap-1.5 text-sm font-semibold">
               Añadir
               <input
                 value={drafts[k.key] ?? ""}
@@ -229,7 +229,7 @@ export default function PlanCalma() {
           </form>
         )}
         {isFamily && mine.length >= MAX_ITEMS && (
-          <p className="mt-3 text-xs text-[var(--muted)]">Llegaste al máximo de {MAX_ITEMS} elementos.</p>
+          <p className="mt-3 text-sm text-[var(--muted)]">Llegaste al máximo de {MAX_ITEMS} elementos.</p>
         )}
       </section>
     );

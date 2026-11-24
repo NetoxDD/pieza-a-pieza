@@ -169,7 +169,7 @@ export default function Medicinas() {
           </div>
 
           {!loading && active.length > 0 && (
-            <p className="text-xs text-[var(--muted)]">
+            <p className="text-sm text-[var(--muted)]">
               El nombre, la dosis y quién receta cada medicina se editan en la{" "}
               <Link href="/ficha" className="font-semibold text-[var(--primary)] hover:underline">
                 Ficha

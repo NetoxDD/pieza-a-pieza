@@ -71,7 +71,7 @@ export default function MedScheduleCard({
             {[med.dose, med.frequency, medCategoryLabel[med.category]].filter(Boolean).join(" · ")}
           </p>
           <p className="mt-1 text-sm font-semibold">{scheduleText(med)}</p>
-          <p className="text-xs text-[var(--muted)]">
+          <p className="text-sm text-[var(--muted)]">
             {[
               med.ends_on && `Termina el ${formatDate(med.ends_on)}`,
               !med.as_needed && `Margen de ${med.grace_min} min`,
@@ -106,7 +106,7 @@ export default function MedScheduleCard({
       {isFamily && (
         <fieldset className="mt-5 grid gap-2">
           <legend className="text-sm font-semibold">Quién más puede registrar dosis de esta medicina</legend>
-          <p className="text-xs text-[var(--muted)]">
+          <p className="text-sm text-[var(--muted)]">
             La familia siempre puede. El pediatra solo consulta. Si habilitas a otro rol, también debe poder
             ver la sección Medicamentos.
           </p>
@@ -130,7 +130,7 @@ export default function MedScheduleCard({
             })}
           </div>
           {ADMIN_ROLES.filter((r) => roles.has(r) && !canView(r)).map((r) => (
-            <p key={r} role="status" className="rounded-lg bg-[var(--sand)] p-3 text-xs text-[var(--sand-text)]">
+            <p key={r} role="status" className="rounded-lg bg-[var(--sand)] p-3 text-sm text-[var(--sand-text)]">
               {roleLabel[r]} puede registrar, pero todavía no puede ver Medicamentos. Actívalo en Ficha →
               Privacidad para que le funcione.
             </p>

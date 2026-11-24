@@ -202,7 +202,7 @@ export default function MedExtras({
       <fieldset className="grid gap-2">
         <legend className="text-sm font-semibold">Receta</legend>
         {isFamily && (
-          <label className="grid gap-1.5 text-xs font-semibold">
+          <label className="grid gap-1.5 text-sm font-semibold">
             Documento de la receta
             <select value={med.document_id ?? ""} onChange={(e) => linkDoc(e.target.value)} className={input}>
               <option value="">Sin receta vinculada</option>
@@ -229,7 +229,7 @@ export default function MedExtras({
             : "Sin receta vinculada."}
         </p>
         {isFamily && docs.length === 0 && (
-          <p className="text-xs text-[var(--muted)]">
+          <p className="text-sm text-[var(--muted)]">
             Sube la receta en Documentos, carpeta Recetas, y anota su vigencia para poder vincularla.
           </p>
         )}
@@ -258,11 +258,11 @@ export default function MedExtras({
        </p>
      )
    )}            {med.as_needed && (
-              <p className="text-xs text-[var(--muted)]">
+              <p className="text-sm text-[var(--muted)]">
                 Esta medicina es «solo si es necesario»: muestra la cantidad, pero no puede avisar de cuándo se acaba.
               </p>
             )}
-            <p className="text-xs text-[var(--muted)]">
+            <p className="text-sm text-[var(--muted)]">
               Es una estimación según los horarios y las unidades por dosis. Puede no coincidir con lo que
               realmente queda.
             </p>
@@ -306,7 +306,7 @@ export default function MedExtras({
             className="grid gap-4 rounded-xl bg-[var(--background)] p-4"
           >
             <div className="grid gap-4 sm:grid-cols-3">
-              <label className="grid gap-1.5 text-xs font-semibold">
+              <label className="grid gap-1.5 text-sm font-semibold">
                 Unidades por dosis
                 <input
                   type="number"
@@ -318,7 +318,7 @@ export default function MedExtras({
                   className={input}
                 />
               </label>
-              <label className="grid gap-1.5 text-xs font-semibold">
+              <label className="grid gap-1.5 text-sm font-semibold">
                 Unidades por caja (opcional)
                 <input
                   type="number"
@@ -329,7 +329,7 @@ export default function MedExtras({
                   className={input}
                 />
               </label>
-              <label className="grid gap-1.5 text-xs font-semibold">
+              <label className="grid gap-1.5 text-sm font-semibold">
                 Avisar cuando queden (días)
                 <input
                   type="number"
@@ -342,7 +342,7 @@ export default function MedExtras({
               </label>
             </div>
             {mode === "activate" && (
-              <label className="grid max-w-56 gap-1.5 text-xs font-semibold">
+              <label className="grid max-w-56 gap-1.5 text-sm font-semibold">
                 Unidades que hay ahora
                 <input
                   type="number"
@@ -378,7 +378,7 @@ export default function MedExtras({
 
         {isFamily && mode === "refill" && (
           <form onSubmit={submitRefill} className="grid gap-4 rounded-xl bg-[var(--background)] p-4">
-            <label className="grid max-w-56 gap-1.5 text-xs font-semibold">
+            <label className="grid max-w-56 gap-1.5 text-sm font-semibold">
               Unidades que añades
               <input
                 type="number"
@@ -390,12 +390,12 @@ export default function MedExtras({
                 className={input}
               />
               {med.units_per_box != null && (
-                <small className="text-xs font-normal text-[var(--muted)]">
+                <small className="text-sm font-normal text-[var(--muted)]">
                   Una caja trae {fmtQty(med.units_per_box)} unidades.
                 </small>
               )}
             </label>
-            <label className="grid gap-1.5 text-xs font-semibold">
+            <label className="grid gap-1.5 text-sm font-semibold">
               Nota (opcional)
               <input
                 value={f.note}
@@ -417,7 +417,7 @@ export default function MedExtras({
 
         {isFamily && mode === "adjust" && (
           <form onSubmit={submitAdjust} className="grid gap-4 rounded-xl bg-[var(--background)] p-4">
-            <label className="grid max-w-56 gap-1.5 text-xs font-semibold">
+            <label className="grid max-w-56 gap-1.5 text-sm font-semibold">
               Unidades que hay ahora (cuéntalas)
               <input
                 type="number"
@@ -429,7 +429,7 @@ export default function MedExtras({
                 className={input}
               />
             </label>
-            <label className="grid gap-1.5 text-xs font-semibold">
+            <label className="grid gap-1.5 text-sm font-semibold">
               Nota (opcional)
               <input
                 value={f.note}
@@ -457,7 +457,7 @@ export default function MedExtras({
               <button
                 type="button"
                 onClick={() => setLog(null)}
-                className="min-h-11 rounded-lg px-3 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--sage)]"
+                className="min-h-11 rounded-lg px-3 text-sm font-semibold text-[var(--muted)] hover:bg-[var(--sage)]"
               >
                 Cerrar
               </button>
@@ -471,7 +471,7 @@ export default function MedExtras({
                     <span>
                       <strong>{reasonLabel[r.reason]}</strong>
                       {r.note ? ` · ${r.note}` : ""}
-                      <small className="block text-xs text-[var(--muted)]">
+                      <small className="block text-sm text-[var(--muted)]">
                         {get(r.created_by)?.name ?? "Sistema"} ·{" "}
                         {new Date(r.created_at).toLocaleString("es-MX", {
                           day: "numeric",
@@ -489,7 +489,7 @@ export default function MedExtras({
                 ))}
               </ul>
             )}
-            <p className="mt-2 text-xs text-[var(--muted)]">El libro no se edita ni se borra.</p>
+            <p className="mt-2 text-sm text-[var(--muted)]">El libro no se edita ni se borra.</p>
           </div>
         )}
       </fieldset>

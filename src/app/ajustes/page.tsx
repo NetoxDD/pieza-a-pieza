@@ -36,6 +36,17 @@ export default function Ajustes() {
       <section className="grid gap-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
         <h2 className="text-lg font-semibold">Apariencia</h2>
 
+        <Choice<"simple" | "completa">
+          legend="Vista de la aplicación"
+          hint="La vista sencilla muestra solo lo más importante: lo siguiente, unos pocos botones grandes y menos opciones en el menú."
+          value={settings.simple ? "simple" : "completa"}
+          options={[
+            { value: "simple", label: "Sencilla" },
+            { value: "completa", label: "Completa" },
+          ]}
+          onChange={(v) => update({ simple: v === "simple" })}
+        />
+
         <PalettePicker value={settings.palette} onChange={(p) => update({ palette: p })} />
 
         <Choice<Settings["fontScale"]>

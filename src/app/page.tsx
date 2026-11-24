@@ -14,11 +14,14 @@ import { useProfiles } from "@/components/ProfilesProvider";
 import PinnedMaterial from "@/components/PinnedMaterial";
 import TodayCard from "@/components/TodayCard";
 import NextUp from "@/components/NextUp";
+import { useSettings } from "@/components/SettingsProvider";
 
 export default function Home() {
   const { child, userId, userName } = useChild();
   const { access } = useChildProfile();
   const { get } = useProfiles();
+  const { settings } = useSettings();
+  const simple = settings.simple;
   const [refresh, setRefresh] = useState(0);
 
   const full = get(userId)?.name || userName || "";
@@ -30,7 +33,9 @@ export default function Home() {
     { href: "/registro/observaciones", label: "Anotar algo que noté", icon: Pencil, tint: "var(--sand)", show: true },
     { href: "/registro/bienestar", label: "Cómo durmió y comió", icon: Moon, tint: "var(--blue)", show: access.wellbeing },
     { href: "/comunicacion", label: "Escribir al equipo", icon: MessageCircle, tint: "var(--sage)", show: true },
-  ].filter((a) => a.show);
+  ]
+    .filter((a) => a.show)
+    .slice(0, simple ? 4 : 5);
 
   return (
     <div className="grid gap-8">
@@ -66,23 +71,46 @@ export default function Home() {
         <QuickLog onSaved={() => setRefresh((r) => r + 1)} />
       </div>
 
-      <section aria-labelledby="day-title" className="grid gap-4">
-        <h2 id="day-title" className="text-2xl font-bold">
-          Cómo va el día de {child.name}
-        </h2>
-        <div className="grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
-          <div className="grid gap-6">
-            <MoodSummary refreshKey={refresh} />
-            <RecentObservations />
-            <GoalsPreview />
+      {simple ? (
+        <details className="group rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-xl font-bold">
+            Ver más del día de {child.name}
+            <span aria-hidden className="text-[var(--muted)] group-open:rotate-180">⌄</span>
+          </summary>
+          <div className="mt-5">
+            <div className="grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
+              <div className="grid gap-6">
+                <MoodSummary refreshKey={refresh} />
+                <RecentObservations />
+                <GoalsPreview />
+              </div>
+              <aside className="grid gap-6">
+                <TodayCard />
+                <NextEvent />
+                <PinnedMaterial />
+              </aside>
+            </div>
           </div>
-          <aside className="grid gap-6">
-            <TodayCard />
-            <NextEvent />
-            <PinnedMaterial />
-          </aside>
-        </div>
-      </section>
+        </details>
+      ) : (
+        <section aria-labelledby="day-title" className="grid gap-4">
+          <h2 id="day-title" className="text-2xl font-bold">
+            Cómo va el día de {child.name}
+          </h2>
+          <div className="grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
+            <div className="grid gap-6">
+              <MoodSummary refreshKey={refresh} />
+              <RecentObservations />
+              <GoalsPreview />
+            </div>
+            <aside className="grid gap-6">
+              <TodayCard />
+              <NextEvent />
+              <PinnedMaterial />
+            </aside>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

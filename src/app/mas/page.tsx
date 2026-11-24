@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { ChevronRight, FileText, HeartPulse, Settings, Stethoscope, User,ShieldCheck, Users,Lock,Smile,LifeBuoy,BarChart3 } from "lucide-react";
 import { useChild } from "@/components/ChildGate";
+import { useSettings } from "@/components/SettingsProvider";
+import { Target } from "lucide-react";
 
 const items = [
+  { href: "/objetivos", icon: Target, title: "Plan", text: "Objetivos, calendario, material y logros.", simpleOnly: true },
   { href: "/ficha", icon: HeartPulse, title: "Ficha del niño", text: "Datos generales, alergias, contactos y lo que le ayuda." },
   { href: "/plan-calma", icon: LifeBuoy, title: "Plan de calma", text: "Qué hacer y qué evitar cuando se siente mal." },
   { href: "/patrones", icon: BarChart3, title: "Patrones", text: "Lo que se repite en los registros." },
@@ -20,6 +23,7 @@ const items = [
 
 export default function Mas() {
   const { role } = useChild();
+  const { settings } = useSettings();
 
   return (
     <div className="grid gap-6">
@@ -30,7 +34,7 @@ export default function Mas() {
 
       <ul className="grid gap-3">
         {items
-          .filter((i) => !i.familyOnly || role === "familia")
+          .filter((i) => (!i.familyOnly || role === "familia") && (!("simpleOnly" in i) || settings.simple))
           .map(({ href, icon: Icon, title, text }) => (
             <li key={href}>
               <Link

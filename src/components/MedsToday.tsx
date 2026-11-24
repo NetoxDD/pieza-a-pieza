@@ -286,11 +286,11 @@ export default function MedsToday() {
             <p className="font-semibold [overflow-wrap:anywhere]">
               <span className="tabular-nums">{s.time}</span> · {s.med.name}
             </p>
-            <p className="text-xs text-[var(--muted)]">
+            <p className="text-sm text-[var(--muted)]">
               {[s.med.dose, s.med.frequency].filter(Boolean).join(" · ")}
             </p>
             <p
-              className={`mt-0.5 text-xs font-semibold ${
+              className={`mt-0.5 text-sm font-semibold ${
                 resolved?.status === "dada" ? "text-[var(--primary)]" : "text-[var(--muted)]"
               }`}
             >
@@ -374,13 +374,13 @@ export default function MedsToday() {
           </p>
 
           {actingStatus !== "omitida" && (
-            <label className="grid max-w-48 gap-1.5 text-xs font-semibold">
+            <label className="grid max-w-48 gap-1.5 text-sm font-semibold">
               {actingStatus === "pospuesta" ? "Posponer hasta" : "Hora en que se dio"}
               <input type="time" value={timeValue} onChange={(e) => setTimeValue(e.target.value)} className={input} />
             </label>
           )}
 
-          <label className="grid gap-1.5 text-xs font-semibold">
+          <label className="grid gap-1.5 text-sm font-semibold">
             {actingStatus === "omitida" ? "Motivo (opcional)" : "Nota (opcional)"}
             <input
               value={note}
@@ -462,16 +462,16 @@ export default function MedsToday() {
                 <li key={m.id} className="flex flex-wrap items-start justify-between gap-3 py-4">
                   <div className="min-w-0">
                     <p className="font-semibold [overflow-wrap:anywhere]">{m.name}</p>
-                    <p className="text-xs text-[var(--muted)]">
+                    <p className="text-sm text-[var(--muted)]">
                       {[m.dose, m.frequency].filter(Boolean).join(" · ")}
                     </p>
-                    <p className="mt-0.5 text-xs font-semibold text-[var(--muted)]">
+                    <p className="mt-0.5 text-sm font-semibold text-[var(--muted)]">
                       {last?.taken_at
                         ? `Última dosis: ${agoText(new Date(last.taken_at), now)} (${clock(last.taken_at)}, por ${who(last.recorded_by)})`
                         : "Sin dosis registradas en los últimos 7 días"}
                     </p>
                     {m.min_interval_hours != null && (
-                      <p className="text-xs text-[var(--muted)]">
+                      <p className="text-sm text-[var(--muted)]">
                         La familia indicó esperar al menos {m.min_interval_hours} h entre dosis.
                       </p>
                     )}
@@ -497,12 +497,12 @@ export default function MedsToday() {
       )}
 
       {loaded && !anyAllowed && meds.length > 0 && (
-        <p className="mt-3 text-xs text-[var(--muted)]">
+        <p className="mt-3 text-sm text-[var(--muted)]">
           Puedes ver las tomas, pero tu rol no las registra en estas medicinas.
         </p>
       )}
 
-      <p className="mt-4 text-xs text-[var(--muted)]">
+      <p className="mt-4 text-sm text-[var(--muted)]">
         La app es un registro y un recordatorio: no sugiere dosis ni sustituye la indicación del médico. Si
         no hay internet no se pueden registrar dosis: anótalo y regístralo después con la hora real. No
         sustituye una alarma propia.

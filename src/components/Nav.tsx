@@ -5,11 +5,12 @@ import { usePathname } from "next/navigation";
 import { Home, ClipboardList, MessageCircle, Target, Menu } from "lucide-react";
 import { useToday } from "@/components/TodayProvider";
 import { useSidebarMin } from "@/lib/sidebar";
+import { useSettings } from "@/components/SettingsProvider";
 
 // Las 5 secciones principales. Todo lo demás está dentro de "Más".
 const MORE_ROUTES = ["/mas", "/ficha", "/documentos", "/equipo", "/perfil", "/ajustes", "/informe", "/datos", "/privacidad", "/plan-calma", "/patrones", "/ninos"];
 
-const ITEMS = [
+const ALL_ITEMS = [
   { href: "/", label: "Inicio", icon: Home, match: (p: string) => p === "/" },
   { href: "/registro", label: "Día a día", icon: ClipboardList, match: (p: string) => p.startsWith("/registro") },
   {
@@ -37,6 +38,9 @@ export default function Nav() {
   const pathname = usePathname();
   const { attention } = useToday();
   const min = useSidebarMin();
+  const { settings } = useSettings();
+  // En la vista sencilla "Plan" se mueve a "Más"
+  const items = settings.simple ? ALL_ITEMS.filter((i) => i.href !== "/objetivos") : ALL_ITEMS;
 
   return (
     <>
@@ -46,7 +50,7 @@ export default function Nav() {
         style={{ transition: "width 0.2s ease" }}
       >
         <nav aria-label="Navegación principal" className="grid gap-1.5">
-          {ITEMS.map(({ href, label, icon: Icon, match }) => {
+          {items.map(({ href, label, icon: Icon, match }) => {
             const active = match(pathname);
             return (
               <Link
@@ -84,9 +88,10 @@ export default function Nav() {
       {/* Barra inferior: celular */}
       <nav
         aria-label="Navegación principal"
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[var(--border)] bg-[var(--surface)]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+        style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
+        className="fixed inset-x-0 bottom-0 z-40 grid border-t border-[var(--border)] bg-[var(--surface)]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
       >
-        {ITEMS.map(({ href, label, icon: Icon, match }) => {
+        {items.map(({ href, label, icon: Icon, match }) => {
           const active = match(pathname);
           return (
             <Link

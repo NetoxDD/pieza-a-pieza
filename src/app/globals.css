@@ -92,9 +92,20 @@ html { font-size: 100%; }
   --radius-2xl: 1.75rem; --radius-3xl: 2.25rem;
 }
 
+:root[data-palette="coral"] {
+  --background: #faf6f5; --sidebar: #f4ecea; --surface: #ffffff;
+  --text: #40292a; --muted: #6f5654;
+  --primary: #9a4f4f; --primary-hover: #7c3f3f; --primary-alto: #6b3434;
+  --primary-bright: #e9c4c0; --on-primary: #ffffff;
+  --sage: #f6e4e4; --blue: #eaf0f3; --blue-text: #4d6d83;
+  --border: #ead9d6; --sand: #f7eddc; --sand-text: #6b5530; --danger: #a31621;
+  --radius-xl: 0.875rem; --radius-2xl: 1.25rem;
+}
+
 /* Letra propia de cada tema (la de "alta legibilidad" la sustituye) */
 :root[data-palette="calida"] body { font-family: var(--font-atkinson), system-ui, sans-serif; }
 :root[data-palette="calida"] h1, :root[data-palette="calida"] h2 { font-family: var(--font-fraunces), Georgia, serif; }
+:root[data-palette="coral"] body { font-family: var(--font-atkinson), system-ui, sans-serif; }
 :root[data-palette="clara"] body { font-family: var(--font-plex), system-ui, sans-serif; }
 :root[data-palette="ludica"] body { font-family: var(--font-nunito), system-ui, sans-serif; }
 :root[data-palette="calida"][data-font="legible"] h1,
@@ -163,6 +174,13 @@ html { font-size: 100%; }
   --primary: #a3c99a; --primary-hover: #bbdab3; --primary-bright: #bbdab3; --on-primary: #14211a;
   --sage: #2c3a2a; --blue: #22303a; --blue-text: #a9cbe0; --border: #3a3424;
   --sand: #3d3418; --sand-text: #f1e3b4; --danger: #f19999;
+}
+
+:root[data-theme="oscuro"][data-palette="coral"] {
+  --background: #181110; --sidebar: #1e1514; --surface: #231a19; --text: #f3e6e4; --muted: #b79a97;
+  --primary: #e0a0a0; --primary-hover: #eab4b4; --primary-bright: #f2c6c6; --on-primary: #2a1212;
+  --sage: #332121; --blue: #1f2d36; --blue-text: #9cc0d6; --border: #3f2d2b;
+  --sand: #3a2e1f; --sand-text: #ecd9a0; --danger: #f19999;
 }
 
 /* ===================== Tema oscuro + contraste alto ===================== */

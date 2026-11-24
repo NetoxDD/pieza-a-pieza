@@ -200,6 +200,17 @@ export default function Welcome() {
               Cómo quieres verla
             </h1>
             <p className="text-sm text-[var(--muted)]">Los cambios se aplican al instante.</p>
+            <Choice<"simple" | "completa">
+                  legend="Vista de la aplicación"
+                  hint="La vista sencilla muestra solo lo más importante: lo siguiente, unos pocos botones grandes y menos opciones en el menú."
+                  value={settings.simple ? "simple" : "completa"}
+                  options={[
+                    { value: "simple", label: "Sencilla" },
+                    { value: "completa", label: "Completa" },
+                  ]}
+                  onChange={(v) => update({ simple: v === "simple" })}
+                />
+
             <PalettePicker value={settings.palette} onChange={(p) => update({ palette: p })} />
             <Choice<Settings["fontScale"]>
               legend="Tamaño de letra"

@@ -10,7 +10,7 @@ export default function PalettePicker({
   return (
     <fieldset className="grid gap-2">
       <legend className="text-sm font-semibold">Estilo de la aplicación</legend>
-      <div className="mt-1 grid gap-3 sm:grid-cols-3">
+      <div className="mt-1 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {PALETTES.map((p) => (
           <label
             key={p.id}

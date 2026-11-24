@@ -230,13 +230,13 @@ export default function Informe() {
               {s.label}
             </label>
           ))}
-          <p className="text-xs text-[var(--muted)]">
+          <p className="text-sm text-[var(--muted)]">
             Las observaciones solo entran si las marcaste con «Incluir en el informe» en Día a día →
             Observaciones. Las rutinas nunca se incluyen.
           </p>
         </fieldset>
 
-        <label className="grid gap-1.5 text-xs font-semibold">
+        <label className="grid gap-1.5 text-sm font-semibold">
           Preguntas para la consulta (opcional)
           <textarea
             value={questions}

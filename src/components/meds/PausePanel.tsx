@@ -31,7 +31,7 @@ const primary =
 const ghost =
   "min-h-11 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-[var(--primary)] hover:bg-[var(--sage)] disabled:opacity-60";
 const small =
-  "min-h-11 rounded-lg px-3 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--sage)] hover:text-[var(--primary)] disabled:opacity-40";
+  "min-h-11 rounded-lg px-3 text-sm font-semibold text-[var(--muted)] hover:bg-[var(--sage)] hover:text-[var(--primary)] disabled:opacity-40";
 
 type Act = { id: string; kind: "resume" | "end" };
 
@@ -142,7 +142,7 @@ export default function PausePanel({
                 </span>
               )}
             </p>
-            {isFamily && p.reason && <p className="mt-1 text-xs text-[var(--muted)]">Motivo: {p.reason}</p>}
+            {isFamily && p.reason && <p className="mt-1 text-sm text-[var(--muted)]">Motivo: {p.reason}</p>}
 
             {isFamily && p.source === "manual" && act?.id !== p.id && (
               <div className="mt-2 flex flex-wrap gap-1">
@@ -181,7 +181,7 @@ export default function PausePanel({
 
             {isFamily && act?.id === p.id && (
               <form onSubmit={(e) => submitAct(p, e)} className="mt-3 flex flex-wrap items-end gap-3">
-                <label className="grid gap-1.5 text-xs font-semibold">
+                <label className="grid gap-1.5 text-sm font-semibold">
                   {act.kind === "resume" ? "Se reanuda el" : "Último día de pausa"}
                   <input
                     type="date"
@@ -205,10 +205,10 @@ export default function PausePanel({
 
       {past.length > 0 && (
         <details>
-          <summary className="min-h-11 cursor-pointer text-xs font-semibold text-[var(--primary)]">
+          <summary className="min-h-11 cursor-pointer text-sm font-semibold text-[var(--primary)]">
             Pausas anteriores
           </summary>
-          <ul className="mt-1 grid gap-1 text-xs text-[var(--muted)]">
+          <ul className="mt-1 grid gap-1 text-sm text-[var(--muted)]">
             {past.map((p) => (
               <li key={p.id}>{line(p)}</li>
             ))}
@@ -227,7 +227,7 @@ export default function PausePanel({
       {isFamily && creating && (
         <form onSubmit={create} className="grid gap-4 rounded-xl bg-[var(--background)] p-4">
           <div className="flex flex-wrap items-end gap-4">
-            <label className="grid gap-1.5 text-xs font-semibold">
+            <label className="grid gap-1.5 text-sm font-semibold">
               Desde
               <input
                 type="date"
@@ -237,16 +237,16 @@ export default function PausePanel({
                 className={input}
               />
             </label>
-            <label className="grid gap-1.5 text-xs font-semibold">
+            <label className="grid gap-1.5 text-sm font-semibold">
               Hasta (opcional)
               <input type="date" value={to} min={from} onChange={(e) => setTo(e.target.value)} className={input} />
             </label>
           </div>
-          <label className="grid gap-1.5 text-xs font-semibold">
+          <label className="grid gap-1.5 text-sm font-semibold">
             Motivo (opcional, solo lo ve la familia)
             <input value={why} onChange={(e) => setWhy(e.target.value)} maxLength={200} className={input} />
           </label>
-          <p className="text-xs text-[var(--muted)]">
+          <p className="text-sm text-[var(--muted)]">
             Durante la pausa no habrá tomas: no aparecen en Hoy, no cuentan como «sin registrar» y no gastan inventario.
             No se puede pausar hacia atrás de ayer.
           </p>

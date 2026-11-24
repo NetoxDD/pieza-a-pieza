@@ -1,5 +1,5 @@
 export type FontScale = "normal" | "grande" | "muy-grande";
-export type Palette = "calida" | "clara" | "ludica";
+export type Palette = "calida" | "clara" | "ludica" | "coral";
 
 export type Settings = {
   fontScale: FontScale;
@@ -9,17 +9,19 @@ export type Settings = {
   font: "normal" | "legible";
   alerts: boolean;
   palette: Palette;
+  simple: boolean;
 };
 
 export const PALETTES: { id: Palette; label: string; hint: string; colors: [string, string, string] }[] = [
   { id: "calida", label: "Cálida y calmada", hint: "Tonos suaves y letra con calidez.", colors: ["#f6f2e9", "#3f5e45", "#cdb574"] },
   { id: "clara", label: "Clara y profesional", hint: "Limpia, sobria y muy ordenada.", colors: ["#f3f6f8", "#2c566e", "#bccfdb"] },
+  { id: "coral", label: "Coral suave", hint: "Rojizo suave, cercano y acogedor.", colors: ["#faf6f5", "#9a4f4f", "#e9c4c0"] },
   { id: "ludica", label: "Lúdica", hint: "Redondeada y con colores alegres.", colors: ["#fff8e8", "#34553a", "#a3b899"] },
 ];
 
 // Los nombres de las paletas anteriores se convierten a los temas nuevos
 export function normalizePalette(p: unknown): Palette {
-  if (p === "calida" || p === "clara" || p === "ludica") return p;
+  if (p === "calida" || p === "clara" || p === "ludica" || p === "coral") return p;
   if (p === "oceano") return "clara";
   return "calida";
 }
@@ -39,6 +41,7 @@ export function systemDefaults(): Settings {
     theme: "auto",
     font: "normal",
     palette: "calida",
+    simple: false,
   };
 }
 
@@ -72,6 +75,7 @@ export function applySettings(s: Settings) {
   el.dataset.calm = s.calm ? "si" : "no";
   el.dataset.font = s.font;
   el.dataset.palette = s.palette;
+  el.dataset.simple = s.simple ? "si" : "no";
   el.dataset.theme = dark ? "oscuro" : "claro";
   el.style.colorScheme = dark ? "dark" : "light";
 }
@@ -88,7 +92,8 @@ d.dataset.fontscale=(s&&s.fontScale)||'normal';
 d.dataset.contrast=(s&&s.contrast)||'normal';
 d.dataset.calm=calm?'si':'no';
 d.dataset.font=(s&&s.font)||'normal';
-d.dataset.palette=(['calida','clara','ludica'].indexOf(s&&s.palette)>-1?s.palette:(s&&s.palette==='oceano'?'clara':'calida'));
+d.dataset.simple=(s&&s.simple)?'si':'no';
+d.dataset.palette=(['calida','clara','ludica','coral'].indexOf(s&&s.palette)>-1?s.palette:(s&&s.palette==='oceano'?'clara':'calida'));
 d.dataset.theme=dark?'oscuro':'claro';
 d.style.colorScheme=dark?'dark':'light';
 try{d.dataset.sidebar=localStorage.getItem('pap:sidebar')==='min'?'min':'full'}catch(e){d.dataset.sidebar='full'}

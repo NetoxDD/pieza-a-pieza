@@ -82,7 +82,7 @@ export default function DoseHistory({ meds, isFamily }: { meds: Med[]; isFamily:
     <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">Historial de los últimos 30 días</h2>
-        <label className="flex items-center gap-2 text-xs font-semibold">
+        <label className="flex items-center gap-2 text-sm font-semibold">
           Medicina
           <select value={filter} onChange={(e) => setFilter(e.target.value)} className={input}>
             <option value="todas">Todas</option>
@@ -95,7 +95,7 @@ export default function DoseHistory({ meds, isFamily }: { meds: Med[]; isFamily:
         </label>
       </div>
 
-      <p className="mt-2 text-xs text-[var(--muted)]">
+      <p className="mt-2 text-sm text-[var(--muted)]">
         Los registros no se borran ni se editan. Si hubo un error, se anula con un motivo, y la anulación
         también queda registrada.
       </p>
@@ -126,7 +126,7 @@ export default function DoseHistory({ meds, isFamily }: { meds: Med[]; isFamily:
                         ? " · solo si es necesario"
                         : ""}
                     </p>
-                    <p className="text-xs text-[var(--muted)]">
+                    <p className="text-sm text-[var(--muted)]">
                       {d.status === "dada" && d.taken_at ? `Se dio: ${when(d.taken_at)} · ` : ""}
                       {d.status === "pospuesta" && d.postponed_until
                         ? `Pospuesta hasta las ${hhmm(d.postponed_until)} · `
@@ -157,7 +157,7 @@ export default function DoseHistory({ meds, isFamily }: { meds: Med[]; isFamily:
 
                 {voidingId === d.id && (
                   <div className="mt-2 grid gap-2 rounded-xl bg-[var(--background)] p-3">
-                    <label className="grid gap-1.5 text-xs font-semibold">
+                    <label className="grid gap-1.5 text-sm font-semibold">
                       Motivo de la anulación
                       <input
                         value={reason}
@@ -199,7 +199,7 @@ export default function DoseHistory({ meds, isFamily }: { meds: Med[]; isFamily:
       )}
 
       {!isFamily && (
-        <p className="mt-3 text-xs text-[var(--muted)]">
+        <p className="mt-3 text-sm text-[var(--muted)]">
           Puedes anular un registro tuyo durante los 10 minutos siguientes. Después, solo la familia.
         </p>
       )}
