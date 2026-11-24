@@ -22,6 +22,7 @@ type Ctx = {
   hasMeds: boolean;
   hasRoutines: boolean;
   nextDose: { med: string; time: string } | null;
+  lateSlot: { medId: string; med: string; date: string; time: string; yesterday: boolean } | null;
   nextSlot: { medId: string; med: string; date: string; time: string; due: number } | null;
   lateDoses: number;
   pendingSteps: number;
@@ -34,6 +35,7 @@ const EMPTY: Ctx = {
   hasMeds: false,
   hasRoutines: false,
   nextDose: null,
+  lateSlot: null,
   nextSlot: null,
   lateDoses: 0,
   pendingSteps: 0,
@@ -83,6 +85,10 @@ export default function TodayProvider({ children }: { children: React.ReactNode 
     const lateDoses = slots.filter((s) => s.late).length;
     const upcoming = slots.filter((s) => !s.late && !s.yesterday).sort((a, b) => a.due.getTime() - b.due.getTime())[0];
     const nextDose = upcoming ? { med: upcoming.med.name, time: upcoming.time } : null;
+    const lateFirst = slots.filter((s) => s.late).sort((a, b) => a.due.getTime() - b.due.getTime())[0];
+    const lateSlot = lateFirst
+      ? { medId: lateFirst.med.id, med: lateFirst.med.name, date: lateFirst.date, time: lateFirst.time, yesterday: lateFirst.yesterday }
+      : null;
     const nextSlot = upcoming
       ? { medId: upcoming.med.id, med: upcoming.med.name, date: upcoming.date, time: upcoming.time, due: upcoming.due.getTime() }
       : null;
@@ -265,6 +271,7 @@ export default function TodayProvider({ children }: { children: React.ReactNode 
       hasMeds: meds.length > 0,
       hasRoutines,
       nextDose,
+      lateSlot,
       nextSlot,
       lateDoses,
       pendingSteps,
