@@ -7,6 +7,7 @@ import { useChild } from "@/components/ChildGate";
 import NextEvent from "@/components/NextEvent";
 import WeeklyChart from "@/components/WeeklyChart";
 import GoalMaterials from "@/components/GoalMaterials";
+import { ErrorBlock, LoadingBlock, EmptyBlock } from "@/components/ui/States";
 
 type Support = { id: string; text: string; active: boolean; created_at: string };
 type Goal = {
@@ -437,21 +438,17 @@ export default function Objetivos() {
         </form>
       )}
 
-      {error && (
-        <p role="alert" className="text-sm text-[var(--danger)]">
-          {error}
-        </p>
-      )}
+      {error && <ErrorBlock message={error} />}
 
       <WeeklyChart />
 
       <div className="grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="grid gap-6">
-          {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
+          {loading && <LoadingBlock />}
           {!loading && goals.length === 0 && (
-            <p className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-sm text-[var(--muted)]">
-              Todavía no hay objetivos. Crea el primero con el botón «+ Nuevo objetivo».
-            </p>
+            <EmptyBlock title="Todavía no hay objetivos">
+              Un objetivo es algo pequeño que quieren lograr juntos. Crea el primero con el botón «+ Nuevo objetivo».
+            </EmptyBlock>
           )}
           {goals.map((g) => (
             <GoalCard key={g.id} goal={g} userId={userId} reload={load} />

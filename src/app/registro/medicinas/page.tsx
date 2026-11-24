@@ -10,6 +10,7 @@ import DoseHistory from "@/components/meds/DoseHistory";
 import { childColor, initials } from "@/lib/childColor";
 import { MED_COLS, fetchPauses, fetchRunouts, type Pause, type Runout, type Med } from "@/lib/meds";
 import { localDate } from "@/lib/routines";
+import { ErrorBlock, LoadingBlock } from "@/components/ui/States";
 
 type DocOpt = { id: string; title: string; valid_until: string | null };
 
@@ -131,12 +132,8 @@ export default function Medicinas() {
         </p>
       ) : (
         <>
-          {error && (
-            <p role="alert" className="text-sm text-[var(--danger)]">
-              {error}
-            </p>
-          )}
-          {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
+          {error && <ErrorBlock message={error} />}
+          {loading && <LoadingBlock />}
 
           {!loading && active.length === 0 && (
             <p className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-sm text-[var(--muted)]">

@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
 import RoutineEditorCard from "@/components/routines/RoutineEditorCard";
 import { DAY_LABELS, placeLabel, type Routine, type Step } from "@/lib/routines";
+import { ErrorBlock, LoadingBlock } from "@/components/ui/States";
 
 const input =
   "min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-normal";
@@ -230,12 +231,8 @@ export default function Rutinas() {
         </form>
       )}
 
-      {error && (
-        <p role="alert" className="text-sm text-[var(--danger)]">
-          {error}
-        </p>
-      )}
-      {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
+      {error && <ErrorBlock message={error} />}
+      {loading && <LoadingBlock />}
 
       {!loading && !error && visible.length === 0 && (
         <div className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">

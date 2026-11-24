@@ -7,6 +7,7 @@ import { useProfiles } from "@/components/ProfilesProvider";
 import EpisodeForm from "@/components/episodes/EpisodeForm";
 import EpisodeCard from "@/components/episodes/EpisodeCard";
 import { EP_COLS, INTENSITY, PLACES, type Episode } from "@/lib/episodes";
+import { EmptyBlock } from "@/components/ui/States";
 
 const PERIODS = [
   { days: 7, label: "7 días" },
@@ -191,8 +192,14 @@ export default function Episodios() {
 
         <ul className="mt-2 divide-y divide-[var(--border)]">
           {!loading && shown.length === 0 && (
-            <li className="py-6 text-sm text-[var(--muted)]">
-              {eps.length === 0 ? "No hay episodios registrados en este periodo." : "Ninguno coincide con los filtros."}
+            <li className="py-4">
+              {eps.length === 0 ? (
+                <EmptyBlock title="No hay episodios en este periodo">
+                  Es una buena señal. Si pasa algo difícil, usa «Registrar un episodio» para anotar lo que pasó antes, durante y después.
+                </EmptyBlock>
+              ) : (
+                <EmptyBlock title="Ninguno coincide con los filtros">Prueba con otro periodo, intensidad o lugar.</EmptyBlock>
+              )}
             </li>
           )}
           {shown.map((ep) => (

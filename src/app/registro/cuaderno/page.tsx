@@ -18,6 +18,7 @@ import {
   type Entry,
   type Side,
 } from "@/lib/notebook";
+import { ErrorBlock, LoadingBlock } from "@/components/ui/States";
 
 const longDay = (iso: string) =>
   new Date(`${iso}T12:00:00`).toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" });
@@ -316,12 +317,8 @@ export default function Cuaderno() {
         </p>
       </div>
 
-      {error && (
-        <p role="alert" className="text-sm text-[var(--danger)]">
-          {error}
-        </p>
-      )}
-      {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
+      {error && <ErrorBlock message={error} />}
+      {loading && <LoadingBlock />}
 
       {requests.length > 0 && (
         <section aria-label="Pedidos del otro lado" className="rounded-2xl bg-[var(--sand)] p-5 text-[var(--sand-text)]">

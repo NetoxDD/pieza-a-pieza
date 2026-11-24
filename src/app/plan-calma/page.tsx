@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
 import { useChildProfile } from "@/components/ChildProfileProvider";
 import { CALM_COLS, CALM_KINDS, MAX_ITEMS, type CalmItem, type CalmKind } from "@/lib/calm";
+import { ErrorBlock, LoadingBlock } from "@/components/ui/States";
 
 const sync = () => window.dispatchEvent(new Event("pap:calm-sync"));
 
@@ -287,12 +288,8 @@ export default function PlanCalma() {
         </p>
       </div>
 
-      {error && (
-        <p role="alert" className="text-sm text-[var(--danger)]">
-          {error}
-        </p>
-      )}
-      {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
+      {error && <ErrorBlock message={error} />}
+      {loading && <LoadingBlock />}
 
       {!loading && total === 0 && !isFamily && (
         <p className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-sm text-[var(--muted)]">

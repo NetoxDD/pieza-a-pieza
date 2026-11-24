@@ -9,6 +9,7 @@ import { useProfiles } from "@/components/ProfilesProvider";
 import MedsToday from "@/components/MedsToday";
 import { MARK_ROLES, hhmm, isoWeekday, localDate, placeLabel, type Routine, type Step } from "@/lib/routines";
 import PausedNote from "@/components/meds/PausedNote";
+import { ErrorBlock, LoadingBlock } from "@/components/ui/States";
 
 type DoneInfo = { done_by: string; done_at: string };
 
@@ -188,12 +189,8 @@ export default function Hoy() {
       </div>
       <MedsToday />
 
-      {error && (
-        <p role="alert" className="text-sm text-[var(--danger)]">
-          {error}
-        </p>
-      )}
-      {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
+      {error && <ErrorBlock message={error} />}
+      {loading && <LoadingBlock />}
 
       {!loading && !error && ordered.length === 0 && (
         <p className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-sm text-[var(--muted)]">

@@ -12,6 +12,7 @@ import { ageText } from "@/lib/ficha";
 import { localDate } from "@/lib/routines";
 import { summarizeWellbeing } from "@/lib/wellbeing";
 import { summarizeEpisodes, type EpRow } from "@/lib/patterns";
+import { ErrorBlock } from "@/components/ui/States";
 
 const MOODS = ["Contento", "Tranquilo", "Neutro", "Incómodo", "Triste", "Frustrado"];
 
@@ -248,11 +249,7 @@ export default function Informe() {
           />
         </label>
 
-        {error && (
-          <p role="alert" className="text-sm text-[var(--danger)]">
-            {error}
-          </p>
-        )}
+        {error && <ErrorBlock message={error} />}
 
         <div>
           <button

@@ -20,6 +20,7 @@ import {
   type Med,
   type SlotRow,
 } from "@/lib/meds";
+import { isNetworkError } from "@/lib/offlineQueue";
 
 type Slot = { med: Med; time: string; date: string; yesterday: boolean; units: number; };
 type Acting =
@@ -248,7 +249,9 @@ export default function MedsToday() {
     setBusy(false);
     if (insertError) {
       setMsg(
-        insertError.code === "23505"
+        isNetworkError(insertError)
+          ? "Sin conexión: la toma NO se registró. Para evitar que se repita, avisa a quien esté con él y vuelve a intentarlo cuando haya señal."
+          : insertError.code === "23505"
           ? "Otra persona ya registró esta toma un instante antes. Se actualizó la lista."
           : doseError(insertError.message)
       );

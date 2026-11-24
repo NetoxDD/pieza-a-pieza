@@ -18,6 +18,7 @@ import {
   type Meal,
   type Sleep,
 } from "@/lib/wellbeing";
+import { ErrorBlock, LoadingBlock } from "@/components/ui/States";
 
 const daysAgo = (n: number) => {
   const d = new Date();
@@ -234,12 +235,8 @@ export default function Bienestar() {
         </p>
       </div>
 
-      {error && (
-        <p role="alert" className="text-sm text-[var(--danger)]">
-          {error}
-        </p>
-      )}
-      {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
+      {error && <ErrorBlock message={error} />}
+      {loading && <LoadingBlock />}
 
       {canWrite && (
         <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">

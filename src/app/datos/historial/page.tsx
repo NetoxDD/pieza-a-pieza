@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
 import { useProfiles } from "@/components/ProfilesProvider";
 import { CATEGORIES, categoryLabel, describe, type AuditRow, type Category } from "@/lib/audit";
+import { ErrorBlock, LoadingBlock } from "@/components/ui/States";
 
 const PAGE = 100;
 const MAX = 1000;
@@ -148,12 +149,8 @@ export default function Historial() {
         </label>
       )}
 
-      {error && (
-        <p role="alert" className="text-sm text-[var(--danger)]">
-          {error}
-        </p>
-      )}
-      {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
+      {error && <ErrorBlock message={error} />}
+      {loading && <LoadingBlock />}
 
       {!loading && shown.length === 0 && (
         <p className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-sm text-[var(--muted)]">

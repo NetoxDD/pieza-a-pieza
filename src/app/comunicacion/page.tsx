@@ -8,6 +8,7 @@ import Link from "next/link";
 import Avatar from "@/components/Avatar";
 import { useProfiles } from "@/components/ProfilesProvider";
 import { roleLabel } from "@/lib/roles";
+import { LoadingBlock } from "@/components/ui/States";
 
 
 type Msg = { id: string; author_id: string; body: string; created_at: string };
@@ -131,7 +132,7 @@ export default function Comunicacion() {
             aria-label="Mensajes del equipo"
             className="mt-4 flex h-[420px] flex-col gap-4 overflow-y-auto pr-1"
           >
-            {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
+            {loading && <LoadingBlock />}
             {!loading && messages.length === 0 && (
               <p className="m-auto text-center text-sm text-[var(--muted)]">
                 Aún no hay mensajes. Escribe el primero.

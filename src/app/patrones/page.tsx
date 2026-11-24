@@ -17,6 +17,7 @@ import {
   weeklySleep,
   type EpRow,
 } from "@/lib/patterns";
+import { ErrorBlock, LoadingBlock } from "@/components/ui/States";
 
 const PERIODS = [
   { days: 30, label: "30 días" },
@@ -150,12 +151,8 @@ export default function Patrones() {
         Ninguno se muestra con menos de {MIN_POINTS} registros.
       </p>
 
-      {error && (
-        <p role="alert" className="text-sm text-[var(--danger)]">
-          {error}
-        </p>
-      )}
-      {loading && <p className="text-sm text-[var(--muted)]">Calculando…</p>}
+      {error && <ErrorBlock message={error} />}
+      {loading && <LoadingBlock />}
       {capped && (
         <p className="text-xs text-[var(--muted)]">
           Hay más de {LIMIT} registros en algún apartado: se usaron los más recientes.

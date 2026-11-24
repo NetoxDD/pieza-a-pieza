@@ -9,6 +9,7 @@ import PalettePicker from "@/components/PalettePicker";
 import { ACCENTS, childColor } from "@/lib/childColor";
 import type { Settings } from "@/lib/settings";
 import EmergencyDeviceSettings from "@/components/EmergencyDeviceSettings";
+import PushSettings from "@/components/PushSettings";
 
 export default function Ajustes() {
   const { settings, update, reset, restartOnboarding } = useSettings();
@@ -115,6 +116,7 @@ export default function Ajustes() {
           onChange={(v) => update({ alerts: v === "si" })}
         />
       </section>
+      <PushSettings />
       <EmergencyDeviceSettings />
 
       {role === "familia" && (

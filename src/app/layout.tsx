@@ -14,6 +14,7 @@ import Welcome from "@/components/Welcome";
 import TodayProvider from "@/components/TodayProvider";
 import ChildProfileProvider from "@/components/ChildProfileProvider";
 import InviteCapture from "@/components/InviteCapture";
+import SyncBanner from "@/components/SyncBanner";
 
 const legible = Atkinson_Hyperlegible({
   weight: ["400", "700"],
@@ -61,6 +62,7 @@ export default function RootLayout({
     <ChildHeader />
     <Nav />
     <div className="side-pad pb-24 md:pb-0 md:pl-[var(--side-w)]">
+      <SyncBanner />
       <main className="mx-auto max-w-5xl p-5 md:p-9">
         <SectionTabs />
         {children}

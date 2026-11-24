@@ -1,0 +1,85 @@
+{
+  "categories": [
+    {
+      "id": "frases",
+      "title": "Quiero decir",
+      "emoji": "💬",
+      "items": [
+        { "key": "yo-quiero", "label": "Yo quiero", "emoji": "🙋", "query": "querer" },
+        { "key": "no-quiero", "label": "No quiero", "emoji": "🚫", "query": "no querer" },
+        { "key": "necesito", "label": "Necesito", "emoji": "🙏", "query": "necesitar" },
+        { "key": "me-duele", "label": "Me duele", "emoji": "🤕", "query": "dolor" },
+        { "key": "ayuda", "label": "Ayuda", "emoji": "🆘", "query": "ayuda" },
+        { "key": "por-favor", "label": "Por favor", "emoji": "🤲", "query": "por favor" },
+        { "key": "gracias", "label": "Gracias", "emoji": "💛", "query": "gracias" },
+        { "key": "mas", "label": "Más", "emoji": "➕", "query": "más" },
+        { "key": "terminado", "label": "Terminé", "emoji": "✅", "query": "terminado" }
+      ]
+    },
+    {
+      "id": "comer",
+      "title": "Comer y beber",
+      "emoji": "🍎",
+      "items": [
+        { "key": "agua", "label": "Agua", "emoji": "💧", "query": "agua" },
+        { "key": "comer", "label": "Comer", "emoji": "🍽️", "query": "comer" },
+        { "key": "leche", "label": "Leche", "emoji": "🥛", "query": "leche" },
+        { "key": "fruta", "label": "Fruta", "emoji": "🍎", "query": "fruta" },
+        { "key": "pan", "label": "Pan", "emoji": "🍞", "query": "pan" },
+        { "key": "sopa", "label": "Sopa", "emoji": "🍲", "query": "sopa" }
+      ]
+    },
+    {
+      "id": "necesidades",
+      "title": "Mi cuerpo",
+      "emoji": "🚻",
+      "items": [
+        { "key": "bano", "label": "Baño", "emoji": "🚽", "query": "baño" },
+        { "key": "dormir", "label": "Dormir", "emoji": "😴", "query": "dormir" },
+        { "key": "descansar", "label": "Descansar", "emoji": "🛋️", "query": "descansar" },
+        { "key": "abrazo", "label": "Abrazo", "emoji": "🤗", "query": "abrazo" },
+        { "key": "silencio", "label": "Silencio", "emoji": "🤫", "query": "silencio" },
+        { "key": "medicina", "label": "Medicina", "emoji": "💊", "query": "medicina" }
+      ]
+    },
+    {
+      "id": "sentimientos",
+      "title": "Cómo me siento",
+      "emoji": "😊",
+      "items": [
+        { "key": "contento", "label": "Contento", "emoji": "😊", "query": "contento" },
+        { "key": "triste", "label": "Triste", "emoji": "😢", "query": "triste" },
+        { "key": "enojado", "label": "Enojado", "emoji": "😠", "query": "enfadado" },
+        { "key": "cansado", "label": "Cansado", "emoji": "🥱", "query": "cansado" },
+        { "key": "miedo", "label": "Miedo", "emoji": "😨", "query": "miedo" },
+        { "key": "enfermo", "label": "Enfermo", "emoji": "🤒", "query": "enfermo" }
+      ]
+    },
+    {
+      "id": "acciones",
+      "title": "Quiero hacer",
+      "emoji": "🧸",
+      "items": [
+        { "key": "jugar", "label": "Jugar", "emoji": "🧸", "query": "jugar" },
+        { "key": "salir", "label": "Salir", "emoji": "🚪", "query": "salir" },
+        { "key": "musica", "label": "Música", "emoji": "🎵", "query": "música" },
+        { "key": "dibujar", "label": "Dibujar", "emoji": "🖍️", "query": "dibujar" },
+        { "key": "television", "label": "Televisión", "emoji": "📺", "query": "televisión" },
+        { "key": "tableta", "label": "Tableta", "emoji": "📱", "query": "tableta" }
+      ]
+    },
+    {
+      "id": "personas",
+      "title": "Personas",
+      "emoji": "👨‍👩‍👧",
+      "items": [
+        { "key": "mama", "label": "Mamá", "emoji": "👩", "query": "madre" },
+        { "key": "papa", "label": "Papá", "emoji": "👨", "query": "padre" },
+        { "key": "maestra", "label": "Maestra", "emoji": "👩‍🏫", "query": "maestra" },
+        { "key": "hermano", "label": "Hermano", "emoji": "🧒", "query": "hermano" },
+        { "key": "abuela", "label": "Abuela", "emoji": "👵", "query": "abuela" },
+        { "key": "abuelo", "label": "Abuelo", "emoji": "👴", "query": "abuelo" }
+      ]
+    }
+  ]
+}

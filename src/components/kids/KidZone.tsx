@@ -13,12 +13,14 @@ import Breathe from "@/components/kids/Breathe";
 import Memory from "@/components/kids/Memory";
 import { checkPin, clearPin, hasPin, savePin } from "@/lib/kids";
 import KidWins from "@/components/kids/KidWins";
+import TalkBoard from "@/components/kids/TalkBoard";
 
 type Stage = "loading" | "setpin" | "confirmpin" | "play" | "exit";
    
-type Screen = "home" | "routine" | "feel" | "firstthen" | "breathe" | "memory" | "wins";
+type Screen = "home" | "routine" | "feel" | "firstthen" | "breathe" | "memory" | "wins" | "talk";
 
 const MENU: { id: Exclude<Screen, "home">; emoji: string; label: string }[] = [
+  { id: "talk", emoji: "💬", label: "Quiero decir" },
   { id: "routine", emoji: "🌞", label: "Mi día" },
   { id: "feel", emoji: "😊", label: "¿Cómo me siento?" },
   { id: "firstthen", emoji: "➡️", label: "Primero… Después…" },
@@ -171,6 +173,7 @@ export default function KidZone() {
             {screen === "breathe" && <Breathe />}
             {screen === "memory" && <Memory />}
             {screen === "wins" && <KidWins />}
+            {screen === "talk" && <TalkBoard />}
           </div>
         )}
       </div>

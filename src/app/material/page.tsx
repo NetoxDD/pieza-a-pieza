@@ -7,6 +7,7 @@ import { useProfiles } from "@/components/ProfilesProvider";
 import PublishForm from "@/components/material/PublishForm";
 import MaterialItem from "@/components/material/MaterialItem";
 import { CATEGORIES, PUBLISH_ROLES, type Material } from "@/lib/material";
+import { ErrorBlock, LoadingBlock } from "@/components/ui/States";
 
 export default function MaterialPage() {
   const { child, role, userId } = useChild();
@@ -131,12 +132,8 @@ export default function MaterialPage() {
         />
       )}
 
-      {error && (
-        <p role="alert" className="text-sm text-[var(--danger)]">
-          {error}
-        </p>
-      )}
-      {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
+      {error && <ErrorBlock message={error} />}
+      {loading && <LoadingBlock />}
 
       {!loading && items.length > 0 && (
         <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por categoría">

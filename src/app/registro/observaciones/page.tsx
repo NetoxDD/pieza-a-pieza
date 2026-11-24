@@ -24,6 +24,8 @@ import TagPicker from "@/components/observations/TagPicker";
 import PhotoPicker from "@/components/observations/PhotoPicker";
 import ObsPhotos from "@/components/observations/ObsPhotos";
 import VersionHistory from "@/components/observations/VersionHistory";
+import { EmptyBlock } from "@/components/ui/States";
+import { enqueue, isNetworkError } from "@/lib/offlineQueue";
 
 const LIMIT = 300;
 
@@ -148,11 +150,25 @@ export default function Observaciones() {
     setSaving(true);
     setError("");
     setNote("");
-    const { data, error } = await supabase
-      .from("observations")
-      .insert({ child_id: child.id, category: newCat, body, tags: newTags })
-      .select("id")
-      .single();
+    const row = { child_id: child.id, category: newCat, body, tags: newTags };
+    const offline = !navigator.onLine;
+    if (offline && newFiles.length) {
+      setSaving(false);
+      setError("Sin conexión: las fotos necesitan internet. Quita las fotos para guardarla en este dispositivo, o inténtalo cuando vuelva la señal.");
+      return;
+    }
+    const { data, error } = offline
+      ? { data: null, error: { message: "offline" } }
+      : await supabase.from("observations").insert(row).select("id").single();
+    if (error && isNetworkError(error) && !newFiles.length) {
+      // Sin señal: se guarda aquí y se envía sola al volver
+      enqueue({ userId, table: "observations", row, label: "Observación" });
+      setSaving(false);
+      setText("");
+      setNewTags([]);
+      setNote("Guardada en este dispositivo. Se publicará al volver la señal.");
+      return;
+    }
     if (error || !data) {
       setSaving(false);
       setError("No se pudo publicar la observación. Intenta de nuevo.");
@@ -312,8 +328,14 @@ export default function Observaciones() {
           <ul className="mt-2 divide-y divide-[var(--border)]">
             {loading && <li className="py-6 text-sm text-[var(--muted)]">Cargando…</li>}
             {!loading && visible.length === 0 && (
-              <li className="py-6 text-sm text-[var(--muted)]">
-                {obs.length === 0 ? "Aún no hay observaciones. ¡Escribe la primera!" : "Ninguna observación coincide con tu búsqueda."}
+              <li className="py-4">
+                {obs.length === 0 ? (
+                  <EmptyBlock title="Aún no hay observaciones">
+                    Anota algo que notaste hoy, sin juicios. Todo el equipo lo verá y ayuda a entender qué le sirve.
+                  </EmptyBlock>
+                ) : (
+                  <EmptyBlock title="Ninguna observación coincide">Prueba con otra palabra o quita los filtros.</EmptyBlock>
+                )}
               </li>
             )}
 

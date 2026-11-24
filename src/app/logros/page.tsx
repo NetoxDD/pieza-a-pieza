@@ -19,6 +19,7 @@ import {
   winError,
   type Win,
 } from "@/lib/wins";
+import { EmptyBlock } from "@/components/ui/States";
 
 const today = () => localDate();
 const daysAgo = (n: number) => {
@@ -343,8 +344,14 @@ export default function Logros() {
 
         <ul className="mt-2 divide-y divide-[var(--border)]">
           {!loading && shown.length === 0 && (
-            <li className="py-6 text-sm text-[var(--muted)]">
-              {wins.length === 0 ? "Todavía no hay logros. ¡Anota el primero!" : "No hay logros en esta área."}
+            <li className="py-4">
+              {wins.length === 0 ? (
+                <EmptyBlock title="Todavía no hay logros">
+                  Los logros pequeños también cuentan. Anota el primero para celebrarlo en equipo.
+                </EmptyBlock>
+              ) : (
+                <EmptyBlock title="No hay logros en esta área">Prueba con otra área.</EmptyBlock>
+              )}
             </li>
           )}
 

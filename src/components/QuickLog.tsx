@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
+import { enqueue, isNetworkError } from "@/lib/offlineQueue";
 
 const moods = [
   { emoji: "😊", label: "Contento" },
@@ -16,7 +17,8 @@ const moods = [
 const places = ["Casa", "Escuela", "Terapia", "Calle"];
 
 export default function QuickLog({ onSaved }: { onSaved?: () => void }) {
-  const { child } = useChild();
+  const { child, userId } = useChild();
+  const [queued, setQueued] = useState(false);
   const [mood, setMood] = useState<string | null>(null);
   const [place, setPlace] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -27,11 +29,21 @@ export default function QuickLog({ onSaved }: { onSaved?: () => void }) {
     if (!mood) return;
     setSaving(true);
     setError("");
-    const { error } = await supabase
-      .from("mood_logs")
-      .insert({ child_id: child.id, mood, place });
+    const row = { child_id: child.id, mood, place };
+    const { error } = navigator.onLine
+      ? await supabase.from("mood_logs").insert(row)
+      : { error: { message: "offline" } };
     setSaving(false);
 
+    if (error && isNetworkError(error)) {
+      // Sin señal: se guarda en este dispositivo y se envía solo al volver
+      enqueue({ userId, table: "mood_logs", row, label: `Ánimo: ${mood}` });
+      setMood(null);
+      setPlace(null);
+      setQueued(true);
+      setTimeout(() => setQueued(false), 6000);
+      return;
+    }
     if (error) {
       setError("No se pudo guardar el registro. Intenta de nuevo.");
       return;
@@ -101,6 +113,11 @@ export default function QuickLog({ onSaved }: { onSaved?: () => void }) {
         {saved && (
           <p role="status" className="text-sm font-medium text-[var(--primary)]">
             ✓ Registro guardado
+          </p>
+        )}
+        {queued && (
+          <p role="status" className="text-sm font-medium text-[var(--primary)]">
+            Guardado en este dispositivo. Se enviará al volver la señal.
           </p>
         )}
         {error && (

@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { useChild } from "@/components/ChildGate";
 import { useToday } from "@/components/TodayProvider";
 import { atTime, doseError } from "@/lib/meds";
+import { isNetworkError } from "@/lib/offlineQueue";
 
 function clock12(hhmm: string) {
   const [h, m] = hhmm.split(":").map(Number);
@@ -84,6 +85,10 @@ export default function NextUp() {
     });
     setBusy(false);
     if (e) {
+      if (isNetworkError(e)) {
+        setError("Sin conexión: la toma NO se registró. Para evitar que se repita, avisa a quien esté con él y vuelve a intentarlo cuando haya señal.");
+        return;
+      }
       setError(
         e.code === "23505" ? "Otra persona ya registró esta toma un instante antes." : doseError(e.message)
       );

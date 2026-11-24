@@ -11,6 +11,7 @@ import DocumentItem from "@/components/documents/DocumentItem";
 import FolderAccessPanel from "@/components/documents/FolderAccessPanel";
 import OrphanCleaner from "@/components/documents/OrphanCleaner";
 import { expiryOf, formatBytes, type Doc, type Folder } from "@/lib/documents";
+import { ErrorBlock, LoadingBlock } from "@/components/ui/States";
 
 const input =
   "min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-normal";
@@ -231,12 +232,8 @@ export default function Documentos() {
         </p>
       </div>
 
-      {error && (
-        <p role="alert" className="text-sm text-[var(--danger)]">
-          {error}
-        </p>
-      )}
-      {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
+      {error && <ErrorBlock message={error} />}
+      {loading && <LoadingBlock />}
 
       {!loading && canEdit && !consented && <ConsentCard />}
 

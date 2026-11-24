@@ -10,6 +10,7 @@ import ConditionsSection from "@/components/ficha/ConditionsSection";
 import ContactsSection from "@/components/ficha/ContactsSection";
 import HelpsSection from "@/components/ficha/HelpsSection";
 import PrivacySection from "@/components/ficha/PrivacySection";
+import { ErrorBlock, LoadingBlock } from "@/components/ui/States";
 
 export default function Ficha() {
   const { child } = useChild();
@@ -24,13 +25,9 @@ export default function Ficha() {
         </p>
       </div>
 
-      {error && (
-        <p role="alert" className="text-sm text-[var(--danger)]">
-          {error}
-        </p>
-      )}
+      {error && <ErrorBlock message={error} />}
 
-      {loading && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
+      {loading && <LoadingBlock />}
 
       {!loading && canEdit && !consented && <ConsentCard />}
 
