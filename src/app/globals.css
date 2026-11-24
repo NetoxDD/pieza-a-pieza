@@ -33,6 +33,12 @@
   --piece-dot: #8a6d1f;
 }
 
+/* Medidas del encabezado y del menú lateral */
+:root { --header-h: 4.5rem; --side-w: 15rem; }
+:root[data-sidebar="min"] { --side-w: 5rem; }
+html { scroll-padding-top: calc(var(--header-h) + 1rem); }
+.side-pad { transition: padding-left 0.2s ease; }
+
 body {
   background: var(--background);
   color: var(--text);

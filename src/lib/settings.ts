@@ -91,4 +91,5 @@ d.dataset.font=(s&&s.font)||'normal';
 d.dataset.palette=(['calida','clara','ludica'].indexOf(s&&s.palette)>-1?s.palette:(s&&s.palette==='oceano'?'clara':'calida'));
 d.dataset.theme=dark?'oscuro':'claro';
 d.style.colorScheme=dark?'dark':'light';
+try{d.dataset.sidebar=localStorage.getItem('pap:sidebar')==='min'?'min':'full'}catch(e){d.dataset.sidebar='full'}
 }catch(e){}})();`;

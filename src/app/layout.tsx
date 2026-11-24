@@ -58,9 +58,9 @@ export default function RootLayout({
 <ChildProfileProvider>
   <TodayProvider>
     <Welcome />
+    <ChildHeader />
     <Nav />
-    <div className="md:pl-60 pb-24 md:pb-0">
-      <ChildHeader />
+    <div className="side-pad pb-24 md:pb-0 md:pl-[var(--side-w)]">
       <main className="mx-auto max-w-5xl p-5 md:p-9">
         <SectionTabs />
         {children}

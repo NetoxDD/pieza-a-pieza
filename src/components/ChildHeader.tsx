@@ -1,7 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Check, ChevronDown, Plus } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { Check, ChevronDown, Menu, Plus } from "lucide-react";
+import { BASE } from "@/lib/base";
+import { toggleSidebar, useSidebarMin } from "@/lib/sidebar";
+import RegisterMenu from "@/components/RegisterMenu";
+import AlertsMenu from "@/components/AlertsMenu";
+import HelpMenu from "@/components/HelpMenu";
 import { useChild } from "@/components/ChildGate";
 import EmergencyButton from "@/components/EmergencyButton";
 import UserMenu from "@/components/UserMenu";
@@ -16,12 +23,29 @@ export default function ChildHeader() {
   const btnRef = useRef<HTMLButtonElement>(null);
   useDismiss(open, () => setOpen(false), wrapRef, btnRef);
   const color = childColor(child.id, child.accent);
+  const min = useSidebarMin();
 
   return (
     <header
-      className="flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 md:px-9"
+      className="sticky top-0 z-40 flex h-[var(--header-h)] items-center gap-2 border-b border-[var(--border)] bg-[var(--surface)] px-3 md:gap-3 md:px-5"
       style={{ borderTop: `4px solid ${color.bar}` }}
     >
+      <button
+        type="button"
+        onClick={toggleSidebar}
+        aria-label={min ? "Mostrar el menú" : "Ocultar el menú"}
+        aria-expanded={!min}
+        className="hidden min-h-11 min-w-11 place-items-center rounded-xl hover:bg-[var(--sage)] md:grid"
+      >
+        <Menu size={22} aria-hidden />
+      </button>
+      <Link href="/" aria-label="Pieza a pieza, ir al inicio" className="hidden shrink-0 items-center gap-2 md:flex">
+        <Image src={`${BASE}/logo.png`} alt="" width={36} height={36} />
+        <span className="hidden text-lg font-bold leading-none tracking-tight lg:inline">
+          Pieza <span className="text-[var(--primary)]">a pieza</span>
+        </span>
+      </Link>
+
       <div ref={wrapRef} className="relative min-w-0">
         <button
           ref={btnRef}
@@ -97,7 +121,14 @@ export default function ChildHeader() {
         )}
       </div>
 
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex-1" />
+
+      <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+        <RegisterMenu />
+        <AlertsMenu />
+        <div className="hidden md:block">
+          <HelpMenu />
+        </div>
         <EmergencyButton />
         <UserMenu />
       </div>
