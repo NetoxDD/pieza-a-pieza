@@ -30,7 +30,7 @@ export default function EpisodeForm({
   const [what, setWhat] = useState(initial?.behavior ?? "");
   const [after, setAfter] = useState(initial?.consequence ?? "");
   const [intensity, setIntensity] = useState<number>(initial?.intensity ?? 2);
-  const [duration, setDuration] = useState(initial?.duration_minn != null ? String(initial.duration_minn) : "");
+  const [duration, setDuration] = useState(initial?.duration_min != null ? String(initial.duration_min) : "");
   const [helped, setHelped] = useState<string[]>(initial?.helped ?? []);
   const [other, setOther] = useState("");
   const [busy, setBusy] = useState(false);
@@ -62,7 +62,7 @@ export default function EpisodeForm({
       behavior: what.trim(),
       consequence: after.trim() || null,
       intensity,
-      duration_minn: duration === "" ? null : Math.max(0, Math.min(600, Number(duration))),
+      duration_min: duration === "" ? null : Math.max(0, Math.min(600, Number(duration))),
       helped,
     };
     let err: { message?: string } | null = null;

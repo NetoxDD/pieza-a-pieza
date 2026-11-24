@@ -67,7 +67,7 @@ export default function EpisodeCard({
           </strong>
           <small className="block text-xs text-[var(--muted)]">
             {placeLabel(ep.place)} · Intensidad {intensityLabel(ep.intensity).toLowerCase()}
-            {ep.duration_minn !== null && ` · ${durationText(ep.duration_minn)}`}
+            {ep.duration_min !== null && ` · ${durationText(ep.duration_min)}`}
           </small>
         </div>
         {voided && (
